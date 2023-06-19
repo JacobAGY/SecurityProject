@@ -1,6 +1,7 @@
 package com.szu.cn.Security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Equipment {
@@ -36,6 +37,30 @@ public class Equipment {
     //装备的工序序列
     private ArrayList<String> processSeq;
 
+    //装备当前工序
+    private String processCur;
+
+    //装备的状态序列
+    private ArrayList<String> statusSeq;
+
+    //装备的占用序列
+    private ArrayList<String> usedSeq;
+
+    //装备的故障时刻
+    private int errorTime;
+
+    //装备的真实故障却未被检出的标志
+    private int errorBut;
+
+    public Equipment(String name, int num, String[] processSeq) {
+        this.name = name;
+        this.num = 1;
+        this.processSeq = new ArrayList<>(Arrays.asList(processSeq));
+        this.processCur = processSeq[0];
+    }
+
+    public Equipment() {
+    }
 
     //装备每个工序所需的资源以及该资源的优先级
     private HashMap<String,ArrayList<HashMap<String,Integer>>> processToResource;
@@ -173,5 +198,45 @@ public class Equipment {
 
     public void setFlag(int flag) {
         this.flag = flag;
+    }
+
+    public String getProcessCur() {
+        return processCur;
+    }
+
+    public void setProcessCur(String processCur) {
+        this.processCur = processCur;
+    }
+
+    public ArrayList<String> getStatusSeq() {
+        return statusSeq;
+    }
+
+    public void setStatusSeq(ArrayList<String> statusSeq) {
+        this.statusSeq = statusSeq;
+    }
+
+    public ArrayList<String> getUsedSeq() {
+        return usedSeq;
+    }
+
+    public void setUsedSeq(ArrayList<String> usedSeq) {
+        this.usedSeq = usedSeq;
+    }
+
+    public int getErrorTime() {
+        return errorTime;
+    }
+
+    public void setErrorTime(int errorTime) {
+        this.errorTime = errorTime;
+    }
+
+    public int getErrorBut() {
+        return errorBut;
+    }
+
+    public void setErrorBut(int errorBut) {
+        this.errorBut = errorBut;
     }
 }
