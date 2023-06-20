@@ -1,9 +1,6 @@
 package com.szu.cn.Security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 public class Equipment {
     //装备名称
@@ -67,6 +64,14 @@ public class Equipment {
         this.processAndResource=processAndResource;
         this.processCur=processSeq.entrySet().iterator().next().getKey();
         this.status=Equipmentenum.WAIT;
+    }
+
+    public void setProcessSeqTime(int totalTime) {
+        for (Map.Entry<String,Integer> entry:this.processSeq.entrySet() ){
+            if (entry.getKey().equals(this.processCur)){
+                entry.setValue(entry.getValue()+totalTime);
+            }
+        }
     }
 
     public enum Equipmentenum {

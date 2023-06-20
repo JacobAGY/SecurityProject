@@ -37,6 +37,7 @@ public class ShortTimePlan {
                         //分配资源，更新资源列表状态
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
+                        ep.setProcessSeqTime(totalTime);
                         System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
@@ -44,7 +45,7 @@ public class ShortTimePlan {
                         ep.setStatus(Equipment.Equipmentenum.WAIT);
                         System.out.println("调度"+ep.getName()+"工序结束"+ep.getProcessCur()+"结束时间"+totalTime);
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
-                        releaseResources(ep,totalTime);
+                        releaseResources(ep);
                         toRemove.add(ep);
                         //若装备完成所有工序，则从待处理列表中移除
                         if (ep.getProcessCur() == null){
@@ -138,7 +139,7 @@ public class ShortTimePlan {
         return null;
     }
 
-    private void releaseResources(Equipment equipment,int curTime) {
+    private void releaseResources(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
         //为工序分配资源，资源数量减少
@@ -152,7 +153,7 @@ public class ShortTimePlan {
         for (Map.Entry<String,Integer>entry:equipment.getProcessSeq().entrySet()){
             if (last.equals(equipment.getProcessCur())){
                 equipment.setProcessCur(entry.getKey());
-                entry.setValue(entry.getValue()+curTime);
+//                entry.setValue(entry.getValue()+curTime);
                 return;
             }
             last=entry.getKey();
@@ -165,8 +166,8 @@ public class ShortTimePlan {
     public static void main(String[] args) {
 
         //初始化资源
-        Resource resource1=new Resource("R1",4);
-        Resource resource2=new Resource("R2",4);
+        Resource resource1=new Resource("R1",1);
+        Resource resource2=new Resource("R2",2);
         Resource resource3=new Resource("R3",4);
         Resource resource4=new Resource("R4",4);
         Resource resource5=new Resource("R5",4);
