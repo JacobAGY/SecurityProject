@@ -3,6 +3,17 @@ package com.szu.cn.Security;
 import java.util.*;
 
 public class ShortTimePlan {
+
+    public class Result {
+        private List<String> list;
+        private int value;
+
+        public Result(List<String> list, int value) {
+            this.list = list;
+            this.value = value;
+        }
+    }
+
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
@@ -11,7 +22,7 @@ public class ShortTimePlan {
         this.resourceList = resourceList;
     }
 
-    public void schedule() {
+    public Result schedule() {
         int totalTime = 0;
         // Group the equipments by their current process
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
@@ -25,7 +36,7 @@ public class ShortTimePlan {
             }
             System.out.println("");
         }
-
+        List<String> equipmentOrder=new ArrayList<>();
         while (!equipmentList.isEmpty()) {
 
             for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
@@ -38,6 +49,7 @@ public class ShortTimePlan {
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
+                        equipmentOrder.add(ep.getName()+"-"+ep.getProcessCur());
                         System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
@@ -60,6 +72,8 @@ public class ShortTimePlan {
 
         totalTime--;
         System.out.println("Total time: " + totalTime);
+        Result result=new Result(equipmentOrder,totalTime);
+        return result;
     }
 
     private LinkedHashMap<String, List<Equipment>> groupEquipmentsByCurrentProcess() {
@@ -142,7 +156,7 @@ public class ShortTimePlan {
     private void releaseResources(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
-        //为工序分配资源，资源数量减少
+        //工序释放资源，资源数量增加
         for (Map.Entry<String,Integer> entry:pr.entrySet()){
             Resource resource=findResource(entry.getKey());
             resource.setNum(resource.getNum()+entry.getValue());
@@ -166,13 +180,13 @@ public class ShortTimePlan {
     public static void main(String[] args) {
 
         //初始化资源
-        Resource resource1=new Resource("R1",1);
-        Resource resource2=new Resource("R2",2);
-        Resource resource3=new Resource("R3",4);
-        Resource resource4=new Resource("R4",4);
-        Resource resource5=new Resource("R5",4);
-        Resource resource6=new Resource("R6",4);
-        Resource resource7=new Resource("R7",4);
+        Resource resource1=new Resource("R1",8);
+        Resource resource2=new Resource("R2",8);
+        Resource resource3=new Resource("R3",8);
+        Resource resource4=new Resource("R4",8);
+        Resource resource5=new Resource("R5",8);
+        Resource resource6=new Resource("R6",8);
+        Resource resource7=new Resource("R7",8);
         List<Resource> resourceList=new ArrayList<>();
         resourceList.add(resource1);
         resourceList.add(resource2);
