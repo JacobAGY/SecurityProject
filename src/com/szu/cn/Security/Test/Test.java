@@ -1,10 +1,11 @@
-package com.szu.cn.Security;
-import java.sql.SQLOutput;
+package com.szu.cn.Security.Test;
+
+import com.szu.cn.Security.*;
+
 import java.util.*;
 
-public class SecurityPlan {
-    public static void main(String[] args) {
-
+public class Test {
+    public static TestPojo testCase(){
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
@@ -33,7 +34,7 @@ public class SecurityPlan {
         processSeq.put("P6",8);
         processSeq.put("P7",15);
         processSeq.put("P8",6);
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
+        LinkedHashMap<String, HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
         processAndResource.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
         processAndResource.put("P2",new HashMap<String,Integer>(){{put("R2",1);}});
         processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
@@ -110,55 +111,29 @@ public class SecurityPlan {
         equipmentList.add(ep2);
         equipmentList.add(ep3);
         equipmentList.add(ep4);
+        TestPojo testPojo = new TestPojo();
+        testPojo.setEquiments(equipmentList);
+        testPojo.setResources(resourceList);
+        return testPojo;
+    }
+    public static void main(String[] args) {
+        TestPojo shortTime_testPojo = testCase();
+        TestPojo highResponse_testPojo = testCase();
 
-        List<Equipment> shortTime_list = new ArrayList<>();
-        List<Equipment> highResponse_list = new ArrayList<>();
-        LinkedHashMap<String,Integer> shortTime_processSeq1 = processSeq;
-        LinkedHashMap<String,Integer> shortTime_processSeq2 = processSeq2;
-        LinkedHashMap<String,Integer> shortTime_processSeq3 = processSeq3;
-        LinkedHashMap<String,Integer> shortTime_processSeq4 = processSeq4;
-        LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource1 = processAndResource;
-        LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource2 = processAndResource2;
-        LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource3 = processAndResource3;
-        LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource4 = processAndResource4;
-        Equipment shortTime_e1 = new Equipment("E1",1, shortTime_processSeq1,shortTime_processAndResource1);
-        Equipment shortTime_e2 = new Equipment("E2",1, shortTime_processSeq2,shortTime_processAndResource2);
-        Equipment shortTime_e3 = new Equipment("E3",1, shortTime_processSeq3,shortTime_processAndResource3);
-        Equipment shortTime_e4 = new Equipment("E4",1, shortTime_processSeq4,shortTime_processAndResource4);
-        shortTime_list.add(shortTime_e1);
-        shortTime_list.add(shortTime_e2);
-        shortTime_list.add(shortTime_e3);
-        shortTime_list.add(shortTime_e4);
-
-        LinkedHashMap<String,Integer> highResponse_processSeq1 = processSeq;
-        LinkedHashMap<String,Integer> highResponse_processSeq2 = processSeq2;
-        LinkedHashMap<String,Integer> highResponse_processSeq3 = processSeq3;
-        LinkedHashMap<String,Integer> highResponse_processSeq4 = processSeq4;
-        LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource1 = processAndResource;
-        LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource2 = processAndResource2;
-        LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource3 = processAndResource3;
-        LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource4 = processAndResource4;
-        Equipment highResponse_e1 = new Equipment("E1",1, highResponse_processSeq1,highResponse_processAndResource1);
-        Equipment highResponse_e2 = new Equipment("E2",1, highResponse_processSeq2,highResponse_processAndResource2);
-        Equipment highResponse_e3 = new Equipment("E3",1, highResponse_processSeq3,highResponse_processAndResource3);
-        Equipment highResponse_e4 = new Equipment("E4",1, highResponse_processSeq4,highResponse_processAndResource4);
-        highResponse_list.add(highResponse_e1);
-        highResponse_list.add(highResponse_e2);
-        highResponse_list.add(highResponse_e3);
-        highResponse_list.add(highResponse_e4);
-
-        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_list,resourceList);
+        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule();
-        System.out.println(result1.getList());
-        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_list,resourceList);
-//        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
+//        System.out.println(result1.getList());
+
+        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
         Result result2 = highResponse_scheduler.schedule();
 //        System.out.println(result2.getList());
-//        if(result1.getTime() <= result2.getTime()){
-//            System.out.println("经过对比，短作业算法时间更短，执行顺序为：" + result1.getList());
-//        }else{
-//            System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
-//        }
+        System.out.println("==================================");
+        System.out.println("短作业算法时间为：" + result1.getTime());
+        System.out.println("高响应比算法时间为：" + result2.getTime());
+        if(result1.getTime() <= result2.getTime()){
+            System.out.println("经过对比，短作业算法时间更短，执行顺序为：" + result1.getList());
+        }else{
+            System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
+        }
     }
-
 }

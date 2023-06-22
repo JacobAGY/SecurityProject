@@ -3,187 +3,281 @@ package com.szu.cn.Security;
 import java.util.*;
 
 public class ShortTimePlan {
+
     private List<Equipment> equipmentList;
-    private List<Process> processList;
     private List<Resource> resourceList;
 
-    public ShortTimePlan(List<Equipment> equipmentList, List<Process> processList, List<Resource> resourceList) {
+    public ShortTimePlan(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
-        this.processList = processList;
         this.resourceList = resourceList;
     }
 
-    public void schedule() {
+    public Result schedule() {
         int totalTime = 0;
+        // Group the equipments by their current process,为所有工序进行排序
+        LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-        while (!equipmentList.isEmpty()) {
-            // Group the equipments by their current process
-            Map<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
-
-            // Select a group of equipments to process based on the shortest process time
-            List<Equipment> selectedEquipments = selectEquipmentsWithShortestProcessTime(equipmentGroups);
-
-            // Process the selected equipments
-            for (Equipment equipment : selectedEquipments) {
-                Process currentProcess = getCurrentProcess(equipment);
-
-                // Check if the required resources are available
-
-                if (checkResourceAvailability(currentProcess.getResourceSeq())) {
-                    // Allocate the resources
-                    allocateResources(currentProcess.getResourceSeq());
-
-                    // Process the equipment
-                    processEquipment(equipment, currentProcess);
-
-                    // Release the allocated resources
-                    releaseResources(currentProcess.getResourceSeq());
-
-                    // Update the total time
-                    totalTime += currentProcess.getTime();
-                }
+        System.out.println("--------------调度顺序----------------");
+        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
+        for(int i=0;i<templist.size();i++){
+            List<Equipment> temp=templist.get(i);
+            for (int j = 0; j < temp.size(); j++) {
+                System.out.print(temp.get(j).getName()+" ");
             }
+            System.out.println("");
+        }
+        List<String> equipmentOrder=new ArrayList<>();
+        while (!equipmentList.isEmpty()) {
+
+            for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
+                List<Equipment> toRemove = new ArrayList<>();
+                for (Equipment ep:entry.getValue()){
+                    //若当前工序的装备资源充足则执行
+                    if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                            && checkResourceAvailability(ep)){
+                        //分配资源，更新资源列表状态
+                        allocateResources(ep);
+                        ep.setStatus(Equipment.Equipmentenum.RUN);
+                        ep.setProcessSeqTime(totalTime);
+                        equipmentOrder.add(ep.getName()+"-"+ep.getProcessCur());
+                        System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
+                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
+                            && ep.getProcessSeq().get(entry.getKey())==totalTime){
+                        // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
+                        //工序完成
+                        ep.setStatus(Equipment.Equipmentenum.WAIT);
+                        System.out.println("调度"+ep.getName()+"工序结束"+ep.getProcessCur()+"结束时间"+totalTime);
+                        //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
+                        releaseResources(ep);
+                        toRemove.add(ep);
+                        //若装备完成所有工序，则从待处理列表中移除
+                        if (ep.getProcessCur() == null){
+                            equipmentList.remove(ep);
+                        }
+                    }
+                }
+                entry.getValue().removeAll(toRemove);
+            }
+            totalTime++;
         }
 
+        totalTime--;
         System.out.println("Total time: " + totalTime);
+        Result result=new Result(equipmentOrder,totalTime);
+        return result;
     }
 
-    private Map<String, List<Equipment>> groupEquipmentsByCurrentProcess() {
-        Map<String, List<Equipment>> equipmentGroups = new HashMap<>();
+    private LinkedHashMap<String, List<Equipment>> groupEquipmentsByCurrentProcess() {
+        LinkedHashMap<String, List<Equipment>> equipmentGroups = new LinkedHashMap<>();
 
+        int pSize=0;
+        List<String> longestProcess=new ArrayList<>();
         for (Equipment equipment : equipmentList) {
-            String currentProcess = equipment.getProcessCur();
-            equipmentGroups.putIfAbsent(currentProcess, new ArrayList<>());
-            equipmentGroups.get(currentProcess).add(equipment);
+//            String currentProcess = equipment.getProcessCur();
+//            equipmentGroups.putIfAbsent(currentProcess, new ArrayList<>());
+//            equipmentGroups.get(currentProcess).add(equipment);
+            if (equipment.getProcessSeq().size()>pSize){
+                pSize=equipment.getProcessSeq().size();
+                Set<String> temp=equipment.getProcessSeq().keySet();
+                longestProcess=new ArrayList<>(temp);
+            }
+        }
+        for (String pName:longestProcess){
+            List<Equipment> templist=new ArrayList<>();
+            for (Equipment equipment : equipmentList){
+                if (equipment.getProcessSeq().containsKey(pName)){
+                    templist.add(equipment);
+                }
+            }
+            equipmentGroups.put(pName,templist);
         }
 
+        // 遍历equipmentGroups中的每个工序
+        for (Map.Entry<String, List<Equipment>> entry : equipmentGroups.entrySet()) {
+            // 使用自定义的比较器对每个工序的装备列表进行排序
+            Collections.sort(entry.getValue(), new Comparator<Equipment>() {
+                @Override
+                public int compare(Equipment e1, Equipment e2) {
+                    // 获取工序时间
+                    int time1 = e1.getProcessSeq().get(entry.getKey());
+                    int time2 = e2.getProcessSeq().get(entry.getKey());
+
+                    // 按照工序时间升序排序
+                    return Integer.compare(time1, time2);
+                }
+            });
+        }
         return equipmentGroups;
     }
 
-    private List<Equipment> selectEquipmentsWithShortestProcessTime(Map<String, List<Equipment>> equipmentGroups) {
-        List<Equipment> selectedEquipments = new ArrayList<>();
-        int shortestTime = Integer.MAX_VALUE;
 
-        for (List<Equipment> group : equipmentGroups.values()) {
-            int groupTime = getCurrentProcess(group.get(0)).getTime();
-            if (groupTime < shortestTime) {
-                shortestTime = groupTime;
-                selectedEquipments = group;
-            }
-        }
 
-        return selectedEquipments;
-    }
-
-    private Process getCurrentProcess(Equipment equipment) {
-        String currentProcessName = equipment.getProcessCur();
-
-        for (Process process : processList) {
-            if (process.getName().equals(currentProcessName)) {
-                return process;
-            }
-        }
-
-        return null;
-    }
-
-    private boolean checkResourceAvailability(Map<String, Integer> resourceSeq) {
-        for (Map.Entry<String, Integer> entry : resourceSeq.entrySet()) {
-            String resourceName = entry.getKey();
-            int requiredNum = entry.getValue();
-
-            for (Resource resource : resourceList) {
-                if (resource.getName().equals(resourceName) && resource.getNum() < requiredNum) {
+    private boolean checkResourceAvailability(Equipment equipment) {
+        String curProcess=equipment.getProcessCur();
+        Map<String,Integer> resources=equipment.getProcessAndResource().get(curProcess);
+        for (Map.Entry<String,Integer> entry: resources.entrySet()){
+            for(Resource resource:resourceList){
+                if (resource.getName().equals(entry.getKey())&&resource.getNum()<entry.getValue()){
                     return false;
                 }
             }
         }
-
         return true;
     }
 
-    private void allocateResources(Map<String, Integer> resourceSeq) {
-        for (Map.Entry<String, Integer> entry : resourceSeq.entrySet()) {
-            String resourceName = entry.getKey();
-            int requiredNum = entry.getValue();
+    private void allocateResources(Equipment equipment) {
+        String curProcess=equipment.getProcessCur();
+        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
+        //为工序分配资源，资源数量减少
+        for (Map.Entry<String,Integer> entry:pr.entrySet()){
+            Resource resource=findResource(entry.getKey());
+            resource.setNum(resource.getNum()-entry.getValue());
+        }
+    }
 
-            for (Resource resource : resourceList) {
-                if (resource.getName().equals(resourceName)) {
-                    resource.setNum(resource.getNum() - requiredNum);
-                    break;
-                }
+    public Resource findResource(String name){
+        for (Resource resource : resourceList) {
+            if (resource.getName().equals(name)){
+                return resource;
             }
         }
+        return null;
     }
 
-    private void releaseResources(Map<String, Integer> resourceSeq) {
-        for (Map.Entry<String, Integer> entry : resourceSeq.entrySet()) {
-            String resourceName = entry.getKey();
-            int requiredNum = entry.getValue();
+    private void releaseResources(Equipment equipment) {
+        String curProcess=equipment.getProcessCur();
+        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
+        //工序释放资源，资源数量增加
+        for (Map.Entry<String,Integer> entry:pr.entrySet()){
+            Resource resource=findResource(entry.getKey());
+            resource.setNum(resource.getNum()+entry.getValue());
+        }
 
-            for (Resource resource : resourceList) {
-                if (resource.getName().equals(resourceName)) {
-                    resource.setNum(resource.getNum() + requiredNum);
-                    break;
-                }
+        //设置装备的当前工序为下一道工序
+        String last="";
+        for (Map.Entry<String,Integer>entry:equipment.getProcessSeq().entrySet()){
+            if (last.equals(equipment.getProcessCur())){
+                equipment.setProcessCur(entry.getKey());
+//                entry.setValue(entry.getValue()+curTime);
+                return;
             }
+            last=entry.getKey();
         }
+        equipment.setProcessCur(null);
     }
 
-    private void processEquipment(Equipment equipment, Process currentProcess) {
-        // Simulate the processing of the equipment
-        System.out.println("Processing equipment: " + equipment.getName() + ", Process: " + currentProcess.getName());
 
-        // Move to the next process
-        ArrayList<String> processSeq = equipment.getProcessSeq();
-        String currentProcessName = equipment.getProcessCur();
-        int currentProcessIndex = Arrays.asList(processSeq).indexOf(currentProcessName);
-        int nextProcessIndex = currentProcessIndex + 1;
-
-        if (nextProcessIndex < processSeq.size()) {
-            equipment.setProcessCur(processSeq.get(nextProcessIndex));
-        } else {
-            // Remove the equipment from the list if it has completed all processes
-            equipmentList.remove(equipment);
-        }
-    }
 
     public static void main(String[] args) {
-        // Create resources
-        Resource resource1 = new Resource("Resource1", 3);
-        Resource resource2 = new Resource("Resource2", 3);
-        Resource resource3 = new Resource("Resource3", 3);
 
-        // Create processes
-        Process process1 = new Process("Process1", 5, new HashMap<>());
-        process1.getResourceSeq().put("Resource1", 1);
-        Process process2 = new Process("Process2", 8, new HashMap<>());
-        process2.getResourceSeq().put("Resource2", 1);
-        Process process3 = new Process("Process3", 4, new HashMap<>());
-        process3.getResourceSeq().put("Resource2", 1);
-        process3.getResourceSeq().put("Resource3", 1);
-
-
-        // Create equipments
-        Equipment equipment1 = new Equipment("Equipment1", 3, new String[]{"Process1", "Process2","Process3"});
-        Equipment equipment2 = new Equipment("Equipment2", 2, new String[]{"Process1", "Process2"});
-        Equipment equipment3 = new Equipment("Equipment3", 1, new String[]{"Process1", "Process2"});
-
-        // Create equipment scheduler
-        List<Equipment> equipmentList = new ArrayList<>();
-        equipmentList.add(equipment1);
-        equipmentList.add(equipment2);
-        equipmentList.add(equipment3);
-
-        List<Process> processList = new ArrayList<>();
-        processList.add(process1);
-        processList.add(process2);
-
-        List<Resource> resourceList = new ArrayList<>();
+        //初始化资源
+        Resource resource1=new Resource("R1",4);
+        Resource resource2=new Resource("R2",4);
+        Resource resource3=new Resource("R3",5);
+        Resource resource4=new Resource("R4",5);
+        Resource resource5=new Resource("R5",3);
+        Resource resource6=new Resource("R6",2);
+        Resource resource7=new Resource("R7",3);
+        List<Resource> resourceList=new ArrayList<>();
         resourceList.add(resource1);
         resourceList.add(resource2);
+        resourceList.add(resource3);
+        resourceList.add(resource4);
+        resourceList.add(resource5);
+        resourceList.add(resource6);
+        resourceList.add(resource7);
 
-        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
+        //初始化装备
+        List<Equipment> equipmentList=new ArrayList<>();
+        LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
+        processSeq.put("P1",5);
+        processSeq.put("P2",4);
+        processSeq.put("P3",6);
+        processSeq.put("P4",10);
+        processSeq.put("P5",15);
+        processSeq.put("P6",8);
+        processSeq.put("P7",15);
+        processSeq.put("P8",6);
+        LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
+        processAndResource.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
+        processAndResource.put("P2",new HashMap<String,Integer>(){{put("R2",1);}});
+        processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
+        processAndResource.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
+        processAndResource.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+        processAndResource.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
+        processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+        processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
+
+        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
+
+        LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
+        processSeq2.put("P1",4);
+        processSeq2.put("P2",5);
+        processSeq2.put("P3",15);
+        processSeq2.put("P4",12);
+        processSeq2.put("P5",16);
+        processSeq2.put("P6",20);
+
+        LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
+        processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
+        processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
+        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
+        processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
+        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+        processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+
+        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+
+        LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
+        processSeq3.put("P1",4);
+        processSeq3.put("P2",8);
+        processSeq3.put("P3",12);
+        processSeq3.put("P4",5);
+        processSeq3.put("P5",10);
+        processSeq3.put("P6",12);
+        processSeq3.put("P7",6);
+        processSeq3.put("P8",8);
+        processSeq3.put("P9",10);
+        LinkedHashMap<String,HashMap<String,Integer>> processAndResource3=new LinkedHashMap<>();
+        processAndResource3.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
+        processAndResource3.put("P2",new HashMap<String,Integer>(){{put("R1",1);put("R4",1);}});
+        processAndResource3.put("P3",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
+        processAndResource3.put("P4",new HashMap<String,Integer>(){{put("R3",1);}});
+        processAndResource3.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+        processAndResource3.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
+        processAndResource3.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+        processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
+        processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
+
+        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+
+        LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
+        processSeq4.put("P1",5);
+        processSeq4.put("P2",12);
+        processSeq4.put("P3",6);
+        processSeq4.put("P4",8);
+        processSeq4.put("P5",12);
+        processSeq4.put("P6",10);
+        processSeq4.put("P7",15);
+
+        LinkedHashMap<String,HashMap<String,Integer>> processAndResource4=new LinkedHashMap<>();
+        processAndResource4.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
+        processAndResource4.put("P2",new HashMap<String,Integer>(){{put("R2",1);put("R4",1);}});
+        processAndResource4.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
+        processAndResource4.put("P4",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
+        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
+        processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
+        processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+
+        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
+
+        equipmentList.add(ep1);
+        equipmentList.add(ep2);
+        equipmentList.add(ep3);
+        equipmentList.add(ep4);
+
+        ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
+//        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
         scheduler.schedule();
     }
 

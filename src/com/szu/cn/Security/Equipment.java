@@ -1,8 +1,6 @@
 package com.szu.cn.Security;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 public class Equipment {
     //装备名称
@@ -12,9 +10,9 @@ public class Equipment {
     private int num;
 
     //装备状态集合
-    private enum status{
-        wait,running,finish,repair
-    };
+    private Equipmentenum status;
+
+
 
     //装备的结构组成
     private ArrayList<String> composition;
@@ -34,8 +32,13 @@ public class Equipment {
     //装备LRU的故障检测率
     private double faultDetectionRate;
 
-    //装备的工序序列
-    private ArrayList<String> processSeq;
+    //装备的工序序列<工序名,所需时间>
+    private LinkedHashMap<String,Integer> processSeq;
+
+    //装备,工序名，<资源名，需要资源数量>
+    private LinkedHashMap<String,HashMap<String,Integer>> processAndResource;
+    //装备,工序名，<资源名，优先级>
+    private LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority;
 
     //装备当前工序
     private String processCur;
@@ -52,25 +55,43 @@ public class Equipment {
     //装备的真实故障却未被检出的标志
     private int errorBut;
 
-    public Equipment(String name, int num, String[] processSeq) {
-        this.name = name;
-        this.num = 1;
-        this.processSeq = new ArrayList<>(Arrays.asList(processSeq));
-        this.processCur = processSeq[0];
-    }
+    //processSeq_Origin是原始的processSeq
+    private LinkedHashMap<String, Integer> processSeq_Origin;
 
     public Equipment() {
     }
 
-    //装备每个工序所需的资源以及该资源的优先级
-    private HashMap<String,ArrayList<HashMap<String,Integer>>> processToResource;
-
-    public HashMap<String, ArrayList<HashMap<String, Integer>>> getProcessToResource() {
-        return processToResource;
+    public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
+        this.name = e1;
+        this.num = i;
+        this.processSeq = processSeq;
+        this.processAndResource = processAndResource;
+        this.processCur = processSeq.entrySet().iterator().next().getKey();
+        this.status = Equipmentenum.WAIT;
+        this.processSeq_Origin = processSeq;
     }
 
-    public void setProcessToResource(HashMap<String, ArrayList<HashMap<String, Integer>>> processToResource) {
-        this.processToResource = processToResource;
+    public LinkedHashMap<String, Integer> getProcessSeq_Origin() {
+        return processSeq_Origin;
+    }
+
+    public void setProcessSeq_Origin(LinkedHashMap<String, Integer> processSeq_Origin) {
+        this.processSeq_Origin = processSeq_Origin;
+    }
+
+    public void setProcessSeqTime(int totalTime) {
+        for (Map.Entry<String,Integer> entry:this.processSeq.entrySet() ){
+            if (entry.getKey().equals(this.processCur)){
+                entry.setValue(entry.getValue()+totalTime);
+            }
+        }
+    }
+
+    public enum Equipmentenum {
+        WAIT,
+        RUN,
+        FINISH,
+        FIX
     }
 
     //装备的当前工序
@@ -87,6 +108,27 @@ public class Equipment {
 
     //装备的真实状态却未被检测出的标志
     private int flag;
+
+    //该装备当前工序完成时间（hgx）
+    private int finishTime;
+    //装备的当前状态（hgx）
+    private String statusCur;
+
+    public int getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(int finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public String getStatusCur() {
+        return statusCur;
+    }
+
+    public void setStatusCur(String statusCur) {
+        this.statusCur = statusCur;
+    }
 
     public String getName() {
         return name;
@@ -152,12 +194,20 @@ public class Equipment {
         this.faultDetectionRate = faultDetectionRate;
     }
 
-    public ArrayList<String> getProcessSeq() {
+    public LinkedHashMap<String, Integer> getProcessSeq() {
         return processSeq;
     }
 
-    public void setProcessSeq(ArrayList<String> processSeq) {
+    public void setProcessSeq(LinkedHashMap<String, Integer> processSeq) {
         this.processSeq = processSeq;
+    }
+
+    public LinkedHashMap<String, HashMap<String, Integer>> getProcessAndResource() {
+        return processAndResource;
+    }
+
+    public void setProcessAndResource(LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
+        this.processAndResource = processAndResource;
     }
 
     public String getProcessNow() {
@@ -190,6 +240,14 @@ public class Equipment {
 
     public void setFailMoment(int failMoment) {
         this.failMoment = failMoment;
+    }
+
+    public Equipmentenum getStatus() {
+        return status;
+    }
+
+    public void setStatus(Equipmentenum status) {
+        this.status = status;
     }
 
     public int getFlag() {
