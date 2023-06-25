@@ -41,7 +41,7 @@ public class HighResponseRatioPlan {
         }
     }
 
-    //规定时间内能完成的最多装备数量
+    //所有装备完成时间
     public Result schedule() {
         int totalTime = 0;
         List<String> equipmentOrder=new ArrayList<>();
@@ -109,6 +109,76 @@ public class HighResponseRatioPlan {
         return result;
     }
 
+    //规定时间内能完成的最多装备数量
+    public Result schedule(int maxTime) {
+        int totalTime = 0;
+        List<String> equipmentOrder=new ArrayList<>();
+
+        int finish_flag = 0;
+        //记录完成的装备数量
+        int finishedEqi = 0;
+        while (totalTime <= maxTime && finish_flag < currentRatio.length) {
+            updateRatio();
+            //返回当前响应比由高到低的顺序，响应比相同返回剩余时间短的,返回结果为一个数组（每个装备对应的下标）
+            int[] arr = groupEquipmentByHighResponse(currentRatio, timeLeft);
+            //根据剩余时间高响应比返回当前装备排序
+            for (int i = 0; i < arr.length; i++) {
+                int index = arr[i];//index是下标
+                Equipment e = equipmentList.get(index);
+                if (e.getStatus().equals(Equipment.Equipmentenum.WAIT)) {
+                    if (checkResourceAvailability(e)) {
+                        /*
+                            如果当前响应比最高的资源充足
+                            1.分配资源，修改资源的数量
+                            2.将装备状态修改为RUN
+                            3.修改SeqTime，作为工序完成标志
+                            4.将该下标等待时间修改为0，以及修改该下标响应比为1
+                         */
+                        allocateResources(e);
+                        e.setStatus(Equipment.Equipmentenum.RUN);
+                        e.setProcessSeqTime(totalTime);
+                        currentWaitTime[index] = 0;
+                        currentRatio[index] = 1;
+                        equipmentOrder.add(e.getName() + "-" + e.getProcessCur());
+                        System.out.println("调度" + e.getName() + "工序开始" + e.getProcessCur() + "开始时间" + totalTime);
+                    } else {
+                        /*
+                            如果当前资源不足
+                            1.等待时间+1
+                         */
+                        currentWaitTime[index] += 1;
+                    }
+                } else if (e.getStatus().equals(Equipment.Equipmentenum.RUN) && e.getProcessSeq().get(e.getProcessCur()) == totalTime) {
+                    /*
+                        当前工序已完成
+                        1.修改状态为等待状态
+                        2.更新剩余时间,减去当前工序所需时间
+                        3.释放资源有一个特殊要求（若同一装备两个工序可以紧连着做且需要同一资源，不可重新调配该资源的其他机器做下一工序）
+                            1）预评估下一个工序是否需要用到该资源，不需要则释放资源
+                            2）需要则进行判断下一工序是否会在下一个totalTime执行，不会则释放资源
+                            3）会则需要锁定资源，即将该下一工序所需资源--
+                     */
+                    e.setStatus(Equipment.Equipmentenum.WAIT);
+                    timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
+                    timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
+                    releaseResources(e);
+                    //若该装备完成所有工序
+                    if (e.getProcessCur() == null){
+                        //更新状态为Finish
+                        e.setStatus(Equipment.Equipmentenum.FINISH);
+                        finish_flag += 1;
+                        finishedEqi++;
+                    }
+                }
+            }
+
+            totalTime++;
+        }
+        totalTime--;
+        System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
+        Result result = new Result(equipmentOrder,totalTime);
+        return result;
+    }
     /**
      * 根据剩余时间高响应比返回集合
      * 判断响应比，响应比大的在前面，如果响应比相同，以剩余时间少的为先

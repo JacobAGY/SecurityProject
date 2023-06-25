@@ -11,7 +11,7 @@ public class ShortTimePlan {
         this.equipmentList = equipmentList;
         this.resourceList = resourceList;
     }
-
+    //所有装备完成时间
     public Result schedule() {
         int totalTime = 0;
         // Group the equipments by their current process,为所有工序进行排序
@@ -52,6 +52,8 @@ public class ShortTimePlan {
                         toRemove.add(ep);
                         //若装备完成所有工序，则从待处理列表中移除
                         if (ep.getProcessCur() == null){
+                            //更新状态为Finish
+                            ep.setStatus(Equipment.Equipmentenum.FINISH);
                             equipmentList.remove(ep);
                         }
                     }
@@ -66,6 +68,67 @@ public class ShortTimePlan {
         Result result=new Result(equipmentOrder,totalTime);
         return result;
     }
+    //规定时间内完成装备数量
+    public Result schedule(int maxTime) {
+        int totalTime = 0;
+        //记录完成的装备数量
+        int finishedEqi = 0;
+        // Group the equipments by their current process,为所有工序进行排序
+        LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
+
+        System.out.println("--------------调度顺序----------------");
+        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
+        for(int i=0;i<templist.size();i++){
+            List<Equipment> temp=templist.get(i);
+            for (int j = 0; j < temp.size(); j++) {
+                System.out.print(temp.get(j).getName()+" ");
+            }
+            System.out.println("");
+        }
+        List<String> equipmentOrder=new ArrayList<>();
+        while (totalTime <= maxTime && !equipmentList.isEmpty()) {
+
+            for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
+                List<Equipment> toRemove = new ArrayList<>();
+                for (Equipment ep:entry.getValue()){
+                    //若当前工序的装备资源充足则执行
+                    if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                            && checkResourceAvailability(ep)){
+                        //分配资源，更新资源列表状态
+                        allocateResources(ep);
+                        ep.setStatus(Equipment.Equipmentenum.RUN);
+                        ep.setProcessSeqTime(totalTime);
+                        equipmentOrder.add(ep.getName()+"-"+ep.getProcessCur());
+                        System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
+                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
+                            && ep.getProcessSeq().get(entry.getKey())==totalTime){
+                        // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
+                        //工序完成
+                        ep.setStatus(Equipment.Equipmentenum.WAIT);
+                        System.out.println("调度"+ep.getName()+"工序结束"+ep.getProcessCur()+"结束时间"+totalTime);
+                        //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
+                        releaseResources(ep);
+                        toRemove.add(ep);
+                        //若装备完成所有工序，则从待处理列表中移除
+                        if (ep.getProcessCur() == null){
+                            //更新状态为Finish
+                            ep.setStatus(Equipment.Equipmentenum.FINISH);
+                            equipmentList.remove(ep);
+                            finishedEqi++;
+                        }
+                    }
+                }
+                entry.getValue().removeAll(toRemove);
+            }
+            totalTime++;
+        }
+
+        totalTime--;
+        System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime);
+        return result;
+    }
+
 
     private LinkedHashMap<String, List<Equipment>> groupEquipmentsByCurrentProcess() {
         LinkedHashMap<String, List<Equipment>> equipmentGroups = new LinkedHashMap<>();
