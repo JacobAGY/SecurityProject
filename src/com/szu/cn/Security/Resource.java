@@ -1,8 +1,9 @@
 package com.szu.cn.Security;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Resource {
+public class Resource implements Serializable {
     //资源名
     private String name;
 
