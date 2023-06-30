@@ -1,8 +1,9 @@
 package com.szu.cn.Security;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Equipment {
+public class Equipment  implements Serializable {
     //装备名称
     private String name;
 

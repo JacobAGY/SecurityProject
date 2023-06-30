@@ -1,5 +1,6 @@
 package com.szu.cn.Security;
 
+import java.io.IOException;
 import java.util.*;
 
 public class ShortTimePlan {
@@ -11,8 +12,41 @@ public class ShortTimePlan {
         this.equipmentList = equipmentList;
         this.resourceList = resourceList;
     }
+
+    public List<Equipment> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
+    }
+
+    public List<Resource> getResourceList() {
+        return resourceList;
+    }
+
+    public void setResourceList(List<Resource> resourceList) {
+        this.resourceList = resourceList;
+    }
+
+    public void setResourceListNum(int[] resourceList) {
+        for (int i = 0; i < resourceList.length; i++) {
+            this.resourceList.get(i).setNum(resourceList[i]);
+        }
+    }
+
     //所有装备完成时间
     public Result schedule() {
+        //对对象进行深拷贝
+        //通过clone方式，把list01拷贝给list02
+        List<Equipment> tempequipmentList = null;
+        try {
+            tempequipmentList = BeanUtils.deepCopy(this.equipmentList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         int totalTime = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
@@ -65,26 +99,39 @@ public class ShortTimePlan {
 
         totalTime--;
         System.out.println("Total time: " + totalTime);
+        this.equipmentList=tempequipmentList;
         Result result=new Result(equipmentOrder,totalTime);
         return result;
     }
     //规定时间内完成装备数量
-    public Result schedule(int maxTime) {
+    public Result schedule(int maxTime){
+        //对对象进行深拷贝
+        //通过clone方式，把list01拷贝给list02
+        List<Equipment> tempequipmentList = null;
+        try {
+            tempequipmentList = BeanUtils.deepCopy(this.equipmentList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
         int totalTime = 0;
         //记录完成的装备数量
         int finishedEqi = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-        System.out.println("--------------调度顺序----------------");
-        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-        for(int i=0;i<templist.size();i++){
-            List<Equipment> temp=templist.get(i);
-            for (int j = 0; j < temp.size(); j++) {
-                System.out.print(temp.get(j).getName()+" ");
-            }
-            System.out.println("");
-        }
+//        System.out.println("--------------调度顺序----------------");
+//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
+//        for(int i=0;i<templist.size();i++){
+//            List<Equipment> temp=templist.get(i);
+//            for (int j = 0; j < temp.size(); j++) {
+//                System.out.print(temp.get(j).getName()+" ");
+//            }
+//            System.out.println("");
+//        }
         List<String> equipmentOrder=new ArrayList<>();
         while (totalTime <= maxTime && !equipmentList.isEmpty()) {
 
@@ -125,7 +172,8 @@ public class ShortTimePlan {
 
         totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime);
+        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
+        this.equipmentList=tempequipmentList;
         return result;
     }
 
@@ -278,7 +326,7 @@ public class ShortTimePlan {
         processSeq2.put("P2",5);
         processSeq2.put("P3",15);
         processSeq2.put("P4",12);
-        processSeq2.put("P5",16);
+        processSeq2.put("P5",16);   
         processSeq2.put("P6",20);
 
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
@@ -341,7 +389,7 @@ public class ShortTimePlan {
 
         ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
 //        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
-        scheduler.schedule();
+        scheduler.schedule(100);
     }
 
 
