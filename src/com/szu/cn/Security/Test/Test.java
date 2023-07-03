@@ -124,9 +124,8 @@ public class Test {
         //测试用例
         TestPojo testPojo = testCase();
         List<Resource> resources = testPojo.getResources();
-        List<Equipment> equipmentments = testPojo.getEquiments();
+        List<Equipment> equipmentments = testPojo.getEquipmentTypeSeq();
         List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
-
         //展示资源数量
         for (Resource resource : resources) {
             System.out.println("资源" + resource.getName() + "的数量为" + resource.getNum());
@@ -290,7 +289,7 @@ public class Test {
 
     //更改装备操作序列
     public static TestPojo changeEquipmentProcessSeq(TestPojo testPojo,String name,int[] orders){
-        List<Equipment> equiments = testPojo.getEquiments();
+        List<Equipment> equiments = testPojo.getEquipmentTypeSeq();
         //找到装备
         for (Equipment equiment : equiments) {
             if (equiment.getName().equals(name)){
