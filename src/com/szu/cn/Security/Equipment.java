@@ -3,7 +3,7 @@ package com.szu.cn.Security;
 import java.io.Serializable;
 import java.util.*;
 
-public class Equipment  implements Serializable {
+public class Equipment implements Serializable {
     //装备名称
     private String name;
 
@@ -41,6 +41,14 @@ public class Equipment  implements Serializable {
     //装备,工序名，<资源名，优先级>
     private LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority;
 
+    public LinkedHashMap<String, HashMap<String, Integer>> getProcessAndResourcePriority() {
+        return processAndResourcePriority;
+    }
+
+    public void setProcessAndResourcePriority(LinkedHashMap<String, HashMap<String, Integer>> processAndResourcePriority) {
+        this.processAndResourcePriority = processAndResourcePriority;
+    }
+
     //装备当前工序
     private String processCur;
 
@@ -65,8 +73,7 @@ public class Equipment  implements Serializable {
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
-        this.processSeq=processSeq;
+        this.processSeq = processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;

@@ -1,7 +1,7 @@
 package com.szu.cn.Security.Test;
 
-import com.oracle.deploy.update.UpdateCheck;
 import com.szu.cn.Security.*;
+import com.szu.cn.Security.utils.Utils;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
@@ -28,7 +28,7 @@ public class Test {
 
 
         //初始化装备
-        List<Equipment> equipmentList = new ArrayList<>();
+        List<Equipment> equipmentTypeList = new ArrayList<>();
         LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
         processSeq.put("P1",5);
         processSeq.put("P2",4);
@@ -48,7 +48,7 @@ public class Test {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
+        Equipment ep1=new Equipment("A",1, processSeq,processAndResource);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -66,7 +66,7 @@ public class Test {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -89,7 +89,7 @@ public class Test {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -109,14 +109,14 @@ public class Test {
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
-        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
+        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4);
 
-        equipmentList.add(ep1);
-        equipmentList.add(ep2);
-        equipmentList.add(ep3);
-        equipmentList.add(ep4);
+        equipmentTypeList.add(ep1);
+        equipmentTypeList.add(ep2);
+        equipmentTypeList.add(ep3);
+        equipmentTypeList.add(ep4);
         TestPojo testPojo = new TestPojo();
-        testPojo.setEquiments(equipmentList);
+        testPojo.setEquipmentTypeSeq(equipmentTypeList);
         testPojo.setResources(resourceList);
         return testPojo;
     }
@@ -124,7 +124,8 @@ public class Test {
         //测试用例
         TestPojo testPojo = testCase();
         List<Resource> resources = testPojo.getResources();
-        List<Equipment> equiments = testPojo.getEquiments();
+        List<Equipment> equipmentments = testPojo.getEquiments();
+        List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
 
         //展示资源数量
         for (Resource resource : resources) {
@@ -158,7 +159,7 @@ public class Test {
                     System.out.println("资源" + resource.getName() + "的数量为" + resource.getNum());
                 }
                 System.out.println("是否更改资源数量：(Y/N)");
-                s = s = scanner.next();
+                s = scanner.next();
 
             }else {
                 System.out.println("输入格式错误，请重新输入：");
@@ -166,8 +167,9 @@ public class Test {
             }
         }
 
+
         //展示各装备process序列
-        for (Equipment equiment : equiments) {
+        for (Equipment equiment : equipmentTypeSeq) {
             LinkedHashMap<String, Integer> processSeq = equiment.getProcessSeq();
             System.out.println("装备" + equiment.getName() + "的操作序列为" + equiment.getProcessSeq());
         }
@@ -181,7 +183,7 @@ public class Test {
                 //找到装备
                 Equipment temp = null;
                 while (temp == null){
-                    for (Equipment equiment : equiments) {
+                    for (Equipment equiment : equipmentTypeSeq) {
                         if (equipmentName.equals(equiment.getName())){
                             temp = equiment;
                         }
@@ -197,7 +199,7 @@ public class Test {
                     orders[i++] = Integer.parseInt(scanner.next()) -1;
                 }
                 testPojo = changeEquipmentProcessSeq(testPojo,equipmentName,orders);
-                for (Equipment equiment : equiments) {
+                for (Equipment equiment : equipmentTypeSeq) {
                     LinkedHashMap<String, Integer> processSeq = equiment.getProcessSeq();
                     System.out.println("装备" + equiment.getName() + "的操作序列为" + equiment.getProcessSeq());
                 }
@@ -208,6 +210,48 @@ public class Test {
                 s = scanner.next();
             }
         }
+
+        //展示装备数量
+        for (Equipment equipment : equipmentTypeSeq) {
+            System.out.println("请输入装备" + equipment.getName() + "的数量：");
+            int equipmentNum = Integer.parseInt(scanner.next());
+            equipment.setNum(equipmentNum);
+        }
+
+        Utils.generateEquipmentSeq(testPojo);
+
+//        //是否更改
+//        System.out.println("是否更改装备数量：(Y/N)");
+//        s = scanner.next().toLowerCase();
+//
+//        while (!s.equals("n")){
+//            //需要更改
+//            if (s.equals("y")){
+//                //输入更改后的int序列
+//                System.out.println("请输入更改后的装备数量序列：");
+//                int[] equipmentNums = new int[equiments.size()];
+//                int i = 0;
+//                //读取装备数量
+//                while (scanner.hasNext()){
+//                    int num = Integer.parseInt(scanner.next());
+//                    equipmentNums[i++] = num;
+//                    if (i == equiments.size()) break;
+//                }
+//                //更改equipments
+//                testPojo = changeEquipmentNum(testPojo,equipmentNums);
+//                System.out.println("更改后装备数量为：");
+//                //展示资源数量
+//                for (Equipment equipment : equiments) {
+//                    System.out.println("装备" + equipment.getName() + "的数量为" + equipment.getNum());
+//                }
+//                System.out.println("是否更改装备数量：(Y/N)");
+//                s = scanner.next();
+//
+//            }else {
+//                System.out.println("输入格式错误，请重新输入：");
+//                s = scanner.next();
+//            }
+//        }
 
         shortestTime(testPojo);
 //        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
@@ -232,6 +276,14 @@ public class Test {
         List<Resource> resources = testPojo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             resources.get(i).setNum(resourcesNums[i]);
+        }
+        return testPojo;
+    }
+
+    public static TestPojo changeEquipmentNum(TestPojo testPojo,int[] equipmentNums){
+        List<Equipment> equiments = testPojo.getEquiments();
+        for (int i = 0; i < equiments.size(); i++) {
+            equiments.get(i).setNum(equipmentNums[i]);
         }
         return testPojo;
     }
