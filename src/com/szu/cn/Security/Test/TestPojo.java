@@ -3,9 +3,10 @@ package com.szu.cn.Security.Test;
 import com.szu.cn.Security.Equipment;
 import com.szu.cn.Security.Resource;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class TestPojo {
+public class TestPojo implements Serializable {
     private List<Equipment> equiments;
     private List<Resource> resources;
 

@@ -1,6 +1,8 @@
 package com.szu.cn.Security.Test;
 
+import com.oracle.deploy.update.UpdateCheck;
 import com.szu.cn.Security.*;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
@@ -22,6 +24,8 @@ public class Test {
         resourceList.add(resource5);
         resourceList.add(resource6);
         resourceList.add(resource7);
+
+
 
         //初始化装备
         List<Equipment> equipmentList = new ArrayList<>();
@@ -116,10 +120,145 @@ public class Test {
         testPojo.setResources(resourceList);
         return testPojo;
     }
+    public static void main(String[] args) {
+        //测试用例
+        TestPojo testPojo = testCase();
+        List<Resource> resources = testPojo.getResources();
+        List<Equipment> equiments = testPojo.getEquiments();
 
-    public static void test1(){
-        TestPojo shortTime_testPojo = testCase();
-        TestPojo highResponse_testPojo = testCase();
+        //展示资源数量
+        for (Resource resource : resources) {
+            System.out.println("资源" + resource.getName() + "的数量为" + resource.getNum());
+        }
+
+        //是否更改
+        System.out.println("是否更改资源数量：(Y/N)");
+
+        Scanner scanner = new Scanner(System.in);
+        String s = scanner.next().toLowerCase();
+
+        while (!s.equals("n")){
+            //需要更改
+            if (s.equals("y")){
+                //输入更改后的int序列
+                System.out.println("请输入更改后的资源数量序列：");
+                int[] ResourceNums = new int[resources.size()];
+                int i = 0;
+                //读取资源数量
+                while (scanner.hasNext()){
+                    int num = Integer.parseInt(scanner.next());
+                    ResourceNums[i++] = num;
+                    if (i == resources.size()) break;
+                }
+                //更改resources
+                testPojo = changeResourcesNum(testPojo,ResourceNums);
+                System.out.println("更改后资源数量为：");
+                //展示资源数量
+                for (Resource resource : resources) {
+                    System.out.println("资源" + resource.getName() + "的数量为" + resource.getNum());
+                }
+                System.out.println("是否更改资源数量：(Y/N)");
+                s = s = scanner.next();
+
+            }else {
+                System.out.println("输入格式错误，请重新输入：");
+                s = scanner.next();
+            }
+        }
+
+        //展示各装备process序列
+        for (Equipment equiment : equiments) {
+            LinkedHashMap<String, Integer> processSeq = equiment.getProcessSeq();
+            System.out.println("装备" + equiment.getName() + "的操作序列为" + equiment.getProcessSeq());
+        }
+        System.out.println("是否更改装备的操作序列：(Y/N)");
+        s = scanner.next().toLowerCase();
+        while (!s.equals("n")){
+            //更改装备操作序列
+            if (s.equals("y")){
+                System.out.println("请输入需要更改的装备名称：");
+                String equipmentName = scanner.next();
+                //找到装备
+                Equipment temp = null;
+                while (temp == null){
+                    for (Equipment equiment : equiments) {
+                        if (equipmentName.equals(equiment.getName())){
+                            temp = equiment;
+                        }
+                    }
+                    if (temp != null) break;
+                    System.out.println("输入名称错误，请重新输入");
+                    equipmentName = scanner.next();
+                }
+                System.out.println("请输入更改后的操作序列顺序(1,2,3...)");
+                int i = 0;
+                int[] orders = new int[temp.getProcessSeq().size()];
+                while (i != orders.length && scanner.hasNext()){
+                    orders[i++] = Integer.parseInt(scanner.next()) -1;
+                }
+                testPojo = changeEquipmentProcessSeq(testPojo,equipmentName,orders);
+                for (Equipment equiment : equiments) {
+                    LinkedHashMap<String, Integer> processSeq = equiment.getProcessSeq();
+                    System.out.println("装备" + equiment.getName() + "的操作序列为" + equiment.getProcessSeq());
+                }
+                System.out.println("是否更改装备的操作序列：(Y/N)");
+                s = scanner.next().toLowerCase();
+            }else {
+                System.out.println("输入格式错误，请重新输入：");
+                s = scanner.next();
+            }
+        }
+
+        shortestTime(testPojo);
+//        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+//        Result result1 = shortTime_scheduler.schedule();
+////        System.out.println(result1.getList());
+//
+//        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+//        Result result2 = highResponse_scheduler.schedule();
+////        System.out.println(result2.getList());
+//        System.out.println("==================================");
+//        System.out.println("短作业算法时间为：" + result1.getTime());
+//        System.out.println("高响应比算法时间为：" + result2.getTime());
+//        if(result1.getTime() <= result2.getTime()){
+//            System.out.println("经过对比，短作业算法时间更短，执行顺序为：" + result1.getList());
+//        }else{
+//            System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
+//        }
+    }
+
+    //更改resouces数量，返回TestPojo
+    public static TestPojo changeResourcesNum(TestPojo testPojo, int[] resourcesNums){
+        List<Resource> resources = testPojo.getResources();
+        for (int i = 0; i < resources.size(); i++) {
+            resources.get(i).setNum(resourcesNums[i]);
+        }
+        return testPojo;
+    }
+
+    //更改装备操作序列
+    public static TestPojo changeEquipmentProcessSeq(TestPojo testPojo,String name,int[] orders){
+        List<Equipment> equiments = testPojo.getEquiments();
+        //找到装备
+        for (Equipment equiment : equiments) {
+            if (equiment.getName().equals(name)){
+                LinkedHashMap<String, Integer> processSeq = equiment.getProcessSeq();
+                LinkedHashMap<String, Integer> processSeqNew = new LinkedHashMap<String, Integer>();
+                Object[] objects = processSeq.keySet().toArray(new String[0]);
+                for (int i = 0; i < orders.length; i++) {
+                    processSeqNew.put((String)objects[orders[i]],processSeq.get((String)objects[orders[i]]));
+                }
+                equiment.setProcessSeq(processSeqNew);
+            }
+        }
+        return testPojo;
+    }
+
+    //最短时间测试
+    public static void shortestTime(TestPojo testPojo){
+
+        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
         ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule();
@@ -136,22 +275,5 @@ public class Test {
         }else{
             System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
         }
-    }
-
-    public static void test2(){
-        TestPojo shortTime_testPojo = testCase();
-        TestPojo highResponse_testPojo = testCase();
-
-//        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
-//        Result result1 = shortTime_scheduler.schedule(75);
-        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
-        Result result2 = highResponse_scheduler.schedule(80);
-//        System.out.println(result2.getList());
-        System.out.println("==================================");
-        System.out.println("高响应比算法时间为：" + result2.getTime());
-        System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
-    }
-    public static void main(String[] args) {
-        test2();
     }
 }

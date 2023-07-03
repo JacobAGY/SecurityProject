@@ -1,5 +1,8 @@
 package com.szu.cn.Security;
 
+import org.apache.commons.lang3.SerializationUtils;
+
+import java.io.IOException;
 import java.util.*;
 
 public class ShortTimePlan {
@@ -12,20 +15,55 @@ public class ShortTimePlan {
         this.resourceList = resourceList;
     }
 
+    public List<Equipment> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
+    }
+
+    public List<Resource> getResourceList() {
+        return resourceList;
+    }
+
+    public void setResourceList(List<Resource> resourceList) {
+        this.resourceList = resourceList;
+    }
+
+    public void setResourceListNum(int[] resourceList) {
+        for (int i = 0; i < resourceList.length; i++) {
+            this.resourceList.get(i).setNum(resourceList[i]);
+        }
+    }
+
+    //所有装备完成时间
     public Result schedule() {
+
+        //对对象进行深拷贝
+        //通过clone方式，把list01拷贝给list02
+        List<Equipment> tempequipmentList = null;
+        try {
+            tempequipmentList = BeanUtils.deepCopy(this.equipmentList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        initialEqi(equipmentList);
         int totalTime = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-        System.out.println("--------------调度顺序----------------");
-        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-        for(int i=0;i<templist.size();i++){
-            List<Equipment> temp=templist.get(i);
-            for (int j = 0; j < temp.size(); j++) {
-                System.out.print(temp.get(j).getName()+" ");
-            }
-            System.out.println("");
-        }
+//        System.out.println("--------------调度顺序----------------");
+//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
+//        for(int i=0;i<templist.size();i++){
+//            List<Equipment> temp=templist.get(i);
+//            for (int j = 0; j < temp.size(); j++) {
+//                System.out.print(temp.get(j).getName()+" ");
+//            }
+//            System.out.println("");
+//        }
         List<String> equipmentOrder=new ArrayList<>();
         while (!equipmentList.isEmpty()) {
 
@@ -39,19 +77,21 @@ public class ShortTimePlan {
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
-                        equipmentOrder.add(ep.getName()+"-"+ep.getProcessCur());
-                        System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
+                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
+                        System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime);
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
                         ep.setStatus(Equipment.Equipmentenum.WAIT);
-                        System.out.println("调度"+ep.getName()+"工序结束"+ep.getProcessCur()+"结束时间"+totalTime);
+                        System.out.println("调度"+ep.getName()+"工序结束"+getOriginProcess(ep,ep.getProcessCur())+"结束时间"+totalTime);
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
                         releaseResources(ep);
                         toRemove.add(ep);
                         //若装备完成所有工序，则从待处理列表中移除
                         if (ep.getProcessCur() == null){
+                            //更新状态为Finish
+                            ep.setStatus(Equipment.Equipmentenum.FINISH);
                             equipmentList.remove(ep);
                         }
                     }
@@ -63,28 +103,40 @@ public class ShortTimePlan {
 
         totalTime--;
         System.out.println("Total time: " + totalTime);
+        this.equipmentList=tempequipmentList;
         Result result=new Result(equipmentOrder,totalTime);
         return result;
     }
-
-    public Result schedule(int maxTime) {
+    //规定时间内完成装备数量
+    public Result schedule(int maxTime){
+        //对对象进行深拷贝
+        //通过clone方式，把list01拷贝给list02
+        List<Equipment> tempequipmentList = null;
+        try {
+            tempequipmentList = BeanUtils.deepCopy(equipmentList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        initialEqi(equipmentList);
+        int totalTime = 0;
         //记录完成的装备数量
         int finishedEqi = 0;
-        int totalTime = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-        System.out.println("--------------调度顺序----------------");
-        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-        for(int i=0;i<templist.size();i++){
-            List<Equipment> temp=templist.get(i);
-            for (int j = 0; j < temp.size(); j++) {
-                System.out.print(temp.get(j).getName()+" ");
-            }
-            System.out.println("");
-        }
+//        System.out.println("--------------调度顺序----------------");
+//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
+//        for(int i=0;i<templist.size();i++){
+//            List<Equipment> temp=templist.get(i);
+//            for (int j = 0; j < temp.size(); j++) {
+//                System.out.print(temp.get(j).getName()+" ");
+//            }
+//            System.out.println("");
+//        }
         List<String> equipmentOrder=new ArrayList<>();
-        while (!equipmentList.isEmpty()) {
+        while (totalTime <= maxTime && !equipmentList.isEmpty()) {
 
             for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
                 List<Equipment> toRemove = new ArrayList<>();
@@ -96,19 +148,21 @@ public class ShortTimePlan {
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
-                        equipmentOrder.add(ep.getName()+"-"+ep.getProcessCur());
-                        System.out.println("调度"+ep.getName()+"工序开始"+ep.getProcessCur()+"开始时间"+totalTime);
+                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
+                        System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime);
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
                         ep.setStatus(Equipment.Equipmentenum.WAIT);
-                        System.out.println("调度"+ep.getName()+"工序结束"+ep.getProcessCur()+"结束时间"+totalTime);
+                        System.out.println("调度"+ep.getName()+"工序结束"+getOriginProcess(ep,ep.getProcessCur())+"结束时间"+totalTime);
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
                         releaseResources(ep);
                         toRemove.add(ep);
                         //若装备完成所有工序，则从待处理列表中移除
                         if (ep.getProcessCur() == null){
+                            //更新状态为Finish
+                            ep.setStatus(Equipment.Equipmentenum.FINISH);
                             equipmentList.remove(ep);
                             finishedEqi++;
                         }
@@ -120,26 +174,57 @@ public class ShortTimePlan {
         }
 
         totalTime--;
-        System.out.println("完成装备的数量为: " + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime);
+        System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
+        this.equipmentList=tempequipmentList;
         return result;
     }
+
+    public void initialEqi(List<Equipment> equipmentList){
+        //初始化装备工序（考虑工序顺序变化）
+        for (Equipment epi: equipmentList) {
+            int i=1;
+            //工序映射P2->P1 P3->P2
+            LinkedHashMap<String,Integer> tempProcessSeq=new LinkedHashMap<>();
+            for (Map.Entry<String,Integer> entry:epi.getProcessSeq().entrySet()){
+                tempProcessSeq.put("P"+i,entry.getValue());
+                i++;
+            }
+            //保留最初顺序
+            epi.setProcessSeq_Origin(epi.getProcessSeq());
+            //设置算法工序顺序
+            epi.setProcessSeq(tempProcessSeq);
+            //设置装备当前工序
+            epi.setProcessCur(tempProcessSeq.entrySet().iterator().next().getKey());
+        }
+    }
+
+    //获取原始工序信息
+    public String getOriginProcess(Equipment epi,String processcur){
+        int index= Integer.parseInt(processcur.split("")[1]);
+        int i=1;
+        for (Map.Entry<String,Integer> entry:epi.getProcessSeq_Origin().entrySet()){
+            if (index==i){return entry.getKey();}
+            i++;
+        }
+        return "";
+    }
+
 
     private LinkedHashMap<String, List<Equipment>> groupEquipmentsByCurrentProcess() {
         LinkedHashMap<String, List<Equipment>> equipmentGroups = new LinkedHashMap<>();
 
         int pSize=0;
         List<String> longestProcess=new ArrayList<>();
+        //获取最长工序长度
         for (Equipment equipment : equipmentList) {
-//            String currentProcess = equipment.getProcessCur();
-//            equipmentGroups.putIfAbsent(currentProcess, new ArrayList<>());
-//            equipmentGroups.get(currentProcess).add(equipment);
             if (equipment.getProcessSeq().size()>pSize){
                 pSize=equipment.getProcessSeq().size();
                 Set<String> temp=equipment.getProcessSeq().keySet();
                 longestProcess=new ArrayList<>(temp);
             }
         }
+        //
         for (String pName:longestProcess){
             List<Equipment> templist=new ArrayList<>();
             for (Equipment equipment : equipmentList){
@@ -269,12 +354,12 @@ public class ShortTimePlan {
         Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
-        processSeq2.put("P1",4);
-        processSeq2.put("P2",5);
-        processSeq2.put("P3",15);
-        processSeq2.put("P4",12);
-        processSeq2.put("P5",16);
         processSeq2.put("P6",20);
+        processSeq2.put("P5",16);
+        processSeq2.put("P4",12);
+        processSeq2.put("P3",15);
+        processSeq2.put("P2",5);
+        processSeq2.put("P1",4);
 
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
         processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
@@ -310,13 +395,13 @@ public class ShortTimePlan {
         Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
-        processSeq4.put("P1",5);
-        processSeq4.put("P2",12);
         processSeq4.put("P3",6);
-        processSeq4.put("P4",8);
-        processSeq4.put("P5",12);
         processSeq4.put("P6",10);
         processSeq4.put("P7",15);
+        processSeq4.put("P1",5);
+        processSeq4.put("P2",12);
+        processSeq4.put("P5",12);
+        processSeq4.put("P4",6);
 
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource4=new LinkedHashMap<>();
         processAndResource4.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
@@ -336,7 +421,7 @@ public class ShortTimePlan {
 
         ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
 //        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
-        scheduler.schedule();
+        scheduler.schedule(100);
     }
 
 

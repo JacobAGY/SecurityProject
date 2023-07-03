@@ -1,8 +1,9 @@
 package com.szu.cn.Security;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Equipment {
+public class Equipment  implements Serializable {
     //装备名称
     private String name;
 
@@ -64,7 +65,8 @@ public class Equipment {
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
         this.name = e1;
         this.num = i;
-        this.processSeq = processSeq;
+        this.processSeq_Origin = processSeq;
+        this.processSeq=processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
