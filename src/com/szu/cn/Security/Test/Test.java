@@ -252,7 +252,8 @@ public class Test {
 //            }
 //        }
 
-        shortestTime(testPojo);
+//        shortestTime(testPojo);
+        shortestTime(testPojo,255);
 //        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result1 = shortTime_scheduler.schedule();
 ////        System.out.println(result1.getList());
@@ -325,6 +326,28 @@ public class Test {
             System.out.println("经过对比，短作业算法时间更短，执行顺序为：" + result1.getList());
         }else{
             System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
+        }
+    }
+
+    //最短时间测试
+    public static void shortestTime(TestPojo testPojo,int maxTime){
+        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+
+        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        Result result1 = shortTime_scheduler.schedule(maxTime);
+//        System.out.println(result1.getList());
+
+        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        Result result2 = highResponse_scheduler.schedule(maxTime);
+//        System.out.println(result2.getList());
+        System.out.println("==================================");
+        System.out.println("短作业算法时间为：" + result1.getTime());
+        System.out.println("高响应比算法时间为：" + result2.getTime());
+        if(result1.getFinishedEqi() >= result2.getFinishedEqi()){
+            System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result1.getFinishedEqi()+"个，执行顺序为：" + result1.getList());
+        }else{
+            System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result2.getFinishedEqi()+"个，执行顺序为："+ result2.getList());
         }
     }
 }
