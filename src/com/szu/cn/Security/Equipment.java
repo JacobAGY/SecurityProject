@@ -44,12 +44,6 @@ public class Equipment  implements Serializable {
     //装备当前工序
     private String processCur;
 
-    //装备的状态序列
-    private ArrayList<String> statusSeq;
-
-    //装备的占用序列
-    private ArrayList<String> usedSeq;
-
     //装备的故障时刻
     private int errorTime;
 
@@ -71,6 +65,7 @@ public class Equipment  implements Serializable {
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
         this.processSeq_Origin = processSeq;
+        this.occSeq=new ArrayList<>();
     }
 
     public LinkedHashMap<String, Integer> getProcessSeq_Origin() {
@@ -96,14 +91,11 @@ public class Equipment  implements Serializable {
         FIX
     }
 
-    //装备的当前工序
-    private String processNow;
-
     //装备的状态序列
     private String[] stateSeq;
 
     //装备的占用信息
-    private String[] occSeq;
+    private List<String> occSeq;
 
     //装备的故障时刻
     private int failMoment;
@@ -212,14 +204,6 @@ public class Equipment  implements Serializable {
         this.processAndResource = processAndResource;
     }
 
-    public String getProcessNow() {
-        return processNow;
-    }
-
-    public void setProcessNow(String processNow) {
-        this.processNow = processNow;
-    }
-
     public String[] getStateSeq() {
         return stateSeq;
     }
@@ -228,11 +212,19 @@ public class Equipment  implements Serializable {
         this.stateSeq = stateSeq;
     }
 
-    public String[] getOccSeq() {
+    public LinkedHashMap<String, HashMap<String, Integer>> getProcessAndResourcePriority() {
+        return processAndResourcePriority;
+    }
+
+    public void setProcessAndResourcePriority(LinkedHashMap<String, HashMap<String, Integer>> processAndResourcePriority) {
+        this.processAndResourcePriority = processAndResourcePriority;
+    }
+
+    public List<String> getOccSeq() {
         return occSeq;
     }
 
-    public void setOccSeq(String[] occSeq) {
+    public void setOccSeq(List<String> occSeq) {
         this.occSeq = occSeq;
     }
 
@@ -266,22 +258,6 @@ public class Equipment  implements Serializable {
 
     public void setProcessCur(String processCur) {
         this.processCur = processCur;
-    }
-
-    public ArrayList<String> getStatusSeq() {
-        return statusSeq;
-    }
-
-    public void setStatusSeq(ArrayList<String> statusSeq) {
-        this.statusSeq = statusSeq;
-    }
-
-    public ArrayList<String> getUsedSeq() {
-        return usedSeq;
-    }
-
-    public void setUsedSeq(ArrayList<String> usedSeq) {
-        this.usedSeq = usedSeq;
     }
 
     public int getErrorTime() {
