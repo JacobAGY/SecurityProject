@@ -253,7 +253,8 @@ public class Test {
 //        }
 
 //        shortestTime(testPojo);
-        shortestTime(testPojo,255);
+//        shortestTime(testPojo,250);
+        testSequentialPlan(testPojo,250);
 //        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result1 = shortTime_scheduler.schedule();
 ////        System.out.println(result1.getList());
@@ -329,6 +330,19 @@ public class Test {
         }
     }
 
+    public static void testSequentialPlan(TestPojo testPojo,int maxTime){
+
+        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+
+        SequentialPlan sequentialPlan_scheduler = new SequentialPlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        Result result = sequentialPlan_scheduler.schedule();
+
+        System.out.println("==================================");
+        System.out.println("原论文算法时间为：" + result.getTime());
+        System.out.println("执行顺序为：" + result.getList());
+
+    }
     //最短时间测试
     public static void shortestTime(TestPojo testPojo,int maxTime){
         TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);

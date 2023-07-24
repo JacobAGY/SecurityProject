@@ -117,8 +117,7 @@ public class HighResponseRatioPlan {
         int totalTime = 0;
         List<String> equipmentOrder = new ArrayList<>();
 
-        int finish_flag = 0;
-        while (totalTime <= maxTime && finish_flag < currentRatio.length) {
+        while (totalTime <= maxTime && finishedEqi < currentRatio.length) {
             updateRatio();
             //返回当前响应比由高到低的顺序，响应比相同返回剩余时间短的,返回结果为一个数组（每个装备对应的下标）
             int[] arr = groupEquipmentByHighResponse(currentRatio, timeLeft);
@@ -167,7 +166,6 @@ public class HighResponseRatioPlan {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
-                        finish_flag += 1;
                         finishedEqi++;
                     }
                 }
