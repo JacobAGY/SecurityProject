@@ -10,6 +10,7 @@ public class Resource implements Serializable {
     //资源数量
     private int num;
 
+    private status state;
     //资源状态集合
     public enum status{
         wait,running
@@ -24,6 +25,15 @@ public class Resource implements Serializable {
     public Resource(String name, int num) {
         this.name = name;
         this.num = num;
+        this.state=status.wait;
+    }
+
+    public status getState() {
+        return state;
+    }
+
+    public void setState(status state) {
+        this.state = state;
     }
 
     public String getName() {

@@ -1,5 +1,7 @@
 package com.szu.cn.Security;
 
+import com.szu.cn.Security.Test.TestPojo;
+
 import java.util.*;
 
 public class MyFunSobol {
@@ -151,6 +153,57 @@ public class MyFunSobol {
         }
     }
 
+    private static double[] getTsc(TestPojo testPojo){
+        ShortTimePlan scheduler = new ShortTimePlan(testPojo.getEquiments(),testPojo.getResources());
+        int N = 50; // Stress levels, obtained from reading
+        int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
+        int maxNum = 5; // Maximum value for each resource type
+        int eq_num = testPojo.getEquiments().size();
+        int maxTime=100;
+
+        // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
+        //生成的数据为1~maxNum随机选择的矩阵，该数据表示对每一个应力水平下，对每种保障资源数量进行随机配置
+        int[][] A = generateRandomMatrix(N, D, maxNum);
+        int[][] B = generateRandomMatrix(N, D, maxNum);
+
+        // 然后在A、B基础上，共计生成（2+D）个矩阵，分别是A、B、AB1、AB2、AB3、AB4、AB5、AB6、AB7
+        //所谓ABi矩阵是指将B矩阵的第i列复制替换到A矩阵的第i列。以下代码为生成ABi的过程。
+        int[][][] AB = generateABMatrices(A, B);
+
+        // 通过构造矩阵，共计得到（2+D）*N组不同的保障资源方案，每一组资源方案都会输出在规定的时间内可以保障/出动的装备数。
+        //先计算A矩阵的出动/保障装备数计算结果，得到YA，长度为N的向量
+        int[] YA = calculateSobol(scheduler,maxTime,A, eq_num);
+
+        // 再先计算B矩阵的出动/保障装备数计算结果，得到YB，长度为N的向量
+        int[] YB = calculateSobol(scheduler,maxTime,B, eq_num);
+
+        // 先计算ABi矩阵的出动/保障装备数计算结果，得到YABi，每一个YABi长度为N的向量
+        int[][] YAB = new int[D][];
+        for (int i = 0; i < D; i++) {
+            YAB[i] = calculateSobol(scheduler,maxTime,AB[i], eq_num);
+        }
+
+        // YA、YB进行堆叠，形成新的矩阵Y
+        int[] Y = concatenateArrays(YA, YB);
+
+        // 计算矩阵Y的方差
+        double varY = calculateVariance(Y);
+
+        // 一阶灵敏度指数，向量格式，长度为D
+        double[] s1 = calculateFirstOrderSensitivity(YB, YA, YAB, varY);
+
+        // 全局灵敏度指数，向量格式，长度为D
+        double[] tsc = calculateTotalSensitivity(YA,YAB, varY);
+
+        // Print the results
+        System.out.println("一阶灵敏度指数 (s1):");
+        printArray(s1);
+
+        System.out.println("全局灵敏度指数 (tsc):");
+        printArray(tsc);
+        return tsc;
+    }
+
     public static void main(String[] args) {
 
 
@@ -260,55 +313,11 @@ public class MyFunSobol {
         equipmentList.add(ep3);
         equipmentList.add(ep4);
 
-        ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
+        TestPojo testPojo = new TestPojo();
+        testPojo.setEquiments(equipmentList);
+        testPojo.setResources(resourceList);
 
+        getTsc(testPojo);
 
-        int N = 50; // Stress levels, obtained from reading
-        int D = resourceList.size(); // Number of resource types, obtained from reading
-        int maxNum = 5; // Maximum value for each resource type
-        int eq_num = equipmentList.size();
-        int maxTime=100;
-        MyFunSobol myFunSobol=new MyFunSobol(N,D,maxNum,eq_num);
-
-        // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
-        //生成的数据为1~maxNum随机选择的矩阵，该数据表示对每一个应力水平下，对每种保障资源数量进行随机配置
-        int[][] A = generateRandomMatrix(N, D, maxNum);
-        int[][] B = generateRandomMatrix(N, D, maxNum);
-
-        // 然后在A、B基础上，共计生成（2+D）个矩阵，分别是A、B、AB1、AB2、AB3、AB4、AB5、AB6、AB7
-        //所谓ABi矩阵是指将B矩阵的第i列复制替换到A矩阵的第i列。以下代码为生成ABi的过程。
-        int[][][] AB = generateABMatrices(A, B);
-
-        // 通过构造矩阵，共计得到（2+D）*N组不同的保障资源方案，每一组资源方案都会输出在规定的时间内可以保障/出动的装备数。
-        //先计算A矩阵的出动/保障装备数计算结果，得到YA，长度为N的向量
-        int[] YA = calculateSobol(scheduler,maxTime,A, eq_num);
-
-        // 再先计算B矩阵的出动/保障装备数计算结果，得到YB，长度为N的向量
-        int[] YB = calculateSobol(scheduler,maxTime,B, eq_num);
-
-        // 先计算ABi矩阵的出动/保障装备数计算结果，得到YABi，每一个YABi长度为N的向量
-        int[][] YAB = new int[D][];
-        for (int i = 0; i < D; i++) {
-            YAB[i] = calculateSobol(scheduler,maxTime,AB[i], eq_num);
-        }
-
-        // YA、YB进行堆叠，形成新的矩阵Y
-        int[] Y = concatenateArrays(YA, YB);
-
-        // 计算矩阵Y的方差
-        double varY = calculateVariance(Y);
-
-        // 一阶灵敏度指数，向量格式，长度为D
-        double[] s1 = calculateFirstOrderSensitivity(YB, YA, YAB, varY);
-
-        // 全局灵敏度指数，向量格式，长度为D
-        double[] tsc = calculateTotalSensitivity(YA,YAB, varY);
-
-        // Print the results
-        System.out.println("一阶灵敏度指数 (s1):");
-        printArray(s1);
-
-        System.out.println("全局灵敏度指数 (tsc):");
-        printArray(tsc);
     }
 }

@@ -10,9 +10,17 @@ public class ShortTimePlan {
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
+    private List<Resource> resourceListDetail;
+
     public ShortTimePlan(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
-        this.resourceList = resourceList;
+        for (int i=0;i<resourceList.size();i++){
+            for (int j=1;j<=resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(resourceList.get(i).getName()+"-"+j,1);
+                this.resourceListDetail.add(resource);
+            }
+        }
+        this.resourceList=resourceList;
     }
 
     public List<Equipment> getEquipmentList() {
@@ -150,7 +158,11 @@ public class ShortTimePlan {
                         ep.setProcessSeqTime(totalTime);
                         equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime);
-                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
+                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                            &&checkResourcePriority(ep)){
+                        //
+                    }
+                    else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
@@ -244,7 +256,6 @@ public class ShortTimePlan {
                     // 获取工序时间
                     int time1 = e1.getProcessSeq().get(entry.getKey());
                     int time2 = e2.getProcessSeq().get(entry.getKey());
-
                     // 按照工序时间升序排序
                     return Integer.compare(time1, time2);
                 }
@@ -260,12 +271,43 @@ public class ShortTimePlan {
         Map<String,Integer> resources=equipment.getProcessAndResource().get(curProcess);
         for (Map.Entry<String,Integer> entry: resources.entrySet()){
             for(Resource resource:resourceList){
-                if (resource.getName().equals(entry.getKey())&&resource.getNum()<entry.getValue()){
-                    return false;
+                //若为所需要的资源种类
+                if (resource.getName().equals(entry.getKey())){
+                    int needNum=entry.getValue();
+                    //检查是否已经占用该资源种类
+                    if (equipment.getOccSeq().size()>0){
+                        for (String r:equipment.getOccSeq()){
+                            if (r.split("-")[0].equals(entry.getKey())){
+                                needNum--;
+                            }
+                        }
+                    }
+                    //检查资源是否足够
+                    if (resource.getNum()<needNum){
+                        return false;
+                    }
                 }
             }
         }
         return true;
+    }
+
+    private boolean checkResourcePriority(Equipment equipment) {
+        String curProcess=equipment.getProcessCur();
+        //若当前工序有资源优先级，则获取<资源名，优先级>
+        if (equipment.getProcessAndResource().containsKey(curProcess)){
+            Map<String,Integer> resourceAndPriy=equipment.getProcessAndResource().get(curProcess);
+            for (Map.Entry<String,Integer> entry: resourceAndPriy.entrySet()){
+                //判断是否有该优先级资源
+                for(Resource resource:resourceList){
+                    if (resource.getName().equals(entry.getKey())&&entry.getValue()>0&&resource.getNum()<1){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     private void allocateResources(Equipment equipment) {
@@ -273,8 +315,28 @@ public class ShortTimePlan {
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
         //为工序分配资源，资源数量减少
         for (Map.Entry<String,Integer> entry:pr.entrySet()){
+            //获取所需资源种类
             Resource resource=findResource(entry.getKey());
-            resource.setNum(resource.getNum()-entry.getValue());
+            //获取确定的资源
+            Resource r=setResource(entry.getKey());
+
+            if (equipment.getOccSeq().size()>0){
+                boolean Have=false;
+                for (String temp:equipment.getOccSeq()){
+                    if (temp.split("-")[0].equals(resource.getName())) Have=true;
+                }
+                if (Have) continue;
+            }
+            //将资源种类的数量-1
+            if (resource!=null){
+                resource.setNum(resource.getNum()-entry.getValue());
+            }
+            if (r!=null){
+                //分配资源给装备
+                equipment.getOccSeq().add(r.getName());
+                //设置资源状态
+                r.setState(Resource.status.running);
+            }
         }
     }
 
@@ -287,21 +349,48 @@ public class ShortTimePlan {
         return null;
     }
 
-    private void releaseResources(Equipment equipment) {
-        String curProcess=equipment.getProcessCur();
-        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
-        //工序释放资源，资源数量增加
-        for (Map.Entry<String,Integer> entry:pr.entrySet()){
-            Resource resource=findResource(entry.getKey());
-            resource.setNum(resource.getNum()+entry.getValue());
+    public Resource setResource(String name){
+        for (Resource resource : resourceListDetail) {
+            if (resource.getName().split("-")[0].equals(name)&&resource.getState().equals(Resource.status.wait)){
+                return resource;
+            }
         }
+        return null;
+    }
+
+    private void releaseResources(Equipment equipment) {
+//        String curProcess=equipment.getProcessCur();
+//        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
+//        //工序释放资源，资源数量增加
+//        for (Map.Entry<String,Integer> entry:pr.entrySet()){
+//            Resource resource=findResource(entry.getKey());
+//            resource.setNum(resource.getNum()+entry.getValue());
+//        }
 
         //设置装备的当前工序为下一道工序
         String last="";
         for (Map.Entry<String,Integer>entry:equipment.getProcessSeq().entrySet()){
             if (last.equals(equipment.getProcessCur())){
-                equipment.setProcessCur(entry.getKey());
+                String nextProcess=entry.getKey();
+                equipment.setProcessCur(nextProcess);
 //                entry.setValue(entry.getValue()+curTime);
+                //若下一道工序使用相同的资源则不释放
+                for (String r:equipment.getOccSeq()){
+                    boolean enable=false;
+                    for (Map.Entry<String,Integer>entry1:equipment.getProcessAndResource().get(nextProcess).entrySet()){
+                        if (r.split("-")[0].equals(entry1.getKey())){enable=true;}
+                    }
+                    //若下一道工序不同资源则释放资源
+                    if (!enable){
+                        equipment.getOccSeq().remove(r);
+                        //设置资源状态
+                        Resource resource=setResource(r);
+                        resource.setState(Resource.status.wait);
+                        //设置资源种类数量
+                        Resource resourcetype=findResource(r.split("-")[0]);
+                        resourcetype.setNum(resourcetype.getNum()+entry.getValue());
+                    }
+                }
                 return;
             }
             last=entry.getKey();
@@ -350,6 +439,10 @@ public class ShortTimePlan {
         processAndResource.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
+
+        //设置装备工序资源优先级
+        LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority=new LinkedHashMap<>();
+
 
         Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
 
