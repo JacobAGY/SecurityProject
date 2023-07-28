@@ -1,18 +1,15 @@
 package com.szu.cn.Security;
 
-//import org.apache.commons.lang3.SerializationUtils;
-
 import java.io.IOException;
 import java.util.*;
 
-public class ShortTimePlan {
-
+public class RMSTsimulation {
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
     private List<Resource> resourceListDetail;
 
-    public ShortTimePlan(List<Equipment> equipmentList, List<Resource> resourceList) {
+    public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
         this.resourceList=resourceList;
         List<Resource> tempList=new ArrayList<>();
@@ -168,11 +165,16 @@ public class ShortTimePlan {
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
                         equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
+                        //进入检修工序
+                        if (ep.getProcessCur().equals(ep.getFixprocess())){
+                            overhaulprocess(ep);
+                        }
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime+"占用资源"+
                                 ep.getOccSeq().toString());
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
-                            &&checkResourcePriority(ep)){
+                            &&checkResourcePriority(ep)&&ep.getOccSeq().isEmpty()){
                         //若当前工序有优先级高的资源，则提前占用
+
                         allocatePriyResources(ep);
                         System.out.println(ep.getName()+"占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
                     }
@@ -204,6 +206,11 @@ public class ShortTimePlan {
         Result result=new Result(equipmentOrder,totalTime,finishedEqi);
         this.equipmentList=tempequipmentList;
         return result;
+    }
+
+    //装备检修工序
+    private void overhaulprocess(Equipment ep) {
+
     }
 
     public void initialEqi(List<Equipment> equipmentList){
@@ -334,7 +341,6 @@ public class ShortTimePlan {
             //获取确定的资源
             Resource r=findDetailResource(entry.getKey());
 
-            //检查已有资源并更新需求数量
             if (equipment.getOccSeq().size()>0){
                 boolean Have=false;
                 for (String temp:equipment.getOccSeq()){
@@ -375,14 +381,14 @@ public class ShortTimePlan {
                 if (Have) continue;
             }
 
-            if (resource!=null&&r!=null){
-                //将资源种类的数量-1
-                resource.setNum(resource.getNum()-pr.get(entry.getKey()));
-                //分配资源给装备
-                equipment.getOccSeq().add(r.getName());
-                //设置资源状态
-                r.setState(Resource.status.running);
-            }
+                if (resource!=null&&r!=null){
+                    //将资源种类的数量-1
+                    resource.setNum(resource.getNum()-pr.get(entry.getKey()));
+                    //分配资源给装备
+                    equipment.getOccSeq().add(r.getName());
+                    //设置资源状态
+                    r.setState(Resource.status.running);
+                }
             }
         }
     }
@@ -593,10 +599,8 @@ public class ShortTimePlan {
         equipmentList.add(ep3);
         equipmentList.add(ep4);
 
-        ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
+        RMSTsimulation scheduler = new RMSTsimulation(equipmentList,resourceList);
 //        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
         scheduler.schedule(100);
     }
-
-
 }

@@ -13,7 +13,7 @@ public class Equipment  implements Serializable {
     //装备状态集合
     private Equipmentenum status;
 
-
+    private Equipmentenum substatus;
 
     //装备的结构组成
     private ArrayList<String> composition;
@@ -30,8 +30,13 @@ public class Equipment  implements Serializable {
     //装备LRU的平均维修时间
     private double repairTime;
 
+    //装备可靠性指标
+    private double ReliabilityRate;
+
     //装备LRU的故障检测率
     private double faultDetectionRate;
+    //标示哪个工序为检修工序
+    private String fixprocess;
 
     //装备的工序序列<工序名,所需时间>
     private LinkedHashMap<String,Integer> processSeq;
@@ -101,7 +106,11 @@ public class Equipment  implements Serializable {
         WAIT,
         RUN,
         FINISH,
-        FIX
+        FIX,
+        AvailableAndKnown,
+        UnavailableAndKnown,
+        AvailableAndUnknown,
+        FixtoAvailableAndKnown
     }
 
     //装备的状态序列
@@ -110,16 +119,35 @@ public class Equipment  implements Serializable {
     //装备的占用信息
     private List<String> occSeq;
 
-    //装备的故障时刻
-    private int failMoment;
-
-    //装备的真实状态却未被检测出的标志
-    private int flag;
 
     //该装备当前工序完成时间（hgx）
     private int finishTime;
     //装备的当前状态（hgx）
     private String statusCur;
+
+    public double getReliabilityRate() {
+        return ReliabilityRate;
+    }
+
+    public void setReliabilityRate(double reliabilityRate) {
+        ReliabilityRate = reliabilityRate;
+    }
+
+    public String getFixprocess() {
+        return fixprocess;
+    }
+
+    public void setFixprocess(String fixprocess) {
+        this.fixprocess = fixprocess;
+    }
+
+    public Equipmentenum getSubstatus() {
+        return substatus;
+    }
+
+    public void setSubstatus(Equipmentenum substatus) {
+        this.substatus = substatus;
+    }
 
     public int getFinishTime() {
         return finishTime;
@@ -241,13 +269,7 @@ public class Equipment  implements Serializable {
         this.occSeq = occSeq;
     }
 
-    public int getFailMoment() {
-        return failMoment;
-    }
 
-    public void setFailMoment(int failMoment) {
-        this.failMoment = failMoment;
-    }
 
     public Equipmentenum getStatus() {
         return status;
@@ -257,13 +279,6 @@ public class Equipment  implements Serializable {
         this.status = status;
     }
 
-    public int getFlag() {
-        return flag;
-    }
-
-    public void setFlag(int flag) {
-        this.flag = flag;
-    }
 
     public String getProcessCur() {
         return processCur;
