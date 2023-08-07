@@ -10,9 +10,9 @@ public class Equipment implements Serializable {
     //装备数量
     private int num;
 
+
     //装备状态集合
     private Equipmentenum status;
-
 
 
     //装备的结构组成
@@ -83,6 +83,7 @@ public class Equipment implements Serializable {
     public LinkedHashMap<String, Integer> getProcessSeq_Origin() {
         return processSeq_Origin;
     }
+
 
     public void setProcessSeq_Origin(LinkedHashMap<String, Integer> processSeq_Origin) {
         this.processSeq_Origin = processSeq_Origin;

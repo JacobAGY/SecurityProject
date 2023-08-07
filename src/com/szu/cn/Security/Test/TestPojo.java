@@ -10,6 +10,7 @@ public class TestPojo implements Serializable {
     private List<Equipment> equipmentTypeSeq; //装备种类序列
     private List<Equipment> equiments; //装备序列 A1 A2 B1 B2
     private List<Resource> resources;
+    private int Q; // 费用约束
 
     public List<Equipment> getEquipmentTypeSeq() {
         return equipmentTypeSeq;
@@ -33,5 +34,13 @@ public class TestPojo implements Serializable {
 
     public void setResources(List<Resource> resources) {
         this.resources = resources;
+    }
+
+    public int getQ() {
+        return Q;
+    }
+
+    public void setQ(int q) {
+        Q = q;
     }
 }

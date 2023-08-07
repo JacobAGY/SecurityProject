@@ -269,6 +269,19 @@ public class Test {
 //        }else{
 //            System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
 //        }
+
+
+        //测试project C
+
+        //设置资源价格
+        for (int i = 0; i < testPojo.getResources().size(); i++) {
+            System.out.println("请输入" + testPojo.getResources().get(i).getName() + " 的价格：");
+            int next = Integer.parseInt(scanner.next());
+            testPojo.getResources().get(i).setPrice(next);
+        }
+
+        ResourceOptimizationPlan resourceOptimizationPlan = new ResourceOptimizationPlan();
+        resourceOptimizationPlan.optimalSoulution(testPojo);
     }
 
     //更改resouces数量，返回TestPojo
