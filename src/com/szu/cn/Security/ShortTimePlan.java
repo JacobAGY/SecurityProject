@@ -145,15 +145,6 @@ public class ShortTimePlan {
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-//        System.out.println("--------------调度顺序----------------");
-//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-//        for(int i=0;i<templist.size();i++){
-//            List<Equipment> temp=templist.get(i);
-//            for (int j = 0; j < temp.size(); j++) {
-//                System.out.print(temp.get(j).getName()+" ");
-//            }
-//            System.out.println("");
-//        }
         List<String> equipmentOrder=new ArrayList<>();
         while (totalTime <= maxTime && !equipmentList.isEmpty()) {
 
@@ -171,10 +162,10 @@ public class ShortTimePlan {
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime+"占用资源"+
                                 ep.getOccSeq().toString());
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
-                            &&checkResourcePriority(ep)&&ep.getOccSeq().isEmpty()){
+                            &&checkResourcePriority(ep)){
                         //若当前工序有优先级高的资源，则提前占用
-                        Resource resource=allocatePriyResources(ep);
-                        System.out.println(ep.getName()+"占用资源"+resource.getName()+"占用时间"+totalTime);
+                        allocatePriyResources(ep);
+                        System.out.println(ep.getName()+"占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
                     }
                     else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
@@ -334,6 +325,7 @@ public class ShortTimePlan {
             //获取确定的资源
             Resource r=findDetailResource(entry.getKey());
 
+            //检查已有资源并更新需求数量
             if (equipment.getOccSeq().size()>0){
                 boolean Have=false;
                 for (String temp:equipment.getOccSeq()){
@@ -354,7 +346,7 @@ public class ShortTimePlan {
         }
     }
 
-    private Resource allocatePriyResources(Equipment equipment) {
+    private void allocatePriyResources(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
         HashMap<String,Integer> prp=equipment.getProcessAndResourcePriority().get(getOriginProcess(equipment,curProcess));
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
@@ -366,13 +358,13 @@ public class ShortTimePlan {
                 //获取确定的资源
                 Resource r=findDetailResource(entry.getKey());
 
-//            if (equipment.getOccSeq().size()>0){
-//                boolean Have=false;
-//                for (String temp:equipment.getOccSeq()){
-//                    if (temp.split("-")[0].equals(resource.getName())) Have=true;
-//                }
-//                if (Have) continue;
-//            }
+                if (equipment.getOccSeq().size()>0){
+                    boolean Have=false;
+                    for (String temp:equipment.getOccSeq()){
+                        if (temp.split("-")[0].equals(resource.getName())) Have=true;
+                    }
+                    if (Have) continue;
+                }
 
                 if (resource!=null&&r!=null){
                     //将资源种类的数量-1
@@ -381,11 +373,9 @@ public class ShortTimePlan {
                     equipment.getOccSeq().add(r.getName());
                     //设置资源状态
                     r.setState(Resource.status.running);
-                    return r;
                 }
             }
         }
-        return null;
     }
 
     public Resource findResource(String name){
@@ -415,13 +405,6 @@ public class ShortTimePlan {
     }
 
     private void releaseResources(Equipment equipment) {
-//        String curProcess=equipment.getProcessCur();
-//        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
-//        //工序释放资源，资源数量增加
-//        for (Map.Entry<String,Integer> entry:pr.entrySet()){
-//            Resource resource=findResource(entry.getKey());
-//            resource.setNum(resource.getNum()+entry.getValue());
-//        }
 
         //设置装备的当前工序为下一道工序(当前程序下的工序顺序)
         String last="";

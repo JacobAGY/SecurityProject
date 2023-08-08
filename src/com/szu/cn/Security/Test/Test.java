@@ -25,8 +25,6 @@ public class Test {
         resourceList.add(resource6);
         resourceList.add(resource7);
 
-
-
         //初始化装备
         List<Equipment> equipmentTypeList = new ArrayList<>();
         LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
@@ -336,15 +334,19 @@ public class Test {
         TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
         SequentialPlan sequentialPlan_scheduler = new SequentialPlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
-        Result result = sequentialPlan_scheduler.schedule();
+//        Result result = sequentialPlan_scheduler.schedule();
+//        ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+//        Result result = shortTimePlan_scheduler.schedule(maxTime);
+        HighResponseRatioPlan highResponseRatioPlan_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
 
+        Result result = highResponseRatioPlan_scheduler.schedule(maxTime);
         System.out.println("==================================");
         System.out.println("原论文算法时间为：" + result.getTime());
         System.out.println("执行顺序为：" + result.getList());
 
     }
     //最短时间测试
-    public static void shortestTime(TestPojo testPojo,int maxTime){
+    public static int shortestTime(TestPojo testPojo,int maxTime){
         TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
         TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
@@ -360,8 +362,10 @@ public class Test {
         System.out.println("高响应比算法时间为：" + result2.getTime());
         if(result1.getFinishedEqi() >= result2.getFinishedEqi()){
             System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result1.getFinishedEqi()+"个，执行顺序为：" + result1.getList());
+            return result1.getFinishedEqi();
         }else{
             System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result2.getFinishedEqi()+"个，执行顺序为："+ result2.getList());
+            return result2.getFinishedEqi();
         }
     }
 }
