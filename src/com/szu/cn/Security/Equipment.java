@@ -51,10 +51,25 @@ public class Equipment  implements Serializable {
     //processSeq_Origin是原始的processSeq
     private LinkedHashMap<String, Integer> processSeq_Origin;
 
+    //change_Process记录每个装备中可换的工序
+    private HashMap<String,ArrayList<String>> change_Process;
+
+    //finished_Process记录已经完成的工序
+    private ArrayList<String> finished_Process;
     public Equipment() {
     }
-
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
+        this.name = e1;
+        this.num = i;
+        this.processSeq_Origin = processSeq;
+        this.processSeq=processSeq;
+        this.processAndResource = processAndResource;
+        this.processCur = processSeq.entrySet().iterator().next().getKey();
+        this.status = Equipmentenum.WAIT;
+        this.occSeq=new ArrayList<>();
+    }
+
+    public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,HashMap<String,ArrayList<String>> change_Process) {
         this.name = e1;
         this.num = i;
         this.processSeq_Origin = processSeq;
@@ -64,6 +79,8 @@ public class Equipment  implements Serializable {
         this.status = Equipmentenum.WAIT;
         this.processSeq_Origin = processSeq;
         this.occSeq=new ArrayList<>();
+        this.change_Process = change_Process;
+        this.finished_Process = new ArrayList<>();
     }
 
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy) {
@@ -285,5 +302,21 @@ public class Equipment  implements Serializable {
 
     public void setErrorBut(int errorBut) {
         this.errorBut = errorBut;
+    }
+
+    public HashMap<String, ArrayList<String>> getChange_Process() {
+        return change_Process;
+    }
+
+    public void setChange_Process(HashMap<String, ArrayList<String>> change_Process) {
+        this.change_Process = change_Process;
+    }
+
+    public ArrayList<String> getFinished_Process() {
+        return finished_Process;
+    }
+
+    public void setFinished_Process(ArrayList<String> finished_Process) {
+        this.finished_Process = finished_Process;
     }
 }

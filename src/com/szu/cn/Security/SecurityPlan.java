@@ -43,7 +43,9 @@ public class SecurityPlan {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
+        HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
+
+        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,change_Process);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -61,7 +63,7 @@ public class SecurityPlan {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2,change_Process);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -84,7 +86,7 @@ public class SecurityPlan {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3,change_Process);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -104,7 +106,7 @@ public class SecurityPlan {
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
-        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
+        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4,change_Process);
 
         equipmentList.add(ep1);
         equipmentList.add(ep2);
@@ -121,10 +123,10 @@ public class SecurityPlan {
         LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource2 = processAndResource2;
         LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource3 = processAndResource3;
         LinkedHashMap<String,HashMap<String,Integer>> shortTime_processAndResource4 = processAndResource4;
-        Equipment shortTime_e1 = new Equipment("E1",1, shortTime_processSeq1,shortTime_processAndResource1);
-        Equipment shortTime_e2 = new Equipment("E2",1, shortTime_processSeq2,shortTime_processAndResource2);
-        Equipment shortTime_e3 = new Equipment("E3",1, shortTime_processSeq3,shortTime_processAndResource3);
-        Equipment shortTime_e4 = new Equipment("E4",1, shortTime_processSeq4,shortTime_processAndResource4);
+        Equipment shortTime_e1 = new Equipment("E1",1, shortTime_processSeq1,shortTime_processAndResource1,change_Process);
+        Equipment shortTime_e2 = new Equipment("E2",1, shortTime_processSeq2,shortTime_processAndResource2,change_Process);
+        Equipment shortTime_e3 = new Equipment("E3",1, shortTime_processSeq3,shortTime_processAndResource3,change_Process);
+        Equipment shortTime_e4 = new Equipment("E4",1, shortTime_processSeq4,shortTime_processAndResource4,change_Process);
         shortTime_list.add(shortTime_e1);
         shortTime_list.add(shortTime_e2);
         shortTime_list.add(shortTime_e3);
@@ -138,10 +140,10 @@ public class SecurityPlan {
         LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource2 = processAndResource2;
         LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource3 = processAndResource3;
         LinkedHashMap<String,HashMap<String,Integer>> highResponse_processAndResource4 = processAndResource4;
-        Equipment highResponse_e1 = new Equipment("E1",1, highResponse_processSeq1,highResponse_processAndResource1);
-        Equipment highResponse_e2 = new Equipment("E2",1, highResponse_processSeq2,highResponse_processAndResource2);
-        Equipment highResponse_e3 = new Equipment("E3",1, highResponse_processSeq3,highResponse_processAndResource3);
-        Equipment highResponse_e4 = new Equipment("E4",1, highResponse_processSeq4,highResponse_processAndResource4);
+        Equipment highResponse_e1 = new Equipment("E1",1, highResponse_processSeq1,highResponse_processAndResource1,change_Process);
+        Equipment highResponse_e2 = new Equipment("E2",1, highResponse_processSeq2,highResponse_processAndResource2,change_Process);
+        Equipment highResponse_e3 = new Equipment("E3",1, highResponse_processSeq3,highResponse_processAndResource3,change_Process);
+        Equipment highResponse_e4 = new Equipment("E4",1, highResponse_processSeq4,highResponse_processAndResource4,change_Process);
         highResponse_list.add(highResponse_e1);
         highResponse_list.add(highResponse_e2);
         highResponse_list.add(highResponse_e3);

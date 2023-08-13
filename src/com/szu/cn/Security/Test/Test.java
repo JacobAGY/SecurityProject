@@ -46,7 +46,10 @@ public class Test {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        Equipment ep1=new Equipment("A",1, processSeq,processAndResource);
+        HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
+        change_Process.put("P1",new ArrayList<String>(){{add("P2");}});
+
+        Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -64,7 +67,7 @@ public class Test {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2);
+        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2,change_Process);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -87,7 +90,7 @@ public class Test {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3);
+        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3,change_Process);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -107,7 +110,7 @@ public class Test {
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
-        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4);
+        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4,change_Process);
 
         equipmentTypeList.add(ep1);
         equipmentTypeList.add(ep2);
@@ -335,13 +338,25 @@ public class Test {
 
         SequentialPlan sequentialPlan_scheduler = new SequentialPlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = sequentialPlan_scheduler.schedule();
-//        ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
-//        Result result = shortTimePlan_scheduler.schedule(maxTime);
+        ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+//        Result result = shortTimePlan_scheduler.schedule();
         HighResponseRatioPlan highResponseRatioPlan_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
 
-        Result result = highResponseRatioPlan_scheduler.schedule(maxTime);
+        Result result1 = sequentialPlan_scheduler.schedule();
+        Result result2 = highResponseRatioPlan_scheduler.schedule();
+        Result result3 = shortTimePlan_scheduler.schedule();
+
+
         System.out.println("==================================");
-        System.out.println("原论文算法时间为：" + result.getTime());
+        Result result = null;
+        if(result1.getTime() <= result2.getTime() && result1.getTime() <= result3.getTime()){
+            result = result1;
+        }else if(result2.getTime() <= result1.getTime() && result2.getTime() <= result3.getTime()){
+            result = result2;
+        }else{
+            result = result3;
+        }
+        System.out.println("最快算法时间为：" + result.getTime());
         System.out.println("执行顺序为：" + result.getList());
 
     }

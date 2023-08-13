@@ -89,19 +89,25 @@ public class ShortTimePlan {
                 List<Equipment> toRemove = new ArrayList<>();
                 for (Equipment ep:entry.getValue()){
                     //若当前工序的装备资源充足则执行
-                    if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
-                            && checkResourceAvailability(ep)){
+                     if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                            && (checkResourceAvailability(ep)||isChangeable(ep))){
                         //分配资源，更新资源列表状态
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
-                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
+                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur())+":"+ep.getOccSeq());
 
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime);
-                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
+                    }else if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                            &&checkResourcePriority(ep)){
+                        //若当前工序有优先级高的资源，则提前占用
+                        allocatePriyResources(ep);
+                        System.out.println(ep.getName()+"占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
+                    }else if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
+                        ep.getFinished_Process().add(ep.getProcessCur());
                         ep.setStatus(Equipment.Equipmentenum.WAIT);
                         System.out.println("调度"+ep.getName()+"工序结束"+getOriginProcess(ep,ep.getProcessCur())+"结束时间"+totalTime);
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
@@ -153,12 +159,12 @@ public class ShortTimePlan {
                 for (Equipment ep:entry.getValue()){
                     //若当前工序的装备资源充足则执行
                     if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
-                            && checkResourceAvailability(ep)){
+                            && (checkResourceAvailability(ep)|| isChangeable(ep))){
                         //分配资源，更新资源列表状态
                         allocateResources(ep);
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
-                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
+                        equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur())+":"+ep.getOccSeq());
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime+"占用资源"+
                                 ep.getOccSeq().toString());
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
@@ -171,6 +177,7 @@ public class ShortTimePlan {
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
+                        ep.getFinished_Process().add(ep.getProcessCur());
                         ep.setStatus(Equipment.Equipmentenum.WAIT);
                         System.out.print("调度"+ep.getName()+"工序结束"+getOriginProcess(ep,ep.getProcessCur())+"结束时间"+totalTime);
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
@@ -197,6 +204,77 @@ public class ShortTimePlan {
         return result;
     }
 
+    /**
+     * 本方法用于检查可变工序是否资源充足
+     * @param equipment
+     * @param change_Process
+     * @return
+     */
+    private boolean checkResourceAvailability(Equipment equipment,String change_Process) {
+        String curProcess = change_Process;
+        Map<String,Integer> resources=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
+        for (Map.Entry<String,Integer> entry: resources.entrySet()){
+            for(Resource resource:resourceList){
+                //若为所需要的资源种类
+                if (resource.getName().equals(entry.getKey())){
+                    int needNum=entry.getValue();
+                    //检查是否已经占用该资源种类
+                    if (equipment.getOccSeq().size()>0){
+                        for (String r:equipment.getOccSeq()){
+                            if (r.split("-")[0].equals(entry.getKey())){
+                                needNum--;
+                            }
+                        }
+                    }
+                    //检查资源是否足够
+                    if (resource.getNum()<needNum){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    /**
+     * isChangeable，若当前工序资源不足，且可交换，交换后资源充足，则重新制定顺序。
+     * @param equipment
+     * @return
+     */
+    private boolean isChangeable(Equipment equipment) {
+        // 如果equipment的change_Process找不到对应的process名称 代表没有可换工序
+        if(equipment.getChange_Process().containsKey(equipment.getProcessCur())){
+            // 遍历当前可换工序，判断该工序是否已经做过
+            ArrayList<String> change_list = equipment.getChange_Process().get(equipment.getProcessCur());
+            for (String change_process: change_list) {
+                if(equipment.getFinished_Process().contains(change_process)){
+                    // 该工序做过，则跳出
+                    continue;
+                }else{
+                    // 没做过，则判断资源是否充足，充足则更换当前工序，包括processSeq（装备顺序）
+                    if(checkResourceAvailability(equipment,change_process)){
+                        // LinkedHashMap没有内置的替代key的方法，只能新建一个LinkedHashMap代替
+                        LinkedHashMap<String,Integer> change_processSeq=new LinkedHashMap<>();
+                        LinkedHashMap<String,Integer> processSeq =  equipment.getProcessSeq();
+                        String cur_Process = equipment.getProcessCur();
+
+                        for (String key_process:processSeq.keySet()) {
+                            if(key_process.equals(cur_Process)){
+                                change_processSeq.put(change_process,processSeq.get(change_process));
+                            }else if(key_process.equals(change_process)){
+                                change_processSeq.put(cur_Process,processSeq.get(cur_Process));
+                            }else{
+                                change_processSeq.put(key_process,processSeq.get(key_process));
+                            }
+                        }
+                        equipment.setProcessSeq(change_processSeq);
+                        return true;
+
+                    }
+                }
+            }
+        }
+        return false;
+    }
     public void initialEqi(List<Equipment> equipmentList){
         //初始化装备工序（考虑工序顺序变化）
         for (Equipment epi: equipmentList) {
