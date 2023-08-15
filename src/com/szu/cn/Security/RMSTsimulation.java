@@ -575,7 +575,7 @@ public class RMSTsimulation {
                     String lru=unit.getKey();
                     if (errorRate>equipment.getErrorMap().get(lru)){
                         //检测出故障且可替换
-                        if (unitList.get(unit.getKey())>0){
+                        if (unitList.get(unit.getKey())!=null&&unitList.get(unit.getKey())>0){
                             //如果有备件替换
                             unitList.put(lru,unitList.get(lru)-1);
                             equipment.setSubstatus(Equipment.Equipmentenum.FixtoAvailableAndKnown);
@@ -811,14 +811,14 @@ public class RMSTsimulation {
 //        equipmentList.add(ep3);
 //        equipmentList.add(ep4);
         HashMap<String,Integer> unitList=new HashMap<String, Integer>(){{
-            put("单元1",3);
-            put("单元2",3);
-            put("单元3",3);
+            put("单元1",10);
+            put("单元2",10);
+            put("单元3",10);
         }};
 
         RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,unitList);
 
-        int mc=20;
+        int mc=50;
         int failedEqi=0;
         int finishedEqi=0;
         for (int i=0;i<mc;i++){
