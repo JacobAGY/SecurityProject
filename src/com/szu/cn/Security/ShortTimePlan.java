@@ -343,10 +343,8 @@ public class ShortTimePlan {
                 if (Have) continue;
             }
             //将资源种类的数量-1
-            if (resource!=null){
+            if (resource!=null&&r!=null){
                 resource.setNum(resource.getNum()-entry.getValue());
-            }
-            if (r!=null){
                 //分配资源给装备
                 equipment.getOccSeq().add(r.getName());
                 //设置资源状态
