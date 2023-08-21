@@ -3,7 +3,7 @@ package com.szu.cn.Security;
 import java.io.Serializable;
 import java.util.*;
 
-public class Equipment  implements Serializable {
+public class Equipment implements Serializable {
     //装备名称
     private String name;
 
@@ -41,6 +41,12 @@ public class Equipment  implements Serializable {
 
     //装备当前工序
     private String processCur;
+
+    //装备的状态序列
+    private ArrayList<String> statusSeq;
+
+    //装备的占用序列
+    private ArrayList<String> usedSeq;
 
     //装备的故障时刻
     private int errorTime;
@@ -286,6 +292,22 @@ public class Equipment  implements Serializable {
 
     public void setProcessCur(String processCur) {
         this.processCur = processCur;
+    }
+
+    public ArrayList<String> getStatusSeq() {
+        return statusSeq;
+    }
+
+    public void setStatusSeq(ArrayList<String> statusSeq) {
+        this.statusSeq = statusSeq;
+    }
+
+    public ArrayList<String> getUsedSeq() {
+        return usedSeq;
+    }
+
+    public void setUsedSeq(ArrayList<String> usedSeq) {
+        this.usedSeq = usedSeq;
     }
 
     public int getErrorTime() {

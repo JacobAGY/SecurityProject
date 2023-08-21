@@ -15,6 +15,10 @@ public class MyFunSobol {
     //待处理装备数量
     private int eq_num;
 
+    //新增无参构造器，生成MyFunSobol类
+    public MyFunSobol() {
+    }
+
     public MyFunSobol(int n, int d, int maxNum, int eq_num) {
         N = n;
         D = d;
@@ -153,12 +157,12 @@ public class MyFunSobol {
         }
     }
 
-    private static double[] getTsc(TestPojo testPojo){
+    public static double[] getTsc(TestPojo testPojo){
         ShortTimePlan scheduler = new ShortTimePlan(testPojo.getEquiments(),testPojo.getResources());
         int N = 50; // Stress levels, obtained from reading
         int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
         int maxNum = 5; // Maximum value for each resource type
-        int eq_num = testPojo.getEquiments().size();
+        int eq_num = testPojo.getEquipmentTypeSeq().size();
         int maxTime=100;
 
         // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
@@ -205,6 +209,9 @@ public class MyFunSobol {
     }
 
     public static void main(String[] args) {
+
+        //
+        System.out.println("==================================进入main");
 
 
         //初始化资源

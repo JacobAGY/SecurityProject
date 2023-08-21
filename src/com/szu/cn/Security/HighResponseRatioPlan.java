@@ -207,7 +207,7 @@ public class HighResponseRatioPlan {
         }
         totalTime--;
         System.out.println("完成装备的数量为: " + finishedEqi);
-        Result result = new Result(equipmentOrder, totalTime);
+        Result result = new Result(equipmentOrder, totalTime,finishedEqi);
         return result;
     }
     /**

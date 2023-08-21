@@ -11,6 +11,12 @@ public class Resource implements Serializable {
     private int num;
 
     private status state;
+
+    //资源价格
+    private int price;
+
+    //资源的全局灵敏度
+    private double globalSensitivity;
     //资源状态集合
     public enum status{
         wait,running
@@ -35,7 +41,21 @@ public class Resource implements Serializable {
     public void setState(status state) {
         this.state = state;
     }
+    public double getGlobalSensitivity() {
+        return globalSensitivity;
+    }
 
+    public void setGlobalSensitivity(double globalSensitivity) {
+        this.globalSensitivity = globalSensitivity;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
     public String getName() {
         return name;
     }

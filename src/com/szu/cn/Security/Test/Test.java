@@ -47,7 +47,7 @@ public class Test {
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
         HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
-        change_Process.put("P1",new ArrayList<String>(){{add("P2");}});
+//        change_Process.put("P1",new ArrayList<String>(){{add("P2");}});
 
         Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process);
 
@@ -220,57 +220,20 @@ public class Test {
 
         Utils.generateEquipmentSeq(testPojo);
 
-//        //是否更改
-//        System.out.println("是否更改装备数量：(Y/N)");
-//        s = scanner.next().toLowerCase();
-//
-//        while (!s.equals("n")){
-//            //需要更改
-//            if (s.equals("y")){
-//                //输入更改后的int序列
-//                System.out.println("请输入更改后的装备数量序列：");
-//                int[] equipmentNums = new int[equiments.size()];
-//                int i = 0;
-//                //读取装备数量
-//                while (scanner.hasNext()){
-//                    int num = Integer.parseInt(scanner.next());
-//                    equipmentNums[i++] = num;
-//                    if (i == equiments.size()) break;
-//                }
-//                //更改equipments
-//                testPojo = changeEquipmentNum(testPojo,equipmentNums);
-//                System.out.println("更改后装备数量为：");
-//                //展示资源数量
-//                for (Equipment equipment : equiments) {
-//                    System.out.println("装备" + equipment.getName() + "的数量为" + equipment.getNum());
-//                }
-//                System.out.println("是否更改装备数量：(Y/N)");
-//                s = scanner.next();
-//
-//            }else {
-//                System.out.println("输入格式错误，请重新输入：");
-//                s = scanner.next();
-//            }
-//        }
-
-//        shortestTime(testPojo);
-//        shortestTime(testPojo,250);
         testSequentialPlan(testPojo,250);
-//        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
-//        Result result1 = shortTime_scheduler.schedule();
-////        System.out.println(result1.getList());
-//
-//        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
-//        Result result2 = highResponse_scheduler.schedule();
-////        System.out.println(result2.getList());
-//        System.out.println("==================================");
-//        System.out.println("短作业算法时间为：" + result1.getTime());
-//        System.out.println("高响应比算法时间为：" + result2.getTime());
-//        if(result1.getTime() <= result2.getTime()){
-//            System.out.println("经过对比，短作业算法时间更短，执行顺序为：" + result1.getList());
-//        }else{
-//            System.out.println("经过对比，高响应比算法时间更短，执行顺序为：" + result2.getList());
-//        }
+//        shortestTime(testPojo,250);
+
+        //测试project C
+
+        //设置资源价格
+        for (int i = 0; i < testPojo.getResources().size(); i++) {
+            System.out.println("请输入" + testPojo.getResources().get(i).getName() + " 的价格：");
+            int next = Integer.parseInt(scanner.next());
+            testPojo.getResources().get(i).setPrice(next);
+        }
+
+        ResourceOptimizationPlan resourceOptimizationPlan = new ResourceOptimizationPlan();
+        resourceOptimizationPlan.optimalSoulution(testPojo);
     }
 
     //更改resouces数量，返回TestPojo
@@ -361,7 +324,7 @@ public class Test {
 
     }
     //最短时间测试
-    public static int shortestTime(TestPojo testPojo,int maxTime){
+    public static void shortestTime(TestPojo testPojo,int maxTime){
         TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
         TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
@@ -377,10 +340,8 @@ public class Test {
         System.out.println("高响应比算法时间为：" + result2.getTime());
         if(result1.getFinishedEqi() >= result2.getFinishedEqi()){
             System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result1.getFinishedEqi()+"个，执行顺序为：" + result1.getList());
-            return result1.getFinishedEqi();
         }else{
-            System.out.println("经过对比，短作业算法在"+maxTime+"时间内完成更多，为"+result2.getFinishedEqi()+"个，执行顺序为："+ result2.getList());
-            return result2.getFinishedEqi();
+            System.out.println("经过对比，高响应比算法在"+maxTime+"时间内完成更多，为"+result2.getFinishedEqi()+"个，执行顺序为："+ result2.getList());
         }
     }
 }
