@@ -8,6 +8,8 @@ public class Result {
 
     private int finishedEqi;
 
+    private int faiedEqi;
+
     public Result(List<String> list, int time) {
         this.list = list;
         this.time = time;
@@ -17,6 +19,22 @@ public class Result {
         this.list = list;
         this.time = time;
         this.finishedEqi = finishedEqi;
+    }
+
+    public Result(List<String> list, int time, int finishedEqi,int faiedEqi) {
+        this.list = list;
+        this.time = time;
+        this.finishedEqi = finishedEqi;
+        this.faiedEqi=faiedEqi;
+    }
+
+
+    public int getFaiedEqi() {
+        return faiedEqi;
+    }
+
+    public void setFaiedEqi(int faiedEqi) {
+        this.faiedEqi = faiedEqi;
     }
 
     public int getFinishedEqi() {
