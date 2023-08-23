@@ -21,7 +21,6 @@ public class RMSTsimulation {
             }
         }
         this.resourceListDetail=tempList;
-
         this.unitList=unitList;
     }
 
@@ -652,7 +651,7 @@ public class RMSTsimulation {
         //初始化资源
         Resource resource1=new Resource("R1",3);
         Resource resource2=new Resource("R2",3);
-        Resource resource3=new Resource("R3",2);
+        Resource resource3=new Resource("R3",4);
         Resource resource4=new Resource("R4",3);
         Resource resource5=new Resource("R5",2);
         Resource resource6=new Resource("R6",2);
@@ -818,10 +817,22 @@ public class RMSTsimulation {
 
         RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,unitList);
 
-        int mc=50;
+        int mc=200;
         int failedEqi=0;
         int finishedEqi=0;
         for (int i=0;i<mc;i++){
+            //深拷贝资源文件，使得过程原子化
+            try {
+                rmsTsimulation.equipmentList=BeanUtils.deepCopy(equipmentList);
+                rmsTsimulation.resourceList=BeanUtils.deepCopy(resourceList);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            for (Resource r:rmsTsimulation.resourceListDetail) {
+                r.setState(Resource.status.wait);
+            }
             Result result=rmsTsimulation.schedule(100);
             failedEqi+=result.getFaiedEqi();
             finishedEqi+=result.getFinishedEqi();
