@@ -53,6 +53,14 @@ public class ShortTimePlan {
         for (int i = 0; i < resourceList.length; i++) {
             this.resourceList.get(i).setNum(resourceList[i]);
         }
+        List<Resource> tempList=new ArrayList<>();
+        for (int i=0;i<this.resourceList.size();i++){
+            for (int j=1;j<=this.resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(this.resourceList.get(i).getName()+"-"+j,1);
+                tempList.add(resource);
+            }
+        }
+        this.resourceListDetail=tempList;
     }
 
     //所有装备完成时间
@@ -131,8 +139,10 @@ public class ShortTimePlan {
         //对对象进行深拷贝
         //通过clone方式，把list01拷贝给list02
         List<Equipment> tempequipmentList = null;
+        List<Resource> tempresourseList = null;
         try {
             tempequipmentList = BeanUtils.deepCopy(equipmentList);
+            tempresourseList=BeanUtils.deepCopy(resourceList);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
@@ -203,6 +213,10 @@ public class ShortTimePlan {
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
         Result result=new Result(equipmentOrder,totalTime,finishedEqi);
         this.equipmentList=tempequipmentList;
+        this.resourceList=tempresourseList;
+        for (Resource r:this.resourceListDetail) {
+            r.setState(Resource.status.wait);
+        }
         return result;
     }
 
