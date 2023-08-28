@@ -59,6 +59,8 @@ public class ResourceOptimizationPlan {
             allCost += resources.get(i).getPrice() * resources.get(i).getNum();
         }
         System.out.println("总花费为：" + allCost);
+        System.out.println("下降");
+        String next = in.next();
 
         while (true) {
             if (a > A) {
@@ -68,30 +70,32 @@ public class ResourceOptimizationPlan {
                 while (b < B) {
                     // 为了避免陷入局部最优，在算法中加入扰动过程。任意选择执行邻域结构，不需要评估得到的邻域解的质量，将其直接赋值为当前解。
                     Random random = new Random();
-                    int temp = random.nextInt(4);
                     //扰动过程
                     TestPojo testPojoOri = (TestPojo) SerializationUtils.clone(testPojo);
-                    if (temp > 1) {
-                        TestPojo tempNd2 = neighborND1(testPojo, Q, beta);
-                        if (tempNd2 != null) {
-                            testPojo = tempNd2;
-                        }
-                    } else {
-                        TestPojo tempNd1 = neighborND2(testPojo, Q, beta);
-                        if (tempNd1 != null) {
-                            testPojo = tempNd1;
+                    for (int i = 0; i < b; i++) {
+                        int temp = random.nextInt(4);
+                        if (temp > 1) {
+                            TestPojo tempNd2 = neighborND1(testPojo, Q, beta);
+                            if (tempNd2 != null) {
+                                testPojo = tempNd2;
+                            }
+                        } else {
+                            TestPojo tempNd1 = neighborND2(testPojo, Q, beta);
+                            if (tempNd1 != null) {
+                                testPojo = tempNd1;
+                            }
                         }
                     }
                     testPojo = variableFieldDrop(testPojo, Q, beta);
                     if (compareSolutions(testPojoOri, testPojo, Q, beta) > 0) {
-                        a = 1;
-                        b = 0;
+                        testPojo = testPojoOri;
 
                     } else {
-                        testPojo = testPojoOri;
-                        b+=1;
-                        beta += 1;
+                        a = 1;
+                        b = 0;
                     }
+                    b += 1;
+                    beta += 1;
                 }
                 a += 1;
             }
@@ -99,8 +103,11 @@ public class ResourceOptimizationPlan {
 
 
         allCost = 0;
-        System.out.println("经过变邻域搜索算法 得到解为：");
+
         resources = testPojo.getResources();
+        Utils.shortestTime(testPojo, 250);
+        System.out.println("↑↑↑↑↑↑↑↑最优↑↑↑↑↑↑↑↑");
+        System.out.println("经过变邻域搜索算法 得到解为：");
         for (int i = 0; i < resources.size(); i++) {
             System.out.println(" 资源 " + resources.get(i).getName() + " 的数量为" + resources.get(i).getNum());
             allCost += resources.get(i).getNum() * resources.get(i).getPrice();
