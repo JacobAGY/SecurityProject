@@ -438,7 +438,7 @@ public class RMSTsimulation {
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
         //为工序分配资源，资源数量减少
         for (Map.Entry<String,Integer> entry:prp.entrySet()){
-            if (entry.getValue()>1){
+            if (entry.getValue()>0){
                 //获取所需资源种类
                 Resource resource=findResource(entry.getKey());
                 //获取确定的资源
