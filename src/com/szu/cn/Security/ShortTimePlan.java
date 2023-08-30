@@ -184,7 +184,7 @@ public class ShortTimePlan {
                             &&checkResourcePriority(ep)){
                         //若当前工序有优先级高的资源，则提前占用
                         allocatePriyResources(ep);
-                        System.out.println(ep.getName()+"占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
+                        System.out.println(ep.getName()+"优先占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
                     }
                     else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
@@ -323,8 +323,8 @@ public class ShortTimePlan {
     private boolean checkResourcePriority(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
         //若当前工序有资源优先级，则获取<资源名，优先级>
-        if (equipment.getProcessAndResource().containsKey(curProcess)){
-            Map<String,Integer> resourceAndPriy=equipment.getProcessAndResource().get(curProcess);
+        if (equipment.getProcessAndResourcePriority()!=null&&equipment.getProcessAndResourcePriority().containsKey(curProcess)){
+            Map<String,Integer> resourceAndPriy=equipment.getProcessAndResourcePriority().get(curProcess);
             for (Map.Entry<String,Integer> entry: resourceAndPriy.entrySet()){
                 //判断是否有该优先级资源
                 for(Resource resource:resourceList){
@@ -373,7 +373,7 @@ public class ShortTimePlan {
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
         //为工序分配资源，资源数量减少
         for (Map.Entry<String,Integer> entry:prp.entrySet()){
-            if (entry.getValue()>1){
+            if (entry.getValue()>0){
                 //获取所需资源种类
                 Resource resource=findResource(entry.getKey());
                 //获取确定的资源
@@ -491,8 +491,8 @@ public class ShortTimePlan {
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
-        Resource resource3=new Resource("R3",2);
-        Resource resource4=new Resource("R4",5);
+        Resource resource3=new Resource("R3",1);
+        Resource resource4=new Resource("R4",1);
         Resource resource5=new Resource("R5",3);
         Resource resource6=new Resource("R6",2);
         Resource resource7=new Resource("R7",3);
@@ -519,7 +519,7 @@ public class ShortTimePlan {
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
         processAndResource.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
         processAndResource.put("P2",new HashMap<String,Integer>(){{put("R2",1);}});
-        processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
+        processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
         processAndResource.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
         processAndResource.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
@@ -542,14 +542,14 @@ public class ShortTimePlan {
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
         processSeq2.put("P2",5);
-        processSeq2.put("P3",15);
+        processSeq2.put("P3",5);
         processSeq2.put("P4",12);
         processSeq2.put("P5",16);
         processSeq2.put("P6",20);
 
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
         processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
-        processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);put("R3",1);}});
+        processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
         processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
         processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
@@ -581,13 +581,13 @@ public class ShortTimePlan {
         Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
-        processSeq4.put("P1",6);
-        processSeq4.put("P2",10);
-        processSeq4.put("P3",15);
-        processSeq4.put("P4",5);
+        processSeq4.put("P1",5);
+        processSeq4.put("P2",12);
+        processSeq4.put("P3",8);
+        processSeq4.put("P4",8);
         processSeq4.put("P5",12);
-        processSeq4.put("P6",12);
-        processSeq4.put("P7",6);
+        processSeq4.put("P6",10);
+        processSeq4.put("P7",15);
 
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource4=new LinkedHashMap<>();
         processAndResource4.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
