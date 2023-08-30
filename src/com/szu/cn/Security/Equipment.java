@@ -13,23 +13,33 @@ public class Equipment implements Serializable {
     //装备状态集合
     private Equipmentenum status;
 
+    private Equipmentenum substatus;
+
     //装备的结构组成
     private ArrayList<String> composition;
 
     //装备故障率
     private double failRate;
 
-    //装备各组成单元的故障模式名称及其故障率
-    private HashMap<String,Double> map;
+    //装备各组成单元及其可靠性指标
+    private HashMap<String,Double> failMap;
+
+    //LRU及其故障检测率
+    private HashMap<String,Double> errorMap;
 
     //装备的LRU
-    private String LRU;
+    private List<String> LRU;
 
     //装备LRU的平均维修时间
-    private double repairTime;
+    private HashMap<String,Integer> LRUrepairTime;
+
+    //装备可靠性指标
+    private double ReliabilityRate;
 
     //装备LRU的故障检测率
     private double faultDetectionRate;
+    //标示哪个工序为检修工序
+    private String fixprocess;
 
     //装备的工序序列<工序名,所需时间>
     private LinkedHashMap<String,Integer> processSeq;
@@ -101,7 +111,26 @@ public class Equipment implements Serializable {
         this.occSeq=new ArrayList<>();
         this.processAndResourcePriority=prcessAndResoursePriy;
     }
-
+    public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,
+                     LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,HashMap<String,Double> failmap,
+                     HashMap<String,Double> errorMap,List<String> lru,HashMap<String,Integer> repairTime,String fixprocess) {
+        this.name = e1;
+        this.num = i;
+        this.processSeq_Origin = processSeq;
+        this.processSeq=processSeq;
+        this.processAndResource = processAndResource;
+        this.processCur = processSeq.entrySet().iterator().next().getKey();
+        this.status = Equipmentenum.WAIT;
+        this.processSeq_Origin = processSeq;
+        this.occSeq=new ArrayList<>();
+        this.processAndResourcePriority=prcessAndResoursePriy;
+        this.failMap=failmap;
+        this.errorMap=errorMap;
+        this.LRU=lru;
+        this.LRUrepairTime=repairTime;
+        this.substatus=null;
+        this.fixprocess=fixprocess;
+    }
     public LinkedHashMap<String, Integer> getProcessSeq_Origin() {
         return processSeq_Origin;
     }
@@ -122,7 +151,11 @@ public class Equipment implements Serializable {
         WAIT,
         RUN,
         FINISH,
-        FIX
+        FIX,
+        AvailableAndKnown,
+        UnavailableAndKnown,
+        UnAvailableAndUnknown,
+        FixtoAvailableAndKnown
     }
 
     //装备的状态序列
@@ -141,6 +174,30 @@ public class Equipment implements Serializable {
     private int finishTime;
     //装备的当前状态（hgx）
     private String statusCur;
+
+    public double getReliabilityRate() {
+        return ReliabilityRate;
+    }
+
+    public void setReliabilityRate(double reliabilityRate) {
+        ReliabilityRate = reliabilityRate;
+    }
+
+    public String getFixprocess() {
+        return fixprocess;
+    }
+
+    public void setFixprocess(String fixprocess) {
+        this.fixprocess = fixprocess;
+    }
+
+    public Equipmentenum getSubstatus() {
+        return substatus;
+    }
+
+    public void setSubstatus(Equipmentenum substatus) {
+        this.substatus = substatus;
+    }
 
     public int getFinishTime() {
         return finishTime;
@@ -190,28 +247,12 @@ public class Equipment implements Serializable {
         this.failRate = failRate;
     }
 
-    public HashMap<String, Double> getMap() {
-        return map;
+    public HashMap<String, Double> getFailMap() {
+        return failMap;
     }
 
-    public void setMap(HashMap<String, Double> map) {
-        this.map = map;
-    }
-
-    public String getLRU() {
-        return LRU;
-    }
-
-    public void setLRU(String LRU) {
-        this.LRU = LRU;
-    }
-
-    public double getRepairTime() {
-        return repairTime;
-    }
-
-    public void setRepairTime(double repairTime) {
-        this.repairTime = repairTime;
+    public void setFailMap(HashMap<String, Double> failMap) {
+        this.failMap = failMap;
     }
 
     public double getFaultDetectionRate() {
@@ -262,12 +303,28 @@ public class Equipment implements Serializable {
         this.occSeq = occSeq;
     }
 
-    public int getFailMoment() {
-        return failMoment;
+    public HashMap<String, Double> getErrorMap() {
+        return errorMap;
     }
 
-    public void setFailMoment(int failMoment) {
-        this.failMoment = failMoment;
+    public void setErrorMap(HashMap<String, Double> errorMap) {
+        this.errorMap = errorMap;
+    }
+
+    public List<String> getLRU() {
+        return LRU;
+    }
+
+    public void setLRU(List<String> LRU) {
+        this.LRU = LRU;
+    }
+
+    public HashMap<String, Integer> getLRUrepairTime() {
+        return LRUrepairTime;
+    }
+
+    public void setLRUrepairTime(HashMap<String, Integer> LRUrepairTime) {
+        this.LRUrepairTime = LRUrepairTime;
     }
 
     public Equipmentenum getStatus() {

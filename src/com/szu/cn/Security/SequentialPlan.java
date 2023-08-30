@@ -104,7 +104,7 @@ public class SequentialPlan {
             }
             totalTime++;
         }
-        totalTime--;
+//        totalTime--;
         System.out.println("完成装备的数量为: " + finish_flag);
         Result result = new Result(equipmentOrder, totalTime);
         return result;

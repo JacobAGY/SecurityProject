@@ -158,7 +158,7 @@ public class ShortTimePlan {
                 List<Equipment> toRemove = new ArrayList<>();
                 for (Equipment ep:entry.getValue()){
                     //若当前工序的装备资源充足则执行
-                    if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                    if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
                             && (checkResourceAvailability(ep)|| isChangeable(ep))){
                         //分配资源，更新资源列表状态
                         allocateResources(ep);
@@ -167,13 +167,13 @@ public class ShortTimePlan {
                         equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur())+":"+ep.getOccSeq());
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime+"占用资源"+
                                 ep.getOccSeq().toString());
-                    }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
+                    }else if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.WAIT)
                             &&checkResourcePriority(ep)){
                         //若当前工序有优先级高的资源，则提前占用
                         allocatePriyResources(ep);
                         System.out.println(ep.getName()+"占用资源"+ep.getOccSeq().toString()+"占用时间"+totalTime);
                     }
-                    else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
+                    else if ((ep.getProcessCur() != null && ep.getProcessCur().equals(entry.getKey())) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
                         // 判断当前时间是否等于当前工序完成的时间，是代表完成当前工序，需要更改状态
                         //工序完成
