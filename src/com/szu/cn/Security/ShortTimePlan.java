@@ -586,8 +586,9 @@ public class ShortTimePlan {
         processAndResourcePriority.put("P7",new HashMap<String,Integer>(){{put("R3",1);}});
         processAndResourcePriority.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
+        HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
 
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,processAndResourcePriority);
+        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,processAndResourcePriority,change_Process);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -605,7 +606,7 @@ public class ShortTimePlan {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2,change_Process);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -628,7 +629,7 @@ public class ShortTimePlan {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3,change_Process);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",6);
@@ -648,7 +649,7 @@ public class ShortTimePlan {
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
-        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
+        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4,change_Process);
 
         equipmentList.add(ep1);
         equipmentList.add(ep2);

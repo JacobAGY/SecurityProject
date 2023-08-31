@@ -83,6 +83,7 @@ public class Equipment implements Serializable {
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
         this.occSeq=new ArrayList<>();
+        this.finished_Process = new ArrayList<>();
     }
 
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,HashMap<String,ArrayList<String>> change_Process) {
@@ -111,6 +112,20 @@ public class Equipment implements Serializable {
         this.occSeq=new ArrayList<>();
         this.processAndResourcePriority=prcessAndResoursePriy;
     }
+    public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,HashMap<String,ArrayList<String>> change_Process) {
+        this.name = e1;
+        this.num = i;
+        this.processSeq_Origin = processSeq;
+        this.processSeq=processSeq;
+        this.processAndResource = processAndResource;
+        this.processCur = processSeq.entrySet().iterator().next().getKey();
+        this.status = Equipmentenum.WAIT;
+        this.processSeq_Origin = processSeq;
+        this.occSeq=new ArrayList<>();
+        this.processAndResourcePriority=prcessAndResoursePriy;
+        this.change_Process = change_Process;
+        this.finished_Process = new ArrayList<>();
+    }
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,
                      LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,HashMap<String,Double> failmap,
                      HashMap<String,Double> errorMap,List<String> lru,HashMap<String,Integer> repairTime,String fixprocess) {
@@ -130,6 +145,7 @@ public class Equipment implements Serializable {
         this.LRUrepairTime=repairTime;
         this.substatus=null;
         this.fixprocess=fixprocess;
+        this.finished_Process = new ArrayList<>();
     }
     public LinkedHashMap<String, Integer> getProcessSeq_Origin() {
         return processSeq_Origin;
