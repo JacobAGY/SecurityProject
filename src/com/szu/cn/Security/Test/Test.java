@@ -272,10 +272,10 @@ public class Test {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
-        change_Process.put("P1",new ArrayList<String>(){{add("P2");}});
+        HashMap<String,ArrayList<String>> change_Process1 = new HashMap<>();
+        change_Process1.put("P3",new ArrayList<String>(){{add("P4");}});
 
-        Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process);
+        Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process1);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -293,7 +293,11 @@ public class Test {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2,change_Process);
+        HashMap<String,ArrayList<String>> change_Process2 = new HashMap<>();
+        change_Process2.put("P2",new ArrayList<String>(){{add("P3");}});
+        change_Process2.put("P3",new ArrayList<String>(){{add("P5");}});
+        change_Process2.put("P5",new ArrayList<String>(){{add("P6");}});
+        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2,change_Process2);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -316,7 +320,10 @@ public class Test {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3,change_Process);
+        HashMap<String,ArrayList<String>> change_Process3 = new HashMap<>();
+        change_Process3.put("P4",new ArrayList<String>(){{add("P5");}});
+        change_Process3.put("P6",new ArrayList<String>(){{add("P8");}});
+        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3,change_Process3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -335,8 +342,9 @@ public class Test {
         processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
-
-        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4,change_Process);
+        HashMap<String,ArrayList<String>> change_Process4 = new HashMap<>();
+        change_Process4.put("P2",new ArrayList<String>(){{add("P3");}});
+        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4,change_Process4);
 
         equipmentTypeList.add(ep1);
         equipmentTypeList.add(ep2);
