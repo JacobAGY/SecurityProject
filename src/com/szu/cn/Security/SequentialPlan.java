@@ -57,7 +57,7 @@ public class SequentialPlan {
             for (int i = 0; i < len; i++) {
                 Equipment e = tempequipmentList.get(i);
                 if (e.getStatus().equals(Equipment.Equipmentenum.WAIT)) {
-                    if (checkResourceAvailability(e) || isChangeable(e)) {
+                    if (checkResourceAvailability(e)) {
                         /**
                          * 如果资源充足或工序可交换且资源充足，执行
                          * 1.修改工序状态
@@ -85,7 +85,6 @@ public class SequentialPlan {
                         2.修改状态为等待状态或完成状态
                         3.将run_flag置为true，表示有工序完成
                      */
-                    e.getFinished_Process().add(e.getProcessCur());
                     e.setStatus(Equipment.Equipmentenum.WAIT);
                     releaseResources(e);
                     i--;
@@ -133,7 +132,7 @@ public class SequentialPlan {
             for (int i = 0; i < len; i++) {
                 Equipment e = tempequipmentList.get(i);
                 if (e.getStatus().equals(Equipment.Equipmentenum.WAIT)) {
-                    if (checkResourceAvailability(e) || isChangeable(e)) {
+                    if (checkResourceAvailability(e)) {
                         /**
                          * 如果资源充足或者可变换的工序资源充足，执行
                          * 1.修改工序状态
@@ -161,8 +160,6 @@ public class SequentialPlan {
                         2.需要预判下一工序是否还需要相同资源，需要的话则不释放该资源
                         3.增加已完成的工序
                      */
-                    e.getFinished_Process().add(e.getProcessCur());
-                    e.getFinished_Process().add(e.getProcessCur());
                     e.setStatus(Equipment.Equipmentenum.WAIT);
                     releaseResources(e);
                     i--;
@@ -176,7 +173,7 @@ public class SequentialPlan {
             }
             totalTime++;
         }
-        totalTime--;
+//        totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finish_flag);
         Result result=new Result(equipmentOrder,totalTime,finish_flag);
 //        this.equipmentList=tempequipmentList;
@@ -208,78 +205,8 @@ public class SequentialPlan {
         return true;
     }
 
-    /**
-     * 本方法用于检查可变工序是否资源充足
-     * @param equipment
-     * @param change_Process
-     * @return
-     */
-    private boolean checkResourceAvailability(Equipment equipment,String change_Process) {
-        String curProcess = change_Process;
-        Map<String,Integer> resources=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
-        for (Map.Entry<String,Integer> entry: resources.entrySet()){
-            for(Resource resource:resourceList){
-                //若为所需要的资源种类
-                if (resource.getName().equals(entry.getKey())){
-                    int needNum=entry.getValue();
-                    //检查是否已经占用该资源种类
-                    if (equipment.getOccSeq().size()>0){
-                        for (String r:equipment.getOccSeq()){
-                            if (r.split("-")[0].equals(entry.getKey())){
-                                needNum--;
-                            }
-                        }
-                    }
-                    //检查资源是否足够
-                    if (resource.getNum()<needNum){
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
-    /**
-     * isChangeable，若当前工序资源不足，且可交换，交换后资源充足，则重新制定顺序。
-     * @param equipment
-     * @return
-     */
-    private boolean isChangeable(Equipment equipment) {
-        // 如果equipment的change_Process找不到对应的process名称 代表没有可换工序
-        if(equipment.getChange_Process().containsKey(equipment.getProcessCur())){
-            // 遍历当前可换工序，判断该工序是否已经做过
-            ArrayList<String> change_list = equipment.getChange_Process().get(equipment.getProcessCur());
-            for (String change_process: change_list) {
-                if(equipment.getFinished_Process().contains(change_process)){
-                    // 该工序做过，则跳出
-                    continue;
-                }else{
-                    // 没做过，则判断资源是否充足，充足则更换当前工序，包括processSeq（装备顺序）
-                    if(checkResourceAvailability(equipment,change_process)){
-                        // LinkedHashMap没有内置的替代key的方法，只能新建一个LinkedHashMap代替
-                        LinkedHashMap<String,Integer> change_processSeq=new LinkedHashMap<>();
-                        LinkedHashMap<String,Integer> processSeq =  equipment.getProcessSeq();
-                        String cur_Process = equipment.getProcessCur();
 
-                        for (String key_process:processSeq.keySet()) {
-                            if(key_process.equals(cur_Process)){
-                                change_processSeq.put(change_process,processSeq.get(change_process));
-                            }else if(key_process.equals(change_process)){
-                                change_processSeq.put(cur_Process,processSeq.get(cur_Process));
-                            }else{
-                                change_processSeq.put(key_process,processSeq.get(key_process));
-                            }
-                        }
-                        equipment.setProcessSeq(change_processSeq);
-                        return true;
-
-                    }
-                }
-            }
-        }
-        return false;
-    }
     public Resource findDetailResource(String name){
         for (Resource resource : resourceListDetail) {
             if (resource.getName().split("-")[0].equals(name)&&resource.getState().equals(Resource.status.wait)){

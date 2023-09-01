@@ -2,7 +2,7 @@ package com.szu.cn.Security;
 
 import java.util.*;
 
-public class HighResponseRatioPlan {
+public class HighResponseRatioPlan_B {
 
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
@@ -13,7 +13,7 @@ public class HighResponseRatioPlan {
     private double[] currentRatio;
     private int[] timeLeft;
 
-    public HighResponseRatioPlan(List<Equipment> equipmentList, List<Resource> resourceList) {
+    public HighResponseRatioPlan_B(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
         this.resourceList = resourceList;
         List<Resource> tempList=new ArrayList<>();
@@ -76,7 +76,7 @@ public class HighResponseRatioPlan {
                 int index = arr[i];//index是下标
                 Equipment e = equipmentList.get(index);
                 if (e.getStatus().equals(Equipment.Equipmentenum.WAIT)) {
-                    if (checkResourceAvailability(e)) {
+                    if (checkResourceAvailability(e) || isChangeable(e)) {
                         /*
                             如果当前响应比最高的资源充足
                             1.分配资源，修改资源的数量
@@ -112,6 +112,7 @@ public class HighResponseRatioPlan {
                             2）需要则进行判断下一工序是否会在下一个totalTime执行，不会则释放资源
                             3）会则需要锁定资源，即将该下一工序所需资源--
                      */
+                    e.getFinished_Process().add(e.getProcessCur());
                     e.setStatus(Equipment.Equipmentenum.WAIT);
                     timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
                     timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
@@ -150,7 +151,7 @@ public class HighResponseRatioPlan {
                 int index = arr[i];//index是下标
                 Equipment e = equipmentList.get(index);
                 if (e.getStatus().equals(Equipment.Equipmentenum.WAIT)) {
-                    if (checkResourceAvailability(e)) {
+                    if (checkResourceAvailability(e) || isChangeable(e)) {
                         /*
                             如果当前响应比最高的资源充足
                             1.分配资源，修改资源的数量
@@ -186,6 +187,7 @@ public class HighResponseRatioPlan {
                             2）需要则进行判断下一工序是否会在下一个totalTime执行，不会则释放资源
                             3）会则需要锁定资源，即将该下一工序所需资源--
                      */
+                    e.getFinished_Process().add(e.getProcessCur());
                     e.setStatus(Equipment.Equipmentenum.WAIT);
                     timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
                     timeLeft[index] -= e.getProcessSeq_Origin().get(e.getProcessCur());
@@ -210,11 +212,12 @@ public class HighResponseRatioPlan {
     /**
      * 本方法用于检查可变工序是否资源充足
      * @param equipment
+     * @param change_Process
      * @return
      */
-    private boolean checkResourceAvailability(Equipment equipment) {
-        String curProcess=equipment.getProcessCur();
-        Map<String,Integer> resources=equipment.getProcessAndResource().get(curProcess);
+    private boolean checkResourceAvailability(Equipment equipment,String change_Process) {
+        String curProcess = change_Process;
+        Map<String,Integer> resources=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
         for (Map.Entry<String,Integer> entry: resources.entrySet()){
             for(Resource resource:resourceList){
                 //若为所需要的资源种类
@@ -237,7 +240,47 @@ public class HighResponseRatioPlan {
         }
         return true;
     }
+    /**
+     * isChangeable，若当前工序资源不足，且可交换，交换后资源充足，则重新制定顺序。
+     * @param equipment
+     * @return
+     */
+    private boolean isChangeable(Equipment equipment) {
+        // 如果equipment的change_Process找不到对应的process名称 代表没有可换工序
+        if(equipment.getChange_Process().containsKey(equipment.getProcessCur())){
+            // 遍历当前可换工序，判断该工序是否已经做过
+            ArrayList<String> change_list = equipment.getChange_Process().get(equipment.getProcessCur());
+            for (String change_process: change_list) {
+                if(equipment.getFinished_Process().contains(change_process)){
+                    // 该工序做过，则跳出
+                    continue;
+                }else{
+                    // 没做过，则判断资源是否充足，充足则更换当前工序，包括processSeq（装备顺序）
+                    // 高响应比算法比较特殊，需要修改timeLeft
+                    if(checkResourceAvailability(equipment,change_process)){
+                        // LinkedHashMap没有内置的替代key的方法，只能新建一个LinkedHashMap代替
+                        LinkedHashMap<String,Integer> change_processSeq=new LinkedHashMap<>();
+                        LinkedHashMap<String,Integer> processSeq =  equipment.getProcessSeq();
+                        String cur_Process = equipment.getProcessCur();
 
+                        for (String key_process:processSeq.keySet()) {
+                            if(key_process.equals(cur_Process)){
+                                change_processSeq.put(change_process,processSeq.get(change_process));
+                            }else if(key_process.equals(change_process)){
+                                change_processSeq.put(cur_Process,processSeq.get(cur_Process));
+                            }else{
+                                change_processSeq.put(key_process,processSeq.get(key_process));
+                            }
+                        }
+                        equipment.setProcessSeq(change_processSeq);
+                        return true;
+
+                    }
+                }
+            }
+        }
+        return false;
+    }
     /**
      * 根据剩余时间高响应比返回集合
      * 判断响应比，响应比大的在前面，如果响应比相同，以剩余时间少的为先
@@ -273,6 +316,31 @@ public class HighResponseRatioPlan {
         return arr;
     }
 
+    private boolean checkResourceAvailability(Equipment equipment) {
+        String curProcess=equipment.getProcessCur();
+        Map<String,Integer> resources=equipment.getProcessAndResource().get(curProcess);
+        for (Map.Entry<String,Integer> entry: resources.entrySet()){
+            for(Resource resource:resourceList){
+                //若为所需要的资源种类
+                if (resource.getName().equals(entry.getKey())){
+                    int needNum=entry.getValue();
+                    //检查是否已经占用该资源种类
+                    if (equipment.getOccSeq().size()>0){
+                        for (String r:equipment.getOccSeq()){
+                            if (r.split("-")[0].equals(entry.getKey())){
+                                needNum--;
+                            }
+                        }
+                    }
+                    //检查资源是否足够
+                    if (resource.getNum()<needNum){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
     private void allocateResources(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
@@ -293,8 +361,10 @@ public class HighResponseRatioPlan {
                 if (Have) continue;
             }
             //将资源种类的数量-1
-            if (resource!=null&&r!=null){
+            if (resource!=null){
                 resource.setNum(resource.getNum()-entry.getValue());
+            }
+            if (r!=null){
                 //分配资源给装备
                 equipment.getOccSeq().add(r.getName());
                 //设置资源状态
@@ -342,13 +412,6 @@ public class HighResponseRatioPlan {
     }
 
     private void releaseResources(Equipment equipment) {
-//        String curProcess=equipment.getProcessCur();
-//        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
-//        //工序释放资源，资源数量增加
-//        for (Map.Entry<String,Integer> entry:pr.entrySet()){
-//            Resource resource=findResource(entry.getKey());
-//            resource.setNum(resource.getNum()+entry.getValue());
-//        }
 
         //设置装备的当前工序为下一道工序(当前程序下的工序顺序)
         String last="";

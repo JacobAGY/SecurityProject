@@ -5,14 +5,14 @@ package com.szu.cn.Security;
 import java.io.IOException;
 import java.util.*;
 
-public class ShortTimePlan {
+public class ShortTimePlan_B {
 
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
     private List<Resource> resourceListDetail;
 
-    public ShortTimePlan(List<Equipment> equipmentList, List<Resource> resourceList) {
+    public ShortTimePlan_B(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
         this.resourceList=resourceList;
         List<Resource> tempList=new ArrayList<>();
@@ -656,7 +656,7 @@ public class ShortTimePlan {
         equipmentList.add(ep3);
         equipmentList.add(ep4);
 
-        ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
+        ShortTimePlan_B scheduler = new ShortTimePlan_B(equipmentList,resourceList);
 //        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
         scheduler.schedule(100);
     }

@@ -4,7 +4,7 @@ import com.szu.cn.Security.Test.TestPojo;
 
 import java.util.*;
 
-public class MyFunSobol {
+public class MyFunSobol_B {
 
     //应力水平数
     private int N;
@@ -16,10 +16,10 @@ public class MyFunSobol {
     private int eq_num;
 
     //新增无参构造器，生成MyFunSobol类
-    public MyFunSobol() {
+    public MyFunSobol_B() {
     }
 
-    public MyFunSobol(int n, int d, int maxNum, int eq_num) {
+    public MyFunSobol_B(int n, int d, int maxNum, int eq_num) {
         N = n;
         D = d;
         this.maxNum = maxNum;
@@ -68,7 +68,7 @@ public class MyFunSobol {
 
 
     // Calculate Sobol analysis for a given resource configuration
-    private static int[] calculateSobol(ShortTimePlan shortTimePlan,int maxTime,int[][] resource, int ep_num) {
+    private static int[] calculateSobol(ShortTimePlan_B shortTimePlan,int maxTime,int[][] resource, int ep_num) {
 
         int N = resource.length;
         int[] ep = new int[N];
@@ -158,7 +158,7 @@ public class MyFunSobol {
     }
 
     public static double[] getTsc(TestPojo testPojo){
-        ShortTimePlan scheduler = new ShortTimePlan(testPojo.getEquiments(),testPojo.getResources());
+        ShortTimePlan_B scheduler = new ShortTimePlan_B(testPojo.getEquiments(),testPojo.getResources());
         int N = 50; // Stress levels, obtained from reading
         int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
         int maxNum = 5; // Maximum value for each resource type

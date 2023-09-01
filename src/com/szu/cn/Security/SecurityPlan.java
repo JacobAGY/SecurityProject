@@ -1,5 +1,4 @@
 package com.szu.cn.Security;
-import java.sql.SQLOutput;
 import java.util.*;
 
 public class SecurityPlan {
@@ -149,7 +148,7 @@ public class SecurityPlan {
         highResponse_list.add(highResponse_e3);
         highResponse_list.add(highResponse_e4);
 
-        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_list,resourceList);
+        ShortTimePlan_B shortTime_scheduler = new ShortTimePlan_B(shortTime_list,resourceList);
         Result result1 = shortTime_scheduler.schedule();
         System.out.println(result1.getList());
         HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_list,resourceList);

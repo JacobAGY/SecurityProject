@@ -103,11 +103,13 @@ public class ResourceOptimizationPlan {
 
 
         allCost = 0;
-
         resources = testPojo.getResources();
-        Utils.shortestTime(testPojo, 250);
+//        Utils.shortestTime(testPojo, 250);
+//        AlgorithmUtils.shortestTime1(testPojo, 250);
+        AlgorithmUtils.shortestTime2(testPojo, 250);
         System.out.println("↑↑↑↑↑↑↑↑最优↑↑↑↑↑↑↑↑");
         System.out.println("经过变邻域搜索算法 得到解为：");
+        resources = testPojo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             System.out.println(" 资源 " + resources.get(i).getName() + " 的数量为" + resources.get(i).getNum());
             allCost += resources.get(i).getNum() * resources.get(i).getPrice();
@@ -148,6 +150,7 @@ public class ResourceOptimizationPlan {
 
         //3.根据各项保障资源的全局灵敏度，按照从小到大依次编号
         MyFunSobol myFunSobol = new MyFunSobol();
+//        MyFunSobol_B myFunSobol = new MyFunSobol_B();
 
         System.out.println("start getTsc");
 
@@ -331,6 +334,8 @@ public class ResourceOptimizationPlan {
         for (int i = 0; i < resources.size(); i++) {
             //资源数量-1
             int num = resources.get(i).getNum();
+            //下降过程 防止资源为负数
+            if (num == 0) continue;
             resources.get(i).setNum(num - 1);
             testPojo.setResources(resources);
             //获得最大保障装备数量 最大时间设定为250

@@ -121,7 +121,6 @@ public class Test {
         testPojo.setResources(resourceList);
         return testPojo;
     }
-
     public static TestPojo testCase1(){
         //初始化资源
         Resource resource1=new Resource("R1",4);
@@ -161,9 +160,8 @@ public class Test {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        HashMap<String,ArrayList<String>> change_Process = new HashMap<>();
 
-        Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process);
+        Equipment ep1=new Equipment("A",1, processSeq,processAndResource);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -181,7 +179,7 @@ public class Test {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2,change_Process);
+        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -204,7 +202,7 @@ public class Test {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3,change_Process);
+        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -224,7 +222,7 @@ public class Test {
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
-        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4,change_Process);
+        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4);
 
         equipmentTypeList.add(ep1);
         equipmentTypeList.add(ep2);
@@ -349,7 +347,6 @@ public class Test {
         testPojo.setResources(resourceList);
         return testPojo;
     }
-
     public static TestPojo parameter_TestPojo(TestPojo testPojo){
         List<Resource> resources = testPojo.getResources();
         List<Equipment> equipmentments = testPojo.getEquipmentTypeSeq();
@@ -452,7 +449,6 @@ public class Test {
         //测试用例
         TestPojo testPojo = testCase();
         List<Resource> resources = testPojo.getResources();
-        List<Equipment> equipmentments = testPojo.getEquipmentTypeSeq();
         List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
         //展示资源数量
         for (Resource resource : resources) {
@@ -547,8 +543,8 @@ public class Test {
 
         Utils.generateEquipmentSeq(testPojo);
 
-        testSequentialPlan(testPojo,250);
-//        shortestTime(testPojo,250);
+//        testSequentialPlan(testPojo,250);
+        shortestTime(testPojo);
 
         //测试project C
 
@@ -626,9 +622,9 @@ public class Test {
         TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
         TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
-        SequentialPlan sequentialPlan_scheduler = new SequentialPlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        SequentialPlan_B sequentialPlan_scheduler = new SequentialPlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = sequentialPlan_scheduler.schedule();
-        ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan_B shortTimePlan_scheduler = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = shortTimePlan_scheduler.schedule();
         HighResponseRatioPlan highResponseRatioPlan_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
 
@@ -655,7 +651,7 @@ public class Test {
         TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
         TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
 
-        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan_B shortTime_scheduler = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule(maxTime);
 //        System.out.println(result1.getList());
 
