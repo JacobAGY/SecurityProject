@@ -65,16 +65,17 @@ public class TestUnits {
     }
 
     public static void main(String[] args) {
+
         Result result = null;
         //算法A
-        result = A();
+//        result = A();
 //        result = A(250);
-        // 算法C，ResourceOptimizationPlan.java使用108行代码，注释109行代码
+        // 算法C，ResourceOptimizationPlan.java使用108行行和134代码，注释109行和135代码
 //        C();
         // 算法D1，测试可变工序(无算法C)
 //        result = D1();
-        // 算法D2，测试可变工序+算法C，ResourceOptimizationPlan.java使用109行代码，注释108行代码
-//        D2();
+//         算法D2，测试可变工序+算法C，ResourceOptimizationPlan.java使用109行和135行代码，注释108行和134代码
+        D2();
 
     }
 }

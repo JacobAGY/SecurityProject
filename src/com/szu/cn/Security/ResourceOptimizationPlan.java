@@ -106,7 +106,7 @@ public class ResourceOptimizationPlan {
         resources = testPojo.getResources();
 //        Utils.shortestTime(testPojo, 250);
 //        AlgorithmUtils.shortestTime1(testPojo, 250);
-        AlgorithmUtils.shortestTime2(testPojo, 250);
+        AlgorithmUtils.shortestTime2(testPojo,250);
         System.out.println("↑↑↑↑↑↑↑↑最优↑↑↑↑↑↑↑↑");
         System.out.println("经过变邻域搜索算法 得到解为：");
         resources = testPojo.getResources();
@@ -120,18 +120,6 @@ public class ResourceOptimizationPlan {
     //得到初始解
     public static TestPojo getInitSolution(TestPojo testPojo, int Q) {
 
-        Scanner in = new Scanner(System.in);
-
-//        //1.得到经济规模约束Q
-//        int Q = 0; //经济规模约束
-//        int lastQ = Q; //剩余费用
-//
-//        //若未设置Q，输入Q
-//        if (testPojo.getQ() == 0){
-//            System.out.println("请输入经济规模约束Q：");
-//            Q = in.nextInt();
-//            lastQ = Q;
-//        }
         int lastQ = Q; //剩余费用
 
         //2.所有资源数量大于0，因此首先设定所有资源的数量为1
@@ -142,15 +130,9 @@ public class ResourceOptimizationPlan {
             lastQ = lastQ - (resources.get(i).getNum() * resources.get(i).getPrice());
         }
 
-//        for (Resource resource : resources) {
-//            resource.setNum(1);
-//            //剩余费用
-//            lastQ = lastQ - (resource.getNum() * resource.getPrice());
-//        }
-
         //3.根据各项保障资源的全局灵敏度，按照从小到大依次编号
-        MyFunSobol myFunSobol = new MyFunSobol();
-//        MyFunSobol_B myFunSobol = new MyFunSobol_B();
+//        MyFunSobol myFunSobol = new MyFunSobol();
+        MyFunSobol_B myFunSobol = new MyFunSobol_B();
 
         System.out.println("start getTsc");
 
