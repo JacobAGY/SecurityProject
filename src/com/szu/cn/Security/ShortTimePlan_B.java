@@ -53,6 +53,14 @@ public class ShortTimePlan_B {
         for (int i = 0; i < resourceList.length; i++) {
             this.resourceList.get(i).setNum(resourceList[i]);
         }
+        List<Resource> tempList=new ArrayList<>();
+        for (int i=0;i<this.resourceList.size();i++){
+            for (int j=1;j<=this.resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(this.resourceList.get(i).getName()+"-"+j,1);
+                tempList.add(resource);
+            }
+        }
+        this.resourceListDetail=tempList;
     }
 
     //所有装备完成时间
