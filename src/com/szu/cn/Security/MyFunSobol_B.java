@@ -1,6 +1,7 @@
 package com.szu.cn.Security;
 
 import com.szu.cn.Security.Test.TestPojo;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
@@ -68,15 +69,31 @@ public class MyFunSobol_B {
 
 
     // Calculate Sobol analysis for a given resource configuration
-    private static int[] calculateSobol(ShortTimePlan_B shortTimePlan,int maxTime,int[][] resource, int ep_num) {
+    private static int[] calculateSobol(ShortTimePlan_B shortTimePlan,HighResponseRatioPlan_B highResponseRatioPlan,SequentialPlan_B sequentialPlan,int maxTime,int[][] resource, int ep_num) {
 
         int N = resource.length;
         int[] ep = new int[N];
 
+
         for (int i=0;i<resource.length;i++){
-                shortTimePlan.setResourceListNum(resource[i]);
-                Result result=shortTimePlan.schedule(maxTime);
-                ep[i]=result.getFinishedEqi();
+            shortTimePlan.setResourceListNum(resource[i]);
+            highResponseRatioPlan.setResourceListNum(resource[i]);
+            sequentialPlan.setResourceListNum(resource[i]);
+
+            //得到三个算法的结果
+            Result resultShort=shortTimePlan.schedule(maxTime);
+            Result resultHighres=highResponseRatioPlan.schedule(maxTime);
+            Result resultSeq = sequentialPlan.schedule(maxTime);
+
+            System.out.println("最短时间算法完成时间为" + resultShort.getTime());
+            System.out.println("高响应比算法完成时间为" + resultHighres.getTime());
+            System.out.println("原算法完成时间为" + resultSeq.getTime());
+
+            //得到最短时间
+            Result result = resultShort.getTime() < resultHighres.getTime() ? resultShort : resultHighres;
+            result = result.getTime() < resultSeq.getTime() ? result : resultSeq;
+            System.out.println("最终时间为" + result.getTime());
+            ep[i]=result.getFinishedEqi();
         }
 
         return ep;
@@ -158,12 +175,22 @@ public class MyFunSobol_B {
     }
 
     public static double[] getTsc(TestPojo testPojo){
-        ShortTimePlan_B scheduler = new ShortTimePlan_B(testPojo.getEquiments(),testPojo.getResources());
+        // ShortTime、HighResponse、Sequential三个算法对比
+        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo sequential_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        // 最短时间
+        ShortTimePlan_B schedulerShort = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        //最高响应比
+        HighResponseRatioPlan_B  schedulerHighRes = new HighResponseRatioPlan_B(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        //原算法
+        SequentialPlan_B schedulerSeq = new SequentialPlan_B(sequential_testPojo.getEquiments(),sequential_testPojo.getResources());
+
         int N = 50; // Stress levels, obtained from reading
         int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
-        int maxNum = 5; // Maximum value for each resource type
+        int maxNum = testPojo.getEquiments().size(); // Maximum value for each resource type
         int eq_num = testPojo.getEquipmentTypeSeq().size();
-        int maxTime=100;
+        int maxTime=250;
 
         // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
         //生成的数据为1~maxNum随机选择的矩阵，该数据表示对每一个应力水平下，对每种保障资源数量进行随机配置
@@ -176,15 +203,15 @@ public class MyFunSobol_B {
 
         // 通过构造矩阵，共计得到（2+D）*N组不同的保障资源方案，每一组资源方案都会输出在规定的时间内可以保障/出动的装备数。
         //先计算A矩阵的出动/保障装备数计算结果，得到YA，长度为N的向量
-        int[] YA = calculateSobol(scheduler,maxTime,A, eq_num);
+        int[] YA = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,A, eq_num);
 
         // 再先计算B矩阵的出动/保障装备数计算结果，得到YB，长度为N的向量
-        int[] YB = calculateSobol(scheduler,maxTime,B, eq_num);
+        int[] YB = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,B, eq_num);
 
         // 先计算ABi矩阵的出动/保障装备数计算结果，得到YABi，每一个YABi长度为N的向量
         int[][] YAB = new int[D][];
         for (int i = 0; i < D; i++) {
-            YAB[i] = calculateSobol(scheduler,maxTime,AB[i], eq_num);
+            YAB[i] = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,AB[i], eq_num);
         }
 
         // YA、YB进行堆叠，形成新的矩阵Y
@@ -210,10 +237,6 @@ public class MyFunSobol_B {
 
     public static void main(String[] args) {
 
-        //
-        System.out.println("==================================进入main");
-
-
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
@@ -232,7 +255,7 @@ public class MyFunSobol_B {
         resourceList.add(resource7);
 
         //初始化装备
-        List<Equipment> equipmentList=new ArrayList<>();
+        List<Equipment> equipmentTypeList = new ArrayList<>();
         LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
         processSeq.put("P1",5);
         processSeq.put("P2",4);
@@ -252,7 +275,10 @@ public class MyFunSobol_B {
         processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
         processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource);
+        HashMap<String,ArrayList<String>> change_Process1 = new HashMap<>();
+        change_Process1.put("P3",new ArrayList<String>(){{add("P4");}});
+
+        Equipment ep1=new Equipment("A",1, processSeq,processAndResource,change_Process1);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -270,7 +296,11 @@ public class MyFunSobol_B {
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+        HashMap<String,ArrayList<String>> change_Process2 = new HashMap<>();
+        change_Process2.put("P2",new ArrayList<String>(){{add("P3");}});
+        change_Process2.put("P3",new ArrayList<String>(){{add("P5");}});
+        change_Process2.put("P5",new ArrayList<String>(){{add("P6");}});
+        Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2,change_Process2);
 
         LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
         processSeq3.put("P1",4);
@@ -293,7 +323,10 @@ public class MyFunSobol_B {
         processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
         processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
 
-        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+        HashMap<String,ArrayList<String>> change_Process3 = new HashMap<>();
+        change_Process3.put("P4",new ArrayList<String>(){{add("P5");}});
+        change_Process3.put("P6",new ArrayList<String>(){{add("P8");}});
+        Equipment ep3=new Equipment("C",1, processSeq3,processAndResource3,change_Process3);
 
         LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
         processSeq4.put("P1",5);
@@ -312,21 +345,22 @@ public class MyFunSobol_B {
         processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+        HashMap<String,ArrayList<String>> change_Process4 = new HashMap<>();
+        change_Process4.put("P2",new ArrayList<String>(){{add("P3");}});
+        Equipment ep4=new Equipment("D",1, processSeq4,processAndResource4,change_Process4);
 
-        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
-
-        equipmentList.add(ep1);
-        equipmentList.add(ep2);
-        equipmentList.add(ep3);
-        equipmentList.add(ep4);
+        equipmentTypeList.add(ep1);
+        equipmentTypeList.add(ep2);
+        equipmentTypeList.add(ep3);
+        equipmentTypeList.add(ep4);
 
         TestPojo testPojo = new TestPojo();
-        testPojo.setEquiments(equipmentList);
-        testPojo.setEquipmentTypeSeq(equipmentList);
+        testPojo.setEquiments(equipmentTypeList);
+        testPojo.setEquipmentTypeSeq(equipmentTypeList);
 
         testPojo.setResources(resourceList);
 
-        getTsc(testPojo);
+        double[] tsc = getTsc(testPojo);
 
     }
 }

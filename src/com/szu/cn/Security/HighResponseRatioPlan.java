@@ -1,5 +1,6 @@
 package com.szu.cn.Security;
 
+import java.io.IOException;
 import java.util.*;
 
 public class HighResponseRatioPlan {
@@ -12,6 +13,20 @@ public class HighResponseRatioPlan {
     private int[] currentWaitTime;
     private double[] currentRatio;
     private int[] timeLeft;
+
+    public void setResourceListNum(int[] resourceList) {
+        for (int i = 0; i < resourceList.length; i++) {
+            this.resourceList.get(i).setNum(resourceList[i]);
+        }
+        List<Resource> tempList=new ArrayList<>();
+        for (int i=0;i<this.resourceList.size();i++){
+            for (int j=1;j<=this.resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(this.resourceList.get(i).getName()+"-"+j,1);
+                tempList.add(resource);
+            }
+        }
+        this.resourceListDetail=tempList;
+    }
 
     public HighResponseRatioPlan(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
@@ -136,6 +151,7 @@ public class HighResponseRatioPlan {
 
     //规定时间完成的装备数量
     public Result schedule(int maxTime) {
+        initialEqi(equipmentList);
         //记录完成的装备数量
         int finishedEqi = 0;
         int totalTime = 0;
@@ -207,6 +223,26 @@ public class HighResponseRatioPlan {
         Result result = new Result(equipmentOrder, totalTime,finishedEqi);
         return result;
     }
+
+    public void initialEqi(List<Equipment> equipmentList){
+        //初始化装备工序（考虑工序顺序变化）
+        for (Equipment epi: equipmentList) {
+            int i=1;
+            //工序映射P2->P1 P3->P2
+            LinkedHashMap<String,Integer> tempProcessSeq=new LinkedHashMap<>();
+            for (Map.Entry<String,Integer> entry:epi.getProcessSeq().entrySet()){
+                tempProcessSeq.put("P"+i,entry.getValue());
+                i++;
+            }
+            //保留最初顺序
+            epi.setProcessSeq_Origin(epi.getProcessSeq());
+            //设置算法工序顺序
+            epi.setProcessSeq(tempProcessSeq);
+            //设置装备当前工序
+            epi.setProcessCur(tempProcessSeq.entrySet().iterator().next().getKey());
+        }
+    }
+
     /**
      * 本方法用于检查可变工序是否资源充足
      * @param equipment

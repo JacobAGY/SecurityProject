@@ -9,6 +9,20 @@ public class SequentialPlan {
 
     private List<Resource> resourceListDetail;
 
+    public void setResourceListNum(int[] resourceList) {
+        for (int i = 0; i < resourceList.length; i++) {
+            this.resourceList.get(i).setNum(resourceList[i]);
+        }
+        List<Resource> tempList=new ArrayList<>();
+        for (int i=0;i<this.resourceList.size();i++){
+            for (int j=1;j<=this.resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(this.resourceList.get(i).getName()+"-"+j,1);
+                tempList.add(resource);
+            }
+        }
+        this.resourceListDetail=tempList;
+    }
+
     public SequentialPlan(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
         this.resourceList = resourceList;

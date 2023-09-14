@@ -1,6 +1,7 @@
 package com.szu.cn.Security;
 
 import com.szu.cn.Security.Test.TestPojo;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
@@ -68,14 +69,29 @@ public class MyFunSobol {
 
 
     // Calculate Sobol analysis for a given resource configuration
-    private static int[] calculateSobol(ShortTimePlan shortTimePlan,int maxTime,int[][] resource, int ep_num) {
+    private static int[] calculateSobol(ShortTimePlan shortTimePlan,HighResponseRatioPlan highResponseRatioPlan,SequentialPlan sequentialPlan,int maxTime,int[][] resource, int ep_num) {
 
         int N = resource.length;
         int[] ep = new int[N];
 
         for (int i=0;i<resource.length;i++){
                 shortTimePlan.setResourceListNum(resource[i]);
-                Result result=shortTimePlan.schedule(maxTime);
+                highResponseRatioPlan.setResourceListNum(resource[i]);
+                sequentialPlan.setResourceListNum(resource[i]);
+
+                //得到三个算法的结果
+                Result resultShort=shortTimePlan.schedule(maxTime);
+                Result resultHighres=highResponseRatioPlan.schedule(maxTime);
+                Result resultSeq = sequentialPlan.schedule(maxTime);
+
+                System.out.println("最短时间算法完成时间为" + resultShort.getTime());
+                System.out.println("高响应比算法完成时间为" + resultHighres.getTime());
+                System.out.println("原算法完成时间为" + resultSeq.getTime());
+
+                //得到最短时间
+                Result result = resultShort.getTime() < resultHighres.getTime() ? resultShort : resultHighres;
+                result = result.getTime() < resultSeq.getTime() ? result : resultSeq;
+                System.out.println("最终时间为" + result.getTime());
                 ep[i]=result.getFinishedEqi();
         }
 
@@ -158,10 +174,19 @@ public class MyFunSobol {
     }
 
     public static double[] getTsc(TestPojo testPojo){
-        ShortTimePlan scheduler = new ShortTimePlan(testPojo.getEquiments(),testPojo.getResources());
+        // ShortTime、HighResponse、Sequential三个算法对比
+        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        TestPojo sequential_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        //最短时间
+        ShortTimePlan schedulerShort = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        //最高响应比
+        HighResponseRatioPlan schedulerHighRes = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        //原算法
+        SequentialPlan schedulerSeq = new SequentialPlan(sequential_testPojo.getEquiments(),sequential_testPojo.getResources());
         int N = 50; // Stress levels, obtained from reading
         int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
-        int maxNum = 5; // Maximum value for each resource type
+        int maxNum = testPojo.getEquiments().size(); // Maximum value for each resource type
         int eq_num = testPojo.getEquipmentTypeSeq().size();
         int maxTime=100;
 
@@ -176,15 +201,15 @@ public class MyFunSobol {
 
         // 通过构造矩阵，共计得到（2+D）*N组不同的保障资源方案，每一组资源方案都会输出在规定的时间内可以保障/出动的装备数。
         //先计算A矩阵的出动/保障装备数计算结果，得到YA，长度为N的向量
-        int[] YA = calculateSobol(scheduler,maxTime,A, eq_num);
+        int[] YA = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,A, eq_num);
 
         // 再先计算B矩阵的出动/保障装备数计算结果，得到YB，长度为N的向量
-        int[] YB = calculateSobol(scheduler,maxTime,B, eq_num);
+        int[] YB = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,B, eq_num);
 
         // 先计算ABi矩阵的出动/保障装备数计算结果，得到YABi，每一个YABi长度为N的向量
         int[][] YAB = new int[D][];
         for (int i = 0; i < D; i++) {
-            YAB[i] = calculateSobol(scheduler,maxTime,AB[i], eq_num);
+            YAB[i] = calculateSobol(schedulerShort,schedulerHighRes,schedulerSeq,maxTime,AB[i], eq_num);
         }
 
         // YA、YB进行堆叠，形成新的矩阵Y
@@ -329,4 +354,5 @@ public class MyFunSobol {
         getTsc(testPojo);
 
     }
+
 }

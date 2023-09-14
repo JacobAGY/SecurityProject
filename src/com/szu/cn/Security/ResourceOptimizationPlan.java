@@ -4,7 +4,6 @@ import com.szu.cn.Security.Test.TestPojo;
 import com.szu.cn.Security.utils.Utils;
 import org.apache.commons.lang3.SerializationUtils;
 
-import javax.rmi.CORBA.Util;
 import java.util.*;
 
 public class ResourceOptimizationPlan {
@@ -100,6 +99,7 @@ public class ResourceOptimizationPlan {
                 a += 1;
             }
         }
+
 
 
         allCost = 0;
@@ -385,12 +385,8 @@ public class ResourceOptimizationPlan {
             fc2 += resources2.get(i).getPrice() * resources2.get(i).getNum();
         }
 
-//        double fn1 = Utils.shortestTime(testPojo1, 250) - ((fc1 - Q) > 0 ? beta * (fc1 - Q) : 0);
-//        double fn2 = Utils.shortestTime(testPojo2, 250) - ((fc2 - Q) > 0 ? beta * (fc2 - Q) : 0);
-
-        // D2算法
-        double fn1 = AlgorithmUtils.shortestTime2(testPojo1, 250).getFinishedEqi() - ((fc1 - Q) > 0 ? beta * (fc1 - Q) : 0);
-        double fn2 = AlgorithmUtils.shortestTime2(testPojo2, 250).getFinishedEqi() - ((fc2 - Q) > 0 ? beta * (fc2 - Q) : 0);
+        double fn1 = Utils.shortestTime(testPojo1, 250) - ((fc1 - Q) > 0 ? beta * (fc1 - Q) : 0);
+        double fn2 = Utils.shortestTime(testPojo2, 250) - ((fc2 - Q) > 0 ? beta * (fc2 - Q) : 0);
 
         if (fn1 > fn2) {
             return 1;

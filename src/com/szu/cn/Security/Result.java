@@ -10,9 +10,20 @@ public class Result {
 
     private int faiedEqi;
 
+    private List<Equipment> equipmentList;
+
+    private List<Equipment> records_equiments;
+
     public Result(List<String> list, int time) {
         this.list = list;
         this.time = time;
+    }
+
+
+    public Result(List<String> list,  List<Equipment> records_equiments, int time) {
+        this.list = list;
+        this.time = time;
+        this.records_equiments = records_equiments;
     }
 
     public Result(List<String> list, int time, int finishedEqi) {
@@ -27,6 +38,7 @@ public class Result {
         this.finishedEqi = finishedEqi;
         this.faiedEqi=faiedEqi;
     }
+
 
 
     public int getFaiedEqi() {
@@ -59,5 +71,21 @@ public class Result {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public List<Equipment> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public void setEquipmentList(List<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
+    }
+
+    public List<Equipment> getRecords_equiments() {
+        return records_equiments;
+    }
+
+    public void setRecords_equiments(List<Equipment> records_equiments) {
+        this.records_equiments = records_equiments;
     }
 }

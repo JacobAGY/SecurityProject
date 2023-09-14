@@ -80,16 +80,8 @@ public class ShortTimePlan {
         int totalTime = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
-
-//        System.out.println("--------------调度顺序----------------");
-//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-//        for(int i=0;i<templist.size();i++){
-//            List<Equipment> temp=templist.get(i);
-//            for (int j = 0; j < temp.size(); j++) {
-//                System.out.print(temp.get(j).getName()+" ");
-//            }
-//            System.out.println("");
-//        }
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         List<String> equipmentOrder=new ArrayList<>();
         while (!equipmentList.isEmpty()) {
 
@@ -104,7 +96,6 @@ public class ShortTimePlan {
                         ep.setStatus(Equipment.Equipmentenum.RUN);
                         ep.setProcessSeqTime(totalTime);
                         equipmentOrder.add(ep.getName()+"-"+getOriginProcess(ep,ep.getProcessCur()));
-
                         System.out.println("调度"+ep.getName()+"工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime);
                     }else if (ep.getProcessCur().equals(entry.getKey()) &&ep.getStatus().equals(Equipment.Equipmentenum.RUN)
                             && ep.getProcessSeq().get(entry.getKey())==totalTime){
@@ -119,6 +110,8 @@ public class ShortTimePlan {
                         if (ep.getProcessCur() == null){
                             //更新状态为Finish
                             ep.setStatus(Equipment.Equipmentenum.FINISH);
+                            ep.setFinishTime(totalTime);
+                            records_equipments.add(ep);
                             equipmentList.remove(ep);
                         }
                     }
@@ -131,7 +124,7 @@ public class ShortTimePlan {
         totalTime--;
         System.out.println("Total time: " + totalTime);
         this.equipmentList=tempequipmentList;
-        Result result=new Result(equipmentOrder,totalTime);
+        Result result=new Result(equipmentOrder,records_equipments,totalTime);
         return result;
     }
     //规定时间内完成装备数量
