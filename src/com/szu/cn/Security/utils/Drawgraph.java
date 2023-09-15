@@ -56,7 +56,7 @@ public class Drawgraph extends JFrame {
 	}
 	
 	public void draw() {
-		
+		String url = "src/com/szu/cn/Security/Gantt";
 		BufferedImage image = new BufferedImage(2200,1200,BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.createGraphics();//获得一个图形类
 
@@ -104,7 +104,7 @@ public class Drawgraph extends JFrame {
 				}
 			}
 
-		    ImageIO.write(image, "png", new File("src/com/szu/cn/Security/Gantt/gantt.png"));
+		    ImageIO.write(image, "png", new File(url + "/gantt.png"));
          } catch (Exception e) {
              e.printStackTrace();
          }
