@@ -9,23 +9,12 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 public class functionMain {
 
 	public static void main(String[] args) throws IOException {
-
-		Calendar c = Calendar.getInstance();
-		String year = c.get(Calendar.YEAR)+"";
-		String month = (c.get(Calendar.MONTH)+1)+"";
-		String date = c.get(Calendar.DATE)+"";
-		String hour = c.get(Calendar.HOUR_OF_DAY)+"";
-		String minute = c.get(Calendar.MINUTE)+"";
-		String second = c.get(Calendar.SECOND)+"";
-		String time = year+month+date+hour+minute+second;
-
 
 		Test test = new Test();
 		TestPojo testPojo = test.testCase1();
