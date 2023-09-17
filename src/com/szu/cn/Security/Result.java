@@ -8,6 +8,8 @@ public class Result {
 
     private int finishedEqi;
 
+    //RMST指标-可用度
+    private double usability;
     private int faiedEqi;
 
     private List<Equipment> equipmentList;
@@ -32,14 +34,21 @@ public class Result {
         this.finishedEqi = finishedEqi;
     }
 
-    public Result(List<String> list, int time, int finishedEqi,int faiedEqi) {
+    public Result(List<String> list, int time, int finishedEqi, int faiedEqi, double usability) {
         this.list = list;
         this.time = time;
         this.finishedEqi = finishedEqi;
         this.faiedEqi=faiedEqi;
+        this.usability=usability;
     }
 
+    public double getUsability() {
+        return usability;
+    }
 
+    public void setUsability(double usability) {
+        this.usability = usability;
+    }
 
     public int getFaiedEqi() {
         return faiedEqi;
