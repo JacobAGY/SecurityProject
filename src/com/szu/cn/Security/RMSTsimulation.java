@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class RMSTsimulation {
+
+    private List<Equipment> equipmentListType;
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
@@ -157,7 +159,7 @@ public class RMSTsimulation {
 
 //        System.out.println("--------------调度顺序----------------");
 //        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-//        for(int i=0;i<templist.size();i++){
+//        for(int i=0;i<templist.size();i++){"P3" -> {ArrayList@859}  size = 2
 //            List<Equipment> temp=templist.get(i);
 //            for (int j = 0; j < temp.size(); j++) {
 //                System.out.print(temp.get(j).getName()+" ");
