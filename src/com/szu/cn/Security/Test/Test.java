@@ -59,9 +59,10 @@ public class Test {
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
         processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
         processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
+        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R6",1);}});
         processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
-        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+//        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
 
         Equipment ep2=new Equipment("B",1, processSeq2,processAndResource2);
@@ -103,7 +104,7 @@ public class Test {
         processAndResource4.put("P2",new HashMap<String,Integer>(){{put("R2",1);put("R4",1);}});
         processAndResource4.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
         processAndResource4.put("P4",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
-        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
+        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);put("R6",1);}});
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
@@ -171,7 +172,7 @@ public class Test {
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
         processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
         processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
+        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R6",1);}});
         processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
@@ -215,7 +216,7 @@ public class Test {
         processAndResource4.put("P2",new HashMap<String,Integer>(){{put("R2",1);put("R4",1);}});
         processAndResource4.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
         processAndResource4.put("P4",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
-        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
+        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);put("R6",1);}});
         processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
         processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
 
@@ -287,7 +288,7 @@ public class Test {
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
         processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
         processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
+        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R6",1);}});
         processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
         processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
         processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});

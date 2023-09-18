@@ -141,13 +141,13 @@ public class TestUnits {
         Result result = null;
         //算法A
 //        result = A();
-        result = A(250);
+//        result = A(250);
         // 算法C，ResourceOptimizationPlan.java使用108行和134代码，注释109行和135代码
 //        C();
         // 算法D1，测试可变工序(无算法C)
 //        result = D1();
 //         算法D2，测试可变工序+算法C，ResourceOptimizationPlan.java使用109行，135行，392和393行代码，注释108行，134行，388行和389行代码
-//        D2();
+        D2();
 //        plotGantt()绘制甘特图
 //        plotGantt();
     }

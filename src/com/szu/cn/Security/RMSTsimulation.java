@@ -11,7 +11,7 @@ public class RMSTsimulation {
     private List<Resource> resourceListDetail;
 
     public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList,HashMap<String,Integer> unitList) {
-        this.equipmentList = equipmentList;
+        this.equipmentList=equipmentList;
         this.resourceList=resourceList;
         List<Resource> tempList=new ArrayList<>();
         for (int i=0;i<resourceList.size();i++){
@@ -21,7 +21,6 @@ public class RMSTsimulation {
             }
         }
         this.resourceListDetail=tempList;
-
         this.unitList=unitList;
     }
 
@@ -146,6 +145,8 @@ public class RMSTsimulation {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        //保存整体装备数量
+        int eqiNum=equipmentList.size();
         initialEqi(equipmentList);
         int totalTime = 0;
         //记录完成的装备数量
@@ -249,9 +250,11 @@ public class RMSTsimulation {
             totalTime++;
         }
         totalTime--;
+        double usability= finishedEqi*1.0/eqiNum;
         System.out.println(maxTime + "min之内失败的装备个数为：" + failedEqi);
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime,finishedEqi,failedEqi);
+        System.out.println(maxTime+"min之内的可用度为："+ usability);
+        Result result=new Result(equipmentOrder,totalTime,finishedEqi,failedEqi,usability);
         this.equipmentList=tempequipmentList;
         return result;
     }
@@ -439,7 +442,7 @@ public class RMSTsimulation {
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
         //为工序分配资源，资源数量减少
         for (Map.Entry<String,Integer> entry:prp.entrySet()){
-            if (entry.getValue()>1){
+            if (entry.getValue()>0){
                 //获取所需资源种类
                 Resource resource=findResource(entry.getKey());
                 //获取确定的资源
@@ -494,7 +497,7 @@ public class RMSTsimulation {
     private void releaseResources(Equipment equipment) {
         HashMap<String,Integer> pr=equipment.getProcessAndResource().get(getOriginProcess(equipment,equipment.getProcessCur()));
         if (getOriginProcess(equipment,equipment.getProcessCur()).equals(equipment.getFixprocess())&&!
-        equipment.getSubstatus().equals(Equipment.Equipmentenum.AvailableAndKnown)){
+                equipment.getSubstatus().equals(Equipment.Equipmentenum.AvailableAndKnown)){
             //TODO
             //维修完毕后释放所有资源
             for (Map.Entry<String,Integer> entry:pr.entrySet()){
@@ -627,7 +630,7 @@ public class RMSTsimulation {
 //                //未发现故障单元
 //                equipment.setSubstatus(Equipment.Equipmentenum.AvailableAndUnknown);
 //                System.out.println("故障装备:"+equipment.getName()+"未发现故障单元");
-            }
+        }
         //未发生故障->可用且已知模式
         equipment.setSubstatus(Equipment.Equipmentenum.AvailableAndKnown);
         return null;
@@ -645,18 +648,16 @@ public class RMSTsimulation {
         return random.nextInt(t)+1;
     }
 
-
-
     public static void main(String[] args) {
 
         //初始化资源
-        Resource resource1=new Resource("R1",3);
-        Resource resource2=new Resource("R2",3);
-        Resource resource3=new Resource("R3",2);
-        Resource resource4=new Resource("R4",3);
-        Resource resource5=new Resource("R5",2);
-        Resource resource6=new Resource("R6",2);
-        Resource resource7=new Resource("R7",3);
+        Resource resource1=new Resource("R1",5);
+        Resource resource2=new Resource("R2",5);
+        Resource resource3=new Resource("R3",5);
+        Resource resource4=new Resource("R4",5);
+        Resource resource5=new Resource("R5",5);
+        Resource resource6=new Resource("R6",5);
+        Resource resource7=new Resource("R7",5);
         List<Resource> resourceList=new ArrayList<>();
         resourceList.add(resource1);
         resourceList.add(resource2);
@@ -717,7 +718,7 @@ public class RMSTsimulation {
         repairTime.put("单元3",15);
 
         String fixProcess="P6";
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,processAndResourcePriority,failmap,errormap,Lru,repairTime,fixProcess);
+        Equipment ep1=new Equipment("E1",2, processSeq,processAndResource,processAndResourcePriority,failmap,errormap,Lru,repairTime,fixProcess);
 
         LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
         processSeq2.put("P1",4);
@@ -760,8 +761,8 @@ public class RMSTsimulation {
 
         String fixProcess2="P5";
 
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
-        ,Lru2,repairTime2,fixProcess2);
+        Equipment ep2=new Equipment("E2",3, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
+                ,Lru2,repairTime2,fixProcess2);
 //
 //        LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
 //        processSeq3.put("P1",4);
@@ -817,17 +818,42 @@ public class RMSTsimulation {
         }};
 
         RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,unitList);
+        List<Equipment> tempEqiList=new ArrayList<>();
+        for (int i=0;i<equipmentList.size();i++){
+            for (int j = 1; j <=equipmentList.get(i).getNum(); j++) {
+                Equipment equipment=BeanUtils.copy(equipmentList.get(i));
+                Objects.requireNonNull(equipment).setName(equipmentList.get(i).getName()+"-"+j);
+                Objects.requireNonNull(equipment).setNum(1);
+                tempEqiList.add(equipment);
+            }
+        }
+        equipmentList=tempEqiList;
 
-        int mc=50;
+        int mc=200;
         int failedEqi=0;
         int finishedEqi=0;
+        double usabilityTotal=0.0;
         for (int i=0;i<mc;i++){
+            //深拷贝资源文件，使得过程原子化
+            try {
+                rmsTsimulation.equipmentList=BeanUtils.deepCopy(equipmentList);
+                rmsTsimulation.resourceList=BeanUtils.deepCopy(resourceList);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            for (Resource r:rmsTsimulation.resourceListDetail) {
+                r.setState(Resource.status.wait);
+            }
             Result result=rmsTsimulation.schedule(100);
             failedEqi+=result.getFaiedEqi();
             finishedEqi+=result.getFinishedEqi();
+            usabilityTotal+=result.getUsability();
         }
-        System.out.println("模拟次数mc:"+mc+"故障装备个数:"+failedEqi+"成功保障装备个数:"+finishedEqi);
-//        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);
+        usabilityTotal=usabilityTotal/mc;
+        System.out.println("模拟次数mc:"+mc+"故障装备个数:"+failedEqi+"成功保障装备个数:"+finishedEqi+"全局可用度为："+usabilityTotal);
+//        ShortTimePlanB scheduler = new ShortTimePlanB(equipmentList, processList, resourceList);
 
     }
 }

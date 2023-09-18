@@ -286,6 +286,7 @@ public class SequentialPlan_B {
                             }
                         }
                         equipment.setProcessSeq(change_processSeq);
+                        equipment.setProcessCur(change_process);
                         return true;
 
                     }
