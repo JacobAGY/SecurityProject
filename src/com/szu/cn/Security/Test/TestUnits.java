@@ -111,23 +111,23 @@ public class TestUnits {
             List<String> processSeqList = new ArrayList<>();
             processSeqList.addAll(processSeq.keySet());
             processesList.add(processSeqList);
+            double[][] tmp_processTimeWindows =  new double[processSeqList.size()][2];
 
-            double[][] tmp_processTimeWindows = new double[processSeq.size()][2];
-            for (List<String> processesName:processesList) {
-                if(processesName.size() > numOfProcess){
-                    numOfProcess = processesName.size();
-                }
-                int j = 0;
-                for (String processName:processesName) {
-                    tmp_processTimeWindows[j][0] = processSeq.get(processName)-processSeq_Origin.get(processName);
-                    tmp_processTimeWindows[j][1] = processSeq.get(processName);
-                    j++;
-
-                }
+            if(processSeqList.size() > numOfProcess){
+                numOfProcess = processSeqList.size();
+            }
+            int j = 0;
+            for (String processName:processSeqList) {
+                System.out.println(tmp_processTimeWindows.length);
+                System.out.println(record.getName());
+                tmp_processTimeWindows[j][0] = processSeq.get(processName)-processSeq_Origin.get(processName);
+                tmp_processTimeWindows[j][1] = processSeq.get(processName);
+                j++;
 
             }
 
             processesTimeWindows.add(tmp_processTimeWindows);
+
 
         }
 
@@ -147,8 +147,8 @@ public class TestUnits {
         // 算法D1，测试可变工序(无算法C)
 //        result = D1();
 //         算法D2，测试可变工序+算法C，ResourceOptimizationPlan.java使用109行，135行，392和393行代码，注释108行，134行，388行和389行代码
-        D2();
+//        D2();
 //        plotGantt()绘制甘特图
-//        plotGantt();
+        plotGantt();
     }
 }

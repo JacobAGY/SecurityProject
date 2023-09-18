@@ -11,10 +11,6 @@ import java.util.List;
 public class Drawgraph extends JFrame {
 
 	int numofEquipments = 0;  //供给车位数量
-	int numofDemand = 0;  //需求停车数量
-	double ps = 0;	//平台卖出车位单位时长价格
-	double pb = 0; //平台买入车位单位时长价格
-	double miu = 0; //拒绝需求惩罚
 	double timePeriod = 0;//总时长
 	int numOfProcess = 0;
 	double[][] equipmentsTimeWindows; //装备时间窗
@@ -90,7 +86,7 @@ public class Drawgraph extends JFrame {
 			//画工序的时间窗
 			for (int k = 0; k < numofEquipments; k++) {
 				double[][] processTimeWindows = processesTimeWindows.get(k);
-				for (int i = 0; i < numOfProcess; i++) {
+				for (int i = 0; i < processesList.get(k).size(); i++) {
 					int color_index = process_color.get(processesList.get(k).get(i));
 					g.setColor(colors[color_index]);
 					g.fillRect((int)(200+1800/timePeriod*processTimeWindows[i][0]),
