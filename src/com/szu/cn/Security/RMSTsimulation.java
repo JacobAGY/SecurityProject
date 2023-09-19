@@ -854,7 +854,11 @@ public class RMSTsimulation {
             usabilityTotal+=result.getUsability();
         }
         usabilityTotal=usabilityTotal/mc;
-        System.out.println("模拟次数mc:"+mc+"故障装备个数:"+failedEqi+"成功保障装备个数:"+finishedEqi+"全局可用度为："+usabilityTotal);
+        System.out.println("模拟次数mc:"+mc+" 故障装备个数:"+failedEqi+" 成功保障装备个数:"+finishedEqi+" 全局可用度为："+usabilityTotal);
+        for (Map.Entry<String,Integer> unit:unitList.entrySet()) {
+            double unitUtilization=(10-unit.getValue())*1.0/(mc*10);
+            System.out.println(unit.getKey()+"的利用率为："+unitUtilization);
+        }
 //        ShortTimePlanB scheduler = new ShortTimePlanB(equipmentList, processList, resourceList);
 
     }
