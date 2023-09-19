@@ -81,15 +81,6 @@ public class ShortTimePlan_B {
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-//        System.out.println("--------------调度顺序----------------");
-//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-//        for(int i=0;i<templist.size();i++){
-//            List<Equipment> temp=templist.get(i);
-//            for (int j = 0; j < temp.size(); j++) {
-//                System.out.print(temp.get(j).getName()+" ");
-//            }
-//            System.out.println("");
-//        }
         List<String> equipmentOrder=new ArrayList<>();
         while (!equipmentList.isEmpty()) {
 
@@ -275,6 +266,7 @@ public class ShortTimePlan_B {
                             }
                         }
                         equipment.setProcessSeq(change_processSeq);
+                        equipment.setProcessCur(change_process);
                         return true;
 
                     }
