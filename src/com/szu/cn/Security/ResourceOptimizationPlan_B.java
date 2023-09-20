@@ -6,7 +6,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
-public class ResourceOptimizationPlan {
+public class ResourceOptimizationPlan_B {
 
     public static void optimalSoulution(TestPojo testPojo) {
 
@@ -105,8 +105,8 @@ public class ResourceOptimizationPlan {
         allCost = 0;
         resources = testPojo.getResources();
 //        Utils.shortestTime(testPojo, 250);
-        AlgorithmUtils.shortestTime1(testPojo, 250);
-
+//        AlgorithmUtils.shortestTime1(testPojo, 250);
+        AlgorithmUtils.shortestTime2(testPojo,250);
         System.out.println("↑↑↑↑↑↑↑↑最优↑↑↑↑↑↑↑↑");
         System.out.println("经过变邻域搜索算法 得到解为：");
         resources = testPojo.getResources();
@@ -131,7 +131,8 @@ public class ResourceOptimizationPlan {
         }
 
         //3.根据各项保障资源的全局灵敏度，按照从小到大依次编号
-        MyFunSobol myFunSobol = new MyFunSobol();
+//        MyFunSobol myFunSobol = new MyFunSobol();
+        MyFunSobol_B myFunSobol = new MyFunSobol_B();
 
         System.out.println("start getTsc");
 

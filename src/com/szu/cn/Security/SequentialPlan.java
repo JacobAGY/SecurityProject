@@ -64,6 +64,9 @@ public class SequentialPlan {
 
         boolean run_flag = false;
         int finish_flag = 0;
+
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         while (finish_flag < tempequipmentList.size()) {
             int len = tempequipmentList.size();
             //遍历tempequipmentList，判断每个装备的当前工序资源是否满足，满足则执行
@@ -106,6 +109,8 @@ public class SequentialPlan {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
+                        e.setFinishTime(totalTime);
+                        records_equipments.add(e);
                         finish_flag += 1;
                     }
                     run_flag = true;
@@ -119,7 +124,8 @@ public class SequentialPlan {
         }
 //        totalTime--;
         System.out.println("完成装备的数量为: " + finish_flag);
-        Result result = new Result(equipmentOrder, totalTime);
+        this.equipmentList = tempequipmentList;
+        Result result = new Result(equipmentOrder,records_equipments, totalTime);
         return result;
     }
 
@@ -139,6 +145,8 @@ public class SequentialPlan {
             throw new RuntimeException(e);
         }
         int finish_flag = 0;
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         while (totalTime <= maxTime && finish_flag < tempequipmentList.size()) {
             int len = tempequipmentList.size();
             //遍历tempequipmentList，判断每个装备的当前工序资源是否满足，满足则执行
@@ -181,6 +189,8 @@ public class SequentialPlan {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
+                        records_equipments.add(e);
+                        e.setFinishTime(totalTime);
                         finish_flag += 1;
                     }
                 }
@@ -189,13 +199,13 @@ public class SequentialPlan {
         }
 //        totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finish_flag);
-        Result result=new Result(equipmentOrder,totalTime,finish_flag);
+        Result result=new Result(equipmentOrder,totalTime,records_equipments,finish_flag);
 //        this.equipmentList=tempequipmentList;
         return result;
     }
     private boolean checkResourceAvailability(Equipment equipment) {
         String curProcess=equipment.getProcessCur();
-        Map<String,Integer> resources=equipment.getProcessAndResource().get(getOriginProcess(equipment,curProcess));
+        Map<String,Integer> resources=equipment.getProcessAndResource().get(curProcess);
         for (Map.Entry<String,Integer> entry: resources.entrySet()){
             for(Resource resource:resourceList){
                 //若为所需要的资源种类
@@ -220,7 +230,6 @@ public class SequentialPlan {
     }
 
 
-
     public Resource findDetailResource(String name){
         for (Resource resource : resourceListDetail) {
             if (resource.getName().split("-")[0].equals(name)&&resource.getState().equals(Resource.status.wait)){
@@ -238,6 +247,7 @@ public class SequentialPlan {
             Resource resource=findResource(entry.getKey());
             //获取确定的资源
             Resource r=findDetailResource(entry.getKey());
+
             //检查已有资源并更新需求数量
             if (equipment.getOccSeq().size()>0){
                 boolean Have=false;
@@ -247,10 +257,8 @@ public class SequentialPlan {
                 if (Have) continue;
             }
             //将资源种类的数量-1
-            if (resource!=null){
+            if (resource!=null&&r!=null){
                 resource.setNum(resource.getNum()-entry.getValue());
-            }
-            if (r!=null){
                 //分配资源给装备
                 equipment.getOccSeq().add(r.getName());
                 //设置资源状态

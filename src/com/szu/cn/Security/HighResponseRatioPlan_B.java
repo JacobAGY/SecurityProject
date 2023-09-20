@@ -80,8 +80,10 @@ public class HighResponseRatioPlan_B {
         int totalTime = 0;
         List<String> equipmentOrder = new ArrayList<>();
 
-        int finish_flag = 0;
-        while (finish_flag < currentRatio.length) {
+        int finishedEqi = 0;
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
+        while (finishedEqi < currentRatio.length) {
             updateRatio();
             //返回当前响应比由高到低的顺序，响应比相同返回剩余时间短的,返回结果为一个数组（每个装备对应的下标）
             int[] arr = groupEquipmentByHighResponse(currentRatio, timeLeft);
@@ -136,7 +138,8 @@ public class HighResponseRatioPlan_B {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
-                        finish_flag += 1;
+                        records_equipments.add(e);
+                        finishedEqi += 1;
                     }
                 }
             }
@@ -145,7 +148,7 @@ public class HighResponseRatioPlan_B {
         }
         totalTime--;
         System.out.println("Total time: " + totalTime);
-        Result result = new Result(equipmentOrder, totalTime);
+        Result result = new Result(equipmentOrder, totalTime,records_equipments,finishedEqi);
         return result;
     }
 
@@ -155,7 +158,8 @@ public class HighResponseRatioPlan_B {
         int finishedEqi = 0;
         int totalTime = 0;
         List<String> equipmentOrder = new ArrayList<>();
-
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         while (totalTime <= maxTime && finishedEqi < currentRatio.length) {
             updateRatio();
             //返回当前响应比由高到低的顺序，响应比相同返回剩余时间短的,返回结果为一个数组（每个装备对应的下标）
@@ -211,6 +215,7 @@ public class HighResponseRatioPlan_B {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
+                        records_equipments.add(e);
                         finishedEqi++;
                     }
                 }
@@ -220,7 +225,7 @@ public class HighResponseRatioPlan_B {
         }
         totalTime--;
         System.out.println("完成装备的数量为: " + finishedEqi);
-        Result result = new Result(equipmentOrder, totalTime,finishedEqi);
+        Result result = new Result(equipmentOrder, totalTime,records_equipments,finishedEqi);
         return result;
     }
     /**
