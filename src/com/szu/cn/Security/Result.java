@@ -34,6 +34,13 @@ public class Result {
         this.finishedEqi = finishedEqi;
     }
 
+    public Result(List<String> list, int time, List<Equipment> records_equiments, int finishedEqi) {
+        this.list = list;
+        this.time = time;
+        this.finishedEqi = finishedEqi;
+        this.records_equiments = records_equiments;
+    }
+
     public Result(List<String> list, int time, int finishedEqi, int faiedEqi, double usability) {
         this.list = list;
         this.time = time;

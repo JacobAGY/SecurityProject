@@ -16,6 +16,61 @@ public class TestUnits {
         TestPojo testPojo = test.testCase1();
         testPojo = test.parameter_TestPojo(testPojo);
         Result result = AlgorithmUtils.shortestTime1(testPojo);
+
+        // 传入纵坐标最大装备数量
+        List<String> equipmentsList = new ArrayList<>();
+        // 传入横坐标最大时间
+        List<Equipment> records = result.getRecords_equiments();
+
+        // 传入工序
+        List<List<String>> processesList = new ArrayList<>();
+
+        // 装备时间窗
+        double[][] equipmentsTimeWindows = new double[records.size()][2];
+
+        // 工序时间窗
+        List<double[][]> processesTimeWindows = new ArrayList<>();
+
+        int i = 0;
+        int timePeriod = 0;
+        int numOfProcess = 0;
+        for (Equipment record:records) {
+            if(record.getFinishTime() > timePeriod){
+                timePeriod = record.getFinishTime();
+            }
+            equipmentsList.add(record.getName());
+            LinkedHashMap<String,Integer> processSeq = record.getProcessSeq();
+            LinkedHashMap<String,Integer> processSeq_Origin = record.getProcessSeq_Origin();
+
+            equipmentsTimeWindows[i][0] = processSeq.values().stream().findFirst().get()-processSeq_Origin.values().stream().findFirst().get();
+            equipmentsTimeWindows[i][1] = record.getFinishTime();
+            i++;
+
+            List<String> processSeqList = new ArrayList<>();
+            processSeqList.addAll(processSeq.keySet());
+            processesList.add(processSeqList);
+            double[][] tmp_processTimeWindows =  new double[processSeqList.size()][2];
+
+            if(processSeqList.size() > numOfProcess){
+                numOfProcess = processSeqList.size();
+            }
+            int j = 0;
+            for (String processName:processSeqList) {
+                tmp_processTimeWindows[j][0] = processSeq.get(processName)-processSeq_Origin.get(processName);
+                tmp_processTimeWindows[j][1] = processSeq.get(processName);
+                j++;
+
+            }
+
+            processesTimeWindows.add(tmp_processTimeWindows);
+
+
+        }
+
+        Drawgraph drawgraph = new Drawgraph(timePeriod,equipmentsList,equipmentsTimeWindows,numOfProcess,processesList,processesTimeWindows);
+        String url = "gantt_A";
+        drawgraph.draw(url);
+
         return result;
     }
     // 测试算法A,完成所有工序所需时间，无可变工序
@@ -24,6 +79,60 @@ public class TestUnits {
         TestPojo testPojo = test.testCase1();
         testPojo = test.parameter_TestPojo(testPojo);
         Result result = AlgorithmUtils.shortestTime1(testPojo,maxTime);
+
+        // 传入纵坐标最大装备数量
+        List<String> equipmentsList = new ArrayList<>();
+        // 传入横坐标最大时间
+        List<Equipment> records = result.getRecords_equiments();
+
+        // 传入工序
+        List<List<String>> processesList = new ArrayList<>();
+
+        // 装备时间窗
+        double[][] equipmentsTimeWindows = new double[records.size()][2];
+
+        // 工序时间窗
+        List<double[][]> processesTimeWindows = new ArrayList<>();
+
+        int i = 0;
+        int timePeriod = 0;
+        int numOfProcess = 0;
+        for (Equipment record:records) {
+            if(record.getFinishTime() > timePeriod){
+                timePeriod = record.getFinishTime();
+            }
+            equipmentsList.add(record.getName());
+            LinkedHashMap<String,Integer> processSeq = record.getProcessSeq();
+            LinkedHashMap<String,Integer> processSeq_Origin = record.getProcessSeq_Origin();
+
+            equipmentsTimeWindows[i][0] = processSeq.values().stream().findFirst().get()-processSeq_Origin.values().stream().findFirst().get();
+            equipmentsTimeWindows[i][1] = record.getFinishTime();
+            i++;
+
+            List<String> processSeqList = new ArrayList<>();
+            processSeqList.addAll(processSeq.keySet());
+            processesList.add(processSeqList);
+            double[][] tmp_processTimeWindows =  new double[processSeqList.size()][2];
+
+            if(processSeqList.size() > numOfProcess){
+                numOfProcess = processSeqList.size();
+            }
+            int j = 0;
+            for (String processName:processSeqList) {
+                tmp_processTimeWindows[j][0] = processSeq.get(processName)-processSeq_Origin.get(processName);
+                tmp_processTimeWindows[j][1] = processSeq.get(processName);
+                j++;
+
+            }
+
+            processesTimeWindows.add(tmp_processTimeWindows);
+
+
+        }
+
+        Drawgraph drawgraph = new Drawgraph(timePeriod,equipmentsList,equipmentsTimeWindows,numOfProcess,processesList,processesTimeWindows);
+        String url = "gantt_A(maxTime)";
+        drawgraph.draw(url);
         return result;
     }
     // 测试算法C
@@ -49,6 +158,60 @@ public class TestUnits {
         TestPojo testPojo = test.testCase2();
         testPojo = test.parameter_TestPojo(testPojo);
         Result result = AlgorithmUtils.shortestTime2(testPojo);
+
+        // 传入纵坐标最大装备数量
+        List<String> equipmentsList = new ArrayList<>();
+        // 传入横坐标最大时间
+        List<Equipment> records = result.getRecords_equiments();
+
+        // 传入工序
+        List<List<String>> processesList = new ArrayList<>();
+
+        // 装备时间窗
+        double[][] equipmentsTimeWindows = new double[records.size()][2];
+
+        // 工序时间窗
+        List<double[][]> processesTimeWindows = new ArrayList<>();
+
+        int i = 0;
+        int timePeriod = 0;
+        int numOfProcess = 0;
+        for (Equipment record:records) {
+            if(record.getFinishTime() > timePeriod){
+                timePeriod = record.getFinishTime();
+            }
+            equipmentsList.add(record.getName());
+            LinkedHashMap<String,Integer> processSeq = record.getProcessSeq();
+            LinkedHashMap<String,Integer> processSeq_Origin = record.getProcessSeq_Origin();
+
+            equipmentsTimeWindows[i][0] = processSeq.values().stream().findFirst().get()-processSeq_Origin.values().stream().findFirst().get();
+            equipmentsTimeWindows[i][1] = record.getFinishTime();
+            i++;
+
+            List<String> processSeqList = new ArrayList<>();
+            processSeqList.addAll(processSeq.keySet());
+            processesList.add(processSeqList);
+            double[][] tmp_processTimeWindows =  new double[processSeqList.size()][2];
+
+            if(processSeqList.size() > numOfProcess){
+                numOfProcess = processSeqList.size();
+            }
+            int j = 0;
+            for (String processName:processSeqList) {
+                tmp_processTimeWindows[j][0] = processSeq.get(processName)-processSeq_Origin.get(processName);
+                tmp_processTimeWindows[j][1] = processSeq.get(processName);
+                j++;
+
+            }
+
+            processesTimeWindows.add(tmp_processTimeWindows);
+
+
+        }
+
+        Drawgraph drawgraph = new Drawgraph(timePeriod,equipmentsList,equipmentsTimeWindows,numOfProcess,processesList,processesTimeWindows);
+        String url = "gantt_D1";
+        drawgraph.draw(url);
         return result;
     }
     // 测试算法D2，只测可变工序，加入算法C
@@ -64,7 +227,7 @@ public class TestUnits {
             testPojo.getResources().get(i).setPrice(next);
         }
 
-        ResourceOptimizationPlan resourceOptimizationPlan = new ResourceOptimizationPlan();
+        ResourceOptimizationPlan_B resourceOptimizationPlan = new ResourceOptimizationPlan_B();
         resourceOptimizationPlan.optimalSoulution(testPojo);
     }
 
@@ -142,13 +305,13 @@ public class TestUnits {
         //算法A
 //        result = A();
 //        result = A(250);
-        // 算法C，ResourceOptimizationPlan.java使用108行和134代码，注释109行和135代码
-//        C();
+        // 算法C
+        C();
         // 算法D1，测试可变工序(无算法C)
 //        result = D1();
-//         算法D2，测试可变工序+算法C，ResourceOptimizationPlan.java使用109行，135行，392和393行代码，注释108行，134行，388行和389行代码
+//         算法D2，测试可变工序+算法C
 //        D2();
 //        plotGantt()绘制甘特图
-        plotGantt();
+//        plotGantt();
     }
 }

@@ -63,8 +63,10 @@ public class SequentialPlan_B {
          */
 
         boolean run_flag = false;
-        int finish_flag = 0;
-        while (finish_flag < tempequipmentList.size()) {
+        int finishedEqi = 0;
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
+        while (finishedEqi < tempequipmentList.size()) {
             int len = tempequipmentList.size();
             //遍历tempequipmentList，判断每个装备的当前工序资源是否满足，满足则执行
 //            for (Equipment e:tempequipmentList) {
@@ -107,7 +109,9 @@ public class SequentialPlan_B {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
-                        finish_flag += 1;
+                        e.setFinishTime(totalTime);
+                        records_equipments.add(e);
+                        finishedEqi += 1;
                     }
                     run_flag = true;
                 }
@@ -119,8 +123,8 @@ public class SequentialPlan_B {
             totalTime++;
         }
 //        totalTime--;
-        System.out.println("完成装备的数量为: " + finish_flag);
-        Result result = new Result(equipmentOrder, totalTime);
+        System.out.println("完成装备的数量为: " + finishedEqi);
+        Result result = new Result(equipmentOrder, totalTime,records_equipments,finishedEqi);
         return result;
     }
 
@@ -139,8 +143,10 @@ public class SequentialPlan_B {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        int finish_flag = 0;
-        while (totalTime <= maxTime && finish_flag < tempequipmentList.size()) {
+        int finishedEqi = 0;
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
+        while (totalTime <= maxTime && finishedEqi < tempequipmentList.size()) {
             int len = tempequipmentList.size();
             //遍历tempequipmentList，判断每个装备的当前工序资源是否满足，满足则执行
 //            for (Equipment e:tempequipmentList) {
@@ -184,15 +190,17 @@ public class SequentialPlan_B {
                     if (e.getProcessCur() == null) {
                         //更新状态为Finish
                         e.setStatus(Equipment.Equipmentenum.FINISH);
-                        finish_flag += 1;
+                        e.setFinishTime(totalTime);
+                        records_equipments.add(e);
+                        finishedEqi += 1;
                     }
                 }
             }
             totalTime++;
         }
 //        totalTime--;
-        System.out.println(maxTime + "min之内完成的装备个数为：" + finish_flag);
-        Result result=new Result(equipmentOrder,totalTime,finish_flag);
+        System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
 //        this.equipmentList=tempequipmentList;
         return result;
     }

@@ -78,10 +78,13 @@ public class ShortTimePlan_B {
         }
         initialEqi(equipmentList);
         int totalTime = 0;
+        int finishedEqi = 0;
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
         List<String> equipmentOrder=new ArrayList<>();
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         while (!equipmentList.isEmpty()) {
 
             for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
@@ -116,7 +119,10 @@ public class ShortTimePlan_B {
                         if (ep.getProcessCur() == null){
                             //更新状态为Finish
                             ep.setStatus(Equipment.Equipmentenum.FINISH);
+                            ep.setFinishTime(totalTime);
+                            records_equipments.add(ep);
                             equipmentList.remove(ep);
+                            finishedEqi++;
                         }
                     }
                 }
@@ -128,7 +134,7 @@ public class ShortTimePlan_B {
         totalTime--;
         System.out.println("Total time: " + totalTime);
         this.equipmentList=tempequipmentList;
-        Result result=new Result(equipmentOrder,totalTime);
+        Result result=new Result(equipmentOrder,totalTime,records_equipments,finishedEqi);
         return result;
     }
     //规定时间内完成装备数量
@@ -151,6 +157,8 @@ public class ShortTimePlan_B {
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
         List<String> equipmentOrder=new ArrayList<>();
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         while (totalTime <= maxTime && !equipmentList.isEmpty()) {
 
             for (Map.Entry<String, List<Equipment>> entry:equipmentGroups.entrySet()){
@@ -186,6 +194,8 @@ public class ShortTimePlan_B {
                         if (ep.getProcessCur() == null){
                             //更新状态为Finish
                             ep.setStatus(Equipment.Equipmentenum.FINISH);
+                            ep.setFinishTime(totalTime);
+                            records_equipments.add(ep);
                             equipmentList.remove(ep);
                             finishedEqi++;
                         }
@@ -198,7 +208,7 @@ public class ShortTimePlan_B {
 
         totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime,records_equipments,finishedEqi);
         this.equipmentList=tempequipmentList;
         return result;
     }

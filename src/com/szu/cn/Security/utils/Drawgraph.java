@@ -105,4 +105,60 @@ public class Drawgraph extends JFrame {
              e.printStackTrace();
          }
 	}
+
+	public void draw(String url) {
+		String url1 = "src/com/szu/cn/Security/Gantt";
+		BufferedImage image = new BufferedImage(2200,1200,BufferedImage.TYPE_INT_RGB);
+		Graphics g = image.createGraphics();//获得一个图形类
+
+		try {
+
+			g.setColor(new Color(0xf5f5f5));
+			g.setColor(Color.white);
+			g.fillRect(0,0,2200,1200);
+			g.setColor(Color.black);
+			// drawRect画一个方框，向下画
+			g.drawRect(100, 100, 2000, 1000);
+
+			//画横坐标轴
+			for (int i = 0; i < (int)(timePeriod+1); i+=5) {
+				// drawLine画线
+				g.drawLine((int)(200+1800/timePeriod*i), 90, (int)(200+1800/timePeriod*i), 100);
+				// drawString填充信息，e.g.数字
+				g.drawString(""+i, (int)(200+1800/timePeriod*i-3), 80);
+			}
+//
+			//画纵坐标轴
+			for (int k = 0; k < numofEquipments; k++) {
+
+				g.drawRect((int) (200+1800/timePeriod*equipmentsTimeWindows[k][0]),
+						1000-40*k,
+						(int) (1800/timePeriod*(equipmentsTimeWindows[k][1]-equipmentsTimeWindows[k][0])),
+						20);
+				g.drawString(equipmentsList.get(k), 140, 1000-40*k+15);
+			}
+//
+			//画工序的时间窗
+			for (int k = 0; k < numofEquipments; k++) {
+				double[][] processTimeWindows = processesTimeWindows.get(k);
+				for (int i = 0; i < processesList.get(k).size(); i++) {
+					int color_index = process_color.get(processesList.get(k).get(i));
+					g.setColor(colors[color_index]);
+					g.fillRect((int)(200+1800/timePeriod*processTimeWindows[i][0]),
+							1000-40*k,
+							(int) (1800/timePeriod*(processTimeWindows[i][1]-processTimeWindows[i][0])),
+							20);
+					g.drawString(processesList.get(k).get(i),
+							(int)(200+1800/timePeriod*processTimeWindows[i][0]),
+							1000-40*k);
+
+				}
+			}
+
+			ImageIO.write(image, "png", new File(url1 +  "/" + url + ".png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

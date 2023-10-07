@@ -65,7 +65,7 @@ public class Equipment implements Serializable {
     private int errorBut;
 
     //processSeq_Origin是原始的processSeq
-    private LinkedHashMap<String, Integer> processSeq_Origin;
+    private LinkedHashMap<String, Integer> processSeq_Origin = new LinkedHashMap<>();
 
     //change_Process记录每个装备中可换的工序
     private HashMap<String,ArrayList<String>> change_Process;
@@ -77,8 +77,8 @@ public class Equipment implements Serializable {
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
         this.processSeq=processSeq;
+        this.processSeq_Origin.putAll(processSeq);
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
@@ -88,12 +88,11 @@ public class Equipment implements Serializable {
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,HashMap<String,ArrayList<String>> change_Process) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
+        this.processSeq_Origin.putAll(processSeq);
         this.processSeq=processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
-        this.processSeq_Origin = processSeq;
         this.occSeq=new ArrayList<>();
         this.change_Process = change_Process;
         this.finished_Process = new ArrayList<>();
@@ -102,24 +101,22 @@ public class Equipment implements Serializable {
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
+        this.processSeq_Origin.putAll(processSeq);
         this.processSeq=processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
-        this.processSeq_Origin = processSeq;
         this.occSeq=new ArrayList<>();
         this.processAndResourcePriority=prcessAndResoursePriy;
     }
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,HashMap<String,ArrayList<String>> change_Process) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
+        this.processSeq_Origin.putAll(processSeq);
         this.processSeq=processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
-        this.processSeq_Origin = processSeq;
         this.occSeq=new ArrayList<>();
         this.processAndResourcePriority=prcessAndResoursePriy;
         this.change_Process = change_Process;
@@ -130,12 +127,11 @@ public class Equipment implements Serializable {
                      HashMap<String,Double> errorMap,List<String> lru,HashMap<String,Integer> repairTime,String fixprocess) {
         this.name = e1;
         this.num = i;
-        this.processSeq_Origin = processSeq;
+        this.processSeq_Origin.putAll(processSeq);
         this.processSeq=processSeq;
         this.processAndResource = processAndResource;
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
-        this.processSeq_Origin = processSeq;
         this.occSeq=new ArrayList<>();
         this.processAndResourcePriority=prcessAndResoursePriy;
         this.failMap=failmap;

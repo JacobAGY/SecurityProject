@@ -148,15 +148,8 @@ public class ShortTimePlan {
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
-//        System.out.println("--------------调度顺序----------------");
-//        List<List<Equipment>> templist=new ArrayList<>(equipmentGroups.values());
-//        for(int i=0;i<templist.size();i++){
-//            List<Equipment> temp=templist.get(i);
-//            for (int j = 0; j < temp.size(); j++) {
-//                System.out.print(temp.get(j).getName()+" ");
-//            }
-//            System.out.println("");
-//        }
+        // 记录修改后的时间
+        List<Equipment> records_equipments = new ArrayList<>();
         List<String> equipmentOrder=new ArrayList<>();
         while (totalTime <= maxTime && !equipmentList.isEmpty()) {
 
@@ -192,6 +185,8 @@ public class ShortTimePlan {
                         if (ep.getProcessCur() == null){
                             //更新状态为Finish
                             ep.setStatus(Equipment.Equipmentenum.FINISH);
+                            ep.setFinishTime(totalTime);
+                            records_equipments.add(ep);
                             equipmentList.remove(ep);
                             finishedEqi++;
                         }
@@ -204,7 +199,7 @@ public class ShortTimePlan {
 
         totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime,records_equipments,finishedEqi);
         this.equipmentList=tempequipmentList;
         this.resourceList=tempresourseList;
         for (Resource r:this.resourceListDetail) {
@@ -419,13 +414,6 @@ public class ShortTimePlan {
     }
 
     private void releaseResources(Equipment equipment) {
-//        String curProcess=equipment.getProcessCur();
-//        HashMap<String,Integer> pr=equipment.getProcessAndResource().get(curProcess);
-//        //工序释放资源，资源数量增加
-//        for (Map.Entry<String,Integer> entry:pr.entrySet()){
-//            Resource resource=findResource(entry.getKey());
-//            resource.setNum(resource.getNum()+entry.getValue());
-//        }
 
         //设置装备的当前工序为下一道工序(当前程序下的工序顺序)
         String last="";
