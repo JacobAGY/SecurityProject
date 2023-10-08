@@ -1,7 +1,7 @@
 package com.szu.cn.Security.utils;
 
-import com.szu.cn.Security.Equipment;
-import com.szu.cn.Security.Result;
+import com.szu.cn.Security.Pojo.Equipment;
+import com.szu.cn.Security.Pojo.Result;
 import com.szu.cn.Security.ShortTimePlan;
 import com.szu.cn.Security.Test.Test;
 import com.szu.cn.Security.Test.TestPojo;

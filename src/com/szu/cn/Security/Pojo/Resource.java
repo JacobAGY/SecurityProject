@@ -1,4 +1,4 @@
-package com.szu.cn.Security;
+package com.szu.cn.Security.Pojo;
 
 import java.io.Serializable;
 import java.util.ArrayList;

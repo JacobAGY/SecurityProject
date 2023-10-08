@@ -1,8 +1,8 @@
 package com.szu.cn.Security.utils;
 
-import com.szu.cn.Security.Equipment;
+import com.szu.cn.Security.Pojo.Equipment;
 import com.szu.cn.Security.HighResponseRatioPlan;
-import com.szu.cn.Security.Result;
+import com.szu.cn.Security.Pojo.Result;
 import com.szu.cn.Security.ShortTimePlan;
 import com.szu.cn.Security.Test.TestPojo;
 import org.apache.commons.lang3.SerializationUtils;

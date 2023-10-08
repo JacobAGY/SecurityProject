@@ -1,5 +1,6 @@
 package com.szu.cn.Security;
 
+import com.szu.cn.Security.Pojo.Resource;
 import com.szu.cn.Security.Test.TestPojo;
 import com.szu.cn.Security.utils.Utils;
 import org.apache.commons.lang3.SerializationUtils;

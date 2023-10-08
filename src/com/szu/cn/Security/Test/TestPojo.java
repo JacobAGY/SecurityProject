@@ -1,7 +1,7 @@
 package com.szu.cn.Security.Test;
 
-import com.szu.cn.Security.Equipment;
-import com.szu.cn.Security.Resource;
+import com.szu.cn.Security.Pojo.Equipment;
+import com.szu.cn.Security.Pojo.Resource;
 
 import java.io.Serializable;
 import java.util.List;

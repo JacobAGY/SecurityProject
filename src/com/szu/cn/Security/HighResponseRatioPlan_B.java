@@ -1,5 +1,9 @@
 package com.szu.cn.Security;
 
+import com.szu.cn.Security.Pojo.Equipment;
+import com.szu.cn.Security.Pojo.Resource;
+import com.szu.cn.Security.Pojo.Result;
+
 import java.util.*;
 
 public class HighResponseRatioPlan_B {

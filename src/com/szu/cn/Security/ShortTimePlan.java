@@ -2,14 +2,20 @@ package com.szu.cn.Security;
 
 //import org.apache.commons.lang3.SerializationUtils;
 
+import com.szu.cn.Security.Pojo.Equipment;
+import com.szu.cn.Security.Pojo.Resource;
+import com.szu.cn.Security.Pojo.Result;
+import com.szu.cn.Security.utils.BeanUtils;
+
 import java.io.IOException;
 import java.util.*;
+
+import static com.szu.cn.Security.Pojo.SecurityBase.*;
 
 public class ShortTimePlan {
 
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
-
     private List<Resource> resourceListDetail;
 
     public ShortTimePlan(List<Equipment> equipmentList, List<Resource> resourceList) {
@@ -469,122 +475,199 @@ public class ShortTimePlan {
 
     public static void main(String[] args) {
 
-        //初始化资源
-        Resource resource1=new Resource("R1",4);
-        Resource resource2=new Resource("R2",4);
-        Resource resource3=new Resource("R3",1);
-        Resource resource4=new Resource("R4",1);
-        Resource resource5=new Resource("R5",3);
-        Resource resource6=new Resource("R6",2);
-        Resource resource7=new Resource("R7",3);
-        List<Resource> resourceList=new ArrayList<>();
-        resourceList.add(resource1);
-        resourceList.add(resource2);
-        resourceList.add(resource3);
-        resourceList.add(resource4);
-        resourceList.add(resource5);
-        resourceList.add(resource6);
-        resourceList.add(resource7);
+        System.out.println("输入资源种类数量：");
+        Scanner scanner1 = new Scanner(System.in);
+        int resourceNum = scanner1.nextInt();
 
+        // 4 4 1 1 3 2 3
+        List<Resource> resourceList=new ArrayList<>();
+        for (int i = 1; i <=resourceNum ; i++) {
+            System.out.println("输入资源"+ RESOURSE_PREFIX+i+"数量：");
+            Scanner resNum = new Scanner(System.in);
+            Resource resource=new Resource(RESOURSE_PREFIX+i,resNum.nextInt());
+            resourceList.add(resource);
+        }
+
+        System.out.println("输入装备种类数量：");
+        Scanner scanner2 = new Scanner(System.in);
+        int equipmentNum = scanner2.nextInt();
         //初始化装备
         List<Equipment> equipmentList=new ArrayList<>();
-        LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
-        processSeq.put("P1",5);
-        processSeq.put("P2",4);
-        processSeq.put("P3",6);
-        processSeq.put("P4",10);
-        processSeq.put("P5",15);
-        processSeq.put("P6",8);
-        processSeq.put("P7",15);
-        processSeq.put("P8",6);
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
-        processAndResource.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource.put("P2",new HashMap<String,Integer>(){{put("R2",1);}});
-        processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
-        processAndResource.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
-        processAndResource.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
-        processAndResource.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
-        processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
-        processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
 
-        //设置装备工序资源优先级
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority=new LinkedHashMap<>();
+        for (int i = 1; i <=equipmentNum; i++) {
+            System.out.println("装备"+EQUIPMENT_PREFIX+i+"请输入装备数量：");
+            Scanner scanner3 = new Scanner(System.in);
+            int equiNum=scanner3.nextInt();
+            System.out.println("装备"+EQUIPMENT_PREFIX+i+"需要多少次工序，请输入：");
 
-        processAndResourcePriority.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResourcePriority.put("P4",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResourcePriority.put("P5",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResourcePriority.put("P6",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResourcePriority.put("P7",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResourcePriority.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
+            int processNum= scanner3.nextInt();
+            //初始化工序
+            LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
+            LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
+            //设置装备工序资源优先级
+            LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority=new LinkedHashMap<>();
+            for (int j = 1; j <=processNum ; j++) {
+                //设置工序与工作时间
+                Scanner scanner4 = new Scanner(System.in);
+                System.out.println("请输入工序"+PROCESS_PREFIX+j+"的作业时间：");
+                int ProcessTime=scanner4.nextInt();
+                processSeq.put(PROCESS_PREFIX+j,ProcessTime);
+                //设置工序与资源关系
+                System.out.println("需为工序"+PROCESS_PREFIX+j+"分配几种资源：");
+                int resType=scanner4.nextInt();
+                HashMap<String,Integer> prMap=new HashMap<>();
+                System.out.println("需为工序"+PROCESS_PREFIX+j+"分配的资源以及资源数量：");
+                for (int k = 0; k < resType; k++) {
+                    int resIndex=scanner4.nextInt();
+                    int resNum=scanner4.nextInt();
+                    prMap.put(RESOURSE_PREFIX+resIndex,resNum);
+                }
+                processAndResource.put(PROCESS_PREFIX+j,prMap);
+                System.out.println("是否为工序"+PROCESS_PREFIX+j+"设置资源优先级？(Y/N)");
+                String flag=scanner4.next();
+                if (flag.equals("Y")){
+                    System.out.println("需为工序"+PROCESS_PREFIX+j+"分配几种资源的优先级：");
+                    int resPriType=scanner4.nextInt();
+                    HashMap<String,Integer> pprMap=new HashMap<>();
+                    System.out.println("需为工序"+PROCESS_PREFIX+j+"设置的资源以及资源优先级：");
+                    for (int k = 0; k < resPriType; k++) {
+                        int resIndex=scanner4.nextInt();
+                        int resPriority=scanner4.nextInt();
+                        pprMap.put(RESOURSE_PREFIX+resIndex,resPriority);
+                    }
+                    processAndResourcePriority.put(PROCESS_PREFIX+j,pprMap);
+                }
+            }
+            Equipment ep=new Equipment(EQUIPMENT_PREFIX+i,equiNum, processSeq,processAndResource,processAndResourcePriority);
+            equipmentList.add(ep);
+        }
+        List<Equipment> tempEqiList=new ArrayList<>();
+        for (int i=0;i<equipmentList.size();i++){
+            for (int j = 1; j <=equipmentList.get(i).getNum(); j++) {
+                Equipment equipment=BeanUtils.copy(equipmentList.get(i));
+                Objects.requireNonNull(equipment).setName(equipmentList.get(i).getName()+"-"+j);
+                Objects.requireNonNull(equipment).setNum(1);
+                tempEqiList.add(equipment);
+            }
+        }
+        equipmentList=tempEqiList;
 
+        //初始化资源
+//        Resource resource1=new Resource("R1",4);
+//        Resource resource2=new Resource("R2",4);
+//        Resource resource3=new Resource("R3",1);
+//        Resource resource4=new Resource("R4",1);
+//        Resource resource5=new Resource("R5",3);
+//        Resource resource6=new Resource("R6",2);
+//        Resource resource7=new Resource("R7",3);
+//
+//        resourceList.add(resource1);
+//        resourceList.add(resource2);
+//        resourceList.add(resource3);
+//        resourceList.add(resource4);
+//        resourceList.add(resource5);
+//        resourceList.add(resource6);
+//        resourceList.add(resource7);
 
-        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,processAndResourcePriority);
-
-        LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
-        processSeq2.put("P1",4);
-        processSeq2.put("P2",5);
-        processSeq2.put("P3",5);
-        processSeq2.put("P4",12);
-        processSeq2.put("P5",16);
-        processSeq2.put("P6",20);
-
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
-        processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
-        processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
-        processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
-        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
-        processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
-
-        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
-
-        LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
-        processSeq3.put("P1",4);
-        processSeq3.put("P2",8);
-        processSeq3.put("P3",12);
-        processSeq3.put("P4",5);
-        processSeq3.put("P5",10);
-        processSeq3.put("P6",12);
-        processSeq3.put("P7",6);
-        processSeq3.put("P8",8);
-        processSeq3.put("P9",10);
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource3=new LinkedHashMap<>();
-        processAndResource3.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
-        processAndResource3.put("P2",new HashMap<String,Integer>(){{put("R1",1);put("R4",1);}});
-        processAndResource3.put("P3",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
-        processAndResource3.put("P4",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResource3.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
-        processAndResource3.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
-        processAndResource3.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
-        processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
-        processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
-
-        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
-
-        LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
-        processSeq4.put("P1",5);
-        processSeq4.put("P2",12);
-        processSeq4.put("P3",8);
-        processSeq4.put("P4",8);
-        processSeq4.put("P5",12);
-        processSeq4.put("P6",10);
-        processSeq4.put("P7",15);
-
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource4=new LinkedHashMap<>();
-        processAndResource4.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
-        processAndResource4.put("P2",new HashMap<String,Integer>(){{put("R2",1);put("R4",1);}});
-        processAndResource4.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
-        processAndResource4.put("P4",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
-        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
-        processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
-        processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
-
-        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
-
-        equipmentList.add(ep1);
-        equipmentList.add(ep2);
-        equipmentList.add(ep3);
-        equipmentList.add(ep4);
+//        //初始化装备
+//        List<Equipment> equipmentList=new ArrayList<>();
+//        LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
+//        processSeq.put("P1",5);
+//        processSeq.put("P2",4);
+//        processSeq.put("P3",6);
+//        processSeq.put("P4",10);
+//        processSeq.put("P5",15);
+//        processSeq.put("P6",8);
+//        processSeq.put("P7",15);
+//        processSeq.put("P8",6);
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
+//        processAndResource.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
+//        processAndResource.put("P2",new HashMap<String,Integer>(){{put("R2",1);}});
+//        processAndResource.put("P3",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
+//        processAndResource.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
+//        processAndResource.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+//        processAndResource.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
+//        processAndResource.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+//        processAndResource.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
+//
+//        //设置装备工序资源优先级
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority=new LinkedHashMap<>();
+//
+//        processAndResourcePriority.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResourcePriority.put("P4",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResourcePriority.put("P5",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResourcePriority.put("P6",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResourcePriority.put("P7",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResourcePriority.put("P8",new HashMap<String,Integer>(){{put("R3",1);}});
+//
+//
+//        Equipment ep1=new Equipment("E1",1, processSeq,processAndResource,processAndResourcePriority);
+//
+//        LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
+//        processSeq2.put("P1",4);
+//        processSeq2.put("P2",5);
+//        processSeq2.put("P3",5);
+//        processSeq2.put("P4",12);
+//        processSeq2.put("P5",16);
+//        processSeq2.put("P6",20);
+//
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
+//        processAndResource2.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
+//        processAndResource2.put("P2",new HashMap<String,Integer>(){{put("R1",1);}});
+//        processAndResource2.put("P3",new HashMap<String,Integer>(){{put("R4",1);}});
+//        processAndResource2.put("P4",new HashMap<String,Integer>(){{put("R3",1);put("R4",1);}});
+//        processAndResource2.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+//        processAndResource2.put("P6",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+//
+//        Equipment ep2=new Equipment("E2",1, processSeq2,processAndResource2);
+//
+//        LinkedHashMap<String,Integer> processSeq3=new LinkedHashMap<>();
+//        processSeq3.put("P1",4);
+//        processSeq3.put("P2",8);
+//        processSeq3.put("P3",12);
+//        processSeq3.put("P4",5);
+//        processSeq3.put("P5",10);
+//        processSeq3.put("P6",12);
+//        processSeq3.put("P7",6);
+//        processSeq3.put("P8",8);
+//        processSeq3.put("P9",10);
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResource3=new LinkedHashMap<>();
+//        processAndResource3.put("P1",new HashMap<String,Integer>(){{put("R2",1);}});
+//        processAndResource3.put("P2",new HashMap<String,Integer>(){{put("R1",1);put("R4",1);}});
+//        processAndResource3.put("P3",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
+//        processAndResource3.put("P4",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResource3.put("P5",new HashMap<String,Integer>(){{put("R3",1);put("R7",1);}});
+//        processAndResource3.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
+//        processAndResource3.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+//        processAndResource3.put("P8",new HashMap<String,Integer>(){{put("R5",1);put("R7",1);}});
+//        processAndResource3.put("P9",new HashMap<String,Integer>(){{put("R3",1);put("R6",1);}});
+//
+//        Equipment ep3=new Equipment("E3",1, processSeq3,processAndResource3);
+//
+//        LinkedHashMap<String,Integer> processSeq4=new LinkedHashMap<>();
+//        processSeq4.put("P1",5);
+//        processSeq4.put("P2",12);
+//        processSeq4.put("P3",8);
+//        processSeq4.put("P4",8);
+//        processSeq4.put("P5",12);
+//        processSeq4.put("P6",10);
+//        processSeq4.put("P7",15);
+//
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResource4=new LinkedHashMap<>();
+//        processAndResource4.put("P1",new HashMap<String,Integer>(){{put("R1",1);}});
+//        processAndResource4.put("P2",new HashMap<String,Integer>(){{put("R2",1);put("R4",1);}});
+//        processAndResource4.put("P3",new HashMap<String,Integer>(){{put("R3",1);}});
+//        processAndResource4.put("P4",new HashMap<String,Integer>(){{put("R4",1);put("R5",1);}});
+//        processAndResource4.put("P5",new HashMap<String,Integer>(){{put("R5",1);}});
+//        processAndResource4.put("P6",new HashMap<String,Integer>(){{put("R4",1);put("R6",1);}});
+//        processAndResource4.put("P7",new HashMap<String,Integer>(){{put("R3",1);put("R5",1);}});
+//
+//        Equipment ep4=new Equipment("E4",1, processSeq4,processAndResource4);
+//
+//        equipmentList.add(ep1);
+//        equipmentList.add(ep2);
+//        equipmentList.add(ep3);
+//        equipmentList.add(ep4);
 
         ShortTimePlan scheduler = new ShortTimePlan(equipmentList,resourceList);
 //        ShortTimePlan scheduler = new ShortTimePlan(equipmentList, processList, resourceList);

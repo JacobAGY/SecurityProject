@@ -1,4 +1,4 @@
-package com.szu.cn.Security;
+package com.szu.cn.Security.Pojo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
