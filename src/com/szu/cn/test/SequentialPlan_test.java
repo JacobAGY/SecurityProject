@@ -1,9 +1,14 @@
-package com.szu.cn.Security;
+package com.szu.cn.test;
+
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.utils.BeanUtils;
 
 import java.io.IOException;
 import java.util.*;
 
-public class SequentialPlan {
+public class SequentialPlan_test {
     private List<Equipment> equipmentList;
     private List<Resource> resourceList;
 
@@ -23,7 +28,7 @@ public class SequentialPlan {
         this.resourceListDetail=tempList;
     }
 
-    public SequentialPlan(List<Equipment> equipmentList, List<Resource> resourceList) {
+    public SequentialPlan_test(List<Equipment> equipmentList, List<Resource> resourceList) {
         this.equipmentList = equipmentList;
         this.resourceList = resourceList;
         List<Resource> tempList=new ArrayList<>();

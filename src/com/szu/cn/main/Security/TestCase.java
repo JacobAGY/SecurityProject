@@ -1,13 +1,19 @@
-package com.szu.cn.Security.Test;
+package com.szu.cn.main.Security;
 
-import com.szu.cn.Security.*;
-import com.szu.cn.Security.utils.Utils;
+import com.szu.cn.main.Security.algorithms.*;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.utils.*;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
+import com.szu.cn.test.HighResponseRatioPlan_test;
+import com.szu.cn.test.ShortTimePlan_test;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
-public class Test {
-    public static TestPojo testCase(){
+public class TestCase {
+    public static EquipmentSupportVo testCase(){
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
@@ -114,12 +120,12 @@ public class Test {
         equipmentTypeList.add(ep2);
         equipmentTypeList.add(ep3);
         equipmentTypeList.add(ep4);
-        TestPojo testPojo = new TestPojo();
+        EquipmentSupportVo testPojo = new EquipmentSupportVo();
         testPojo.setEquipmentTypeSeq(equipmentTypeList);
         testPojo.setResources(resourceList);
         return testPojo;
     }
-    public static TestPojo testCase1(){
+    public static EquipmentSupportVo testCase1(){
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
@@ -226,12 +232,12 @@ public class Test {
         equipmentTypeList.add(ep2);
         equipmentTypeList.add(ep3);
         equipmentTypeList.add(ep4);
-        TestPojo testPojo = new TestPojo();
+        EquipmentSupportVo testPojo = new EquipmentSupportVo();
         testPojo.setEquipmentTypeSeq(equipmentTypeList);
         testPojo.setResources(resourceList);
         return testPojo;
     }
-    public static TestPojo testCase2(){
+    public static EquipmentSupportVo testCase2(){
         //初始化资源
         Resource resource1=new Resource("R1",4);
         Resource resource2=new Resource("R2",4);
@@ -350,12 +356,12 @@ public class Test {
         equipmentTypeList.add(ep2);
         equipmentTypeList.add(ep3);
         equipmentTypeList.add(ep4);
-        TestPojo testPojo = new TestPojo();
+        EquipmentSupportVo testPojo = new EquipmentSupportVo();
         testPojo.setEquipmentTypeSeq(equipmentTypeList);
         testPojo.setResources(resourceList);
         return testPojo;
     }
-    public static TestPojo parameter_TestPojo(TestPojo testPojo){
+    public static EquipmentSupportVo parameter_TestPojo(EquipmentSupportVo testPojo){
         List<Resource> resources = testPojo.getResources();
         List<Equipment> equipmentments = testPojo.getEquipmentTypeSeq();
         List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
@@ -456,7 +462,7 @@ public class Test {
     public static void main(String[] args) {
         //测试用例
 //        TestPojo testPojo = testCase();
-        TestPojo testPojo = testCase2();
+        EquipmentSupportVo testPojo = testCase2();
         List<Resource> resources = testPojo.getResources();
         List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
         //展示资源数量
@@ -569,7 +575,7 @@ public class Test {
     }
 
     //更改resouces数量，返回TestPojo
-    public static TestPojo changeResourcesNum(TestPojo testPojo, int[] resourcesNums){
+    public static EquipmentSupportVo changeResourcesNum(EquipmentSupportVo testPojo, int[] resourcesNums){
         List<Resource> resources = testPojo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             resources.get(i).setNum(resourcesNums[i]);
@@ -577,7 +583,7 @@ public class Test {
         return testPojo;
     }
 
-    public static TestPojo changeEquipmentNum(TestPojo testPojo,int[] equipmentNums){
+    public static EquipmentSupportVo changeEquipmentNum(EquipmentSupportVo testPojo, int[] equipmentNums){
         List<Equipment> equiments = testPojo.getEquiments();
         for (int i = 0; i < equiments.size(); i++) {
             equiments.get(i).setNum(equipmentNums[i]);
@@ -586,7 +592,7 @@ public class Test {
     }
 
     //更改装备操作序列
-    public static TestPojo changeEquipmentProcessSeq(TestPojo testPojo,String name,int[] orders){
+    public static EquipmentSupportVo changeEquipmentProcessSeq(EquipmentSupportVo testPojo, String name, int[] orders){
         List<Equipment> equiments = testPojo.getEquipmentTypeSeq();
         //找到装备
         for (Equipment equiment : equiments) {
@@ -604,16 +610,16 @@ public class Test {
     }
 
     //最短时间测试
-    public static void shortestTime(TestPojo testPojo){
+    public static void shortestTime(EquipmentSupportVo testPojo){
 
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo shortTime_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo highResponse_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
 
-        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule();
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
         Result result2 = highResponse_scheduler.schedule();
 //        System.out.println(result2.getList());
         System.out.println("==================================");
@@ -626,19 +632,19 @@ public class Test {
         }
     }
 
-    public static void testSequentialPlan(TestPojo testPojo,int maxTime){
+    public static void testSequentialPlan(EquipmentSupportVo testPojo, int maxTime){
 
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo shortTime_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo highResponse_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
 
-        SequentialPlan_B sequentialPlan_scheduler = new SequentialPlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        SequentialPlan sequentialPlan_scheduler = new SequentialPlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = sequentialPlan_scheduler.schedule();
-        ShortTimePlan_B shortTimePlan_scheduler = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = shortTimePlan_scheduler.schedule();
-        HighResponseRatioPlan highResponseRatioPlan_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan_test highResponseRatioPlan_test_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
 
         Result result1 = sequentialPlan_scheduler.schedule();
-        Result result2 = highResponseRatioPlan_scheduler.schedule();
+        Result result2 = highResponseRatioPlan_test_scheduler.schedule();
         Result result3 = shortTimePlan_scheduler.schedule();
 
 
@@ -656,15 +662,15 @@ public class Test {
 
     }
     //最短时间测试
-    public static void shortestTime(TestPojo testPojo,int maxTime){
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+    public static void shortestTime(EquipmentSupportVo testPojo, int maxTime){
+        EquipmentSupportVo shortTime_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo highResponse_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
 
-        ShortTimePlan_B shortTime_scheduler = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule(maxTime);
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
         Result result2 = highResponse_scheduler.schedule(maxTime);
 //        System.out.println(result2.getList());
         System.out.println("==================================");

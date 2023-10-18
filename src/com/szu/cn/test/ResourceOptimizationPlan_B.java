@@ -1,14 +1,16 @@
-package com.szu.cn.Security;
+package com.szu.cn.test;
 
-import com.szu.cn.Security.Test.TestPojo;
-import com.szu.cn.Security.utils.Utils;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.utils.AlgorithmUtils;
+import com.szu.cn.main.Security.utils.Utils;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
 
-public class ResourceOptimizationPlan {
+public class ResourceOptimizationPlan_B {
 
-    public static void optimalSoulution(TestPojo testPojo) {
+    public static void optimalSoulution(EquipmentSupportVo equipmentSupportVo) {
 
         Scanner in = new Scanner(System.in);
 
@@ -16,19 +18,19 @@ public class ResourceOptimizationPlan {
         int Q = 0; //经济规模约束
 
         //若未设置Q，输入Q
-        if (testPojo.getQ() == 0) {
+        if (equipmentSupportVo.getQ() == 0) {
             System.out.println("请输入经济规模约束Q：");
             Q = in.nextInt();
-            testPojo.setQ(Q);
+            equipmentSupportVo.setQ(Q);
         }
 
         //1.生成初始解
-        testPojo = getInitSolution(testPojo, Q);
+        equipmentSupportVo = getInitSolution(equipmentSupportVo, Q);
 
         //输出初始解（测试）
         int allCost = 0;
         System.out.println("初始解为：");
-        List<Resource> resources = testPojo.getResources();
+        List<Resource> resources = equipmentSupportVo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             System.out.println(" 资源 " + resources.get(i).getName() + " 的数量为" + resources.get(i).getNum());
             allCost += resources.get(i).getPrice() * resources.get(i).getNum();
@@ -49,7 +51,7 @@ public class ResourceOptimizationPlan {
         double beta = 0.1;
 
         //变邻域算法流程
-        testPojo = variableFieldDrop(testPojo, Q, beta);
+        equipmentSupportVo = variableFieldDrop(equipmentSupportVo, Q, beta);
 
         System.out.println("经过变邻域下降：");
         allCost = 0;
@@ -70,24 +72,24 @@ public class ResourceOptimizationPlan {
                     // 为了避免陷入局部最优，在算法中加入扰动过程。任意选择执行邻域结构，不需要评估得到的邻域解的质量，将其直接赋值为当前解。
                     Random random = new Random();
                     //扰动过程
-                    TestPojo testPojoOri = (TestPojo) SerializationUtils.clone(testPojo);
+                    EquipmentSupportVo equipmentSupportVoOri = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
                     for (int i = 0; i < b; i++) {
                         int temp = random.nextInt(4);
                         if (temp > 1) {
-                            TestPojo tempNd2 = neighborND1(testPojo, Q, beta);
+                            EquipmentSupportVo tempNd2 = neighborND1(equipmentSupportVo, Q, beta);
                             if (tempNd2 != null) {
-                                testPojo = tempNd2;
+                                equipmentSupportVo = tempNd2;
                             }
                         } else {
-                            TestPojo tempNd1 = neighborND2(testPojo, Q, beta);
+                            EquipmentSupportVo tempNd1 = neighborND2(equipmentSupportVo, Q, beta);
                             if (tempNd1 != null) {
-                                testPojo = tempNd1;
+                                equipmentSupportVo = tempNd1;
                             }
                         }
                     }
-                    testPojo = variableFieldDrop(testPojo, Q, beta);
-                    if (compareSolutions(testPojoOri, testPojo, Q, beta) > 0) {
-                        testPojo = testPojoOri;
+                    equipmentSupportVo = variableFieldDrop(equipmentSupportVo, Q, beta);
+                    if (compareSolutions(equipmentSupportVoOri, equipmentSupportVo, Q, beta) > 0) {
+                        equipmentSupportVo = equipmentSupportVoOri;
 
                     } else {
                         a = 1;
@@ -103,13 +105,14 @@ public class ResourceOptimizationPlan {
 
 
         allCost = 0;
-        resources = testPojo.getResources();
+        resources = equipmentSupportVo.getResources();
 //        Utils.shortestTime(testPojo, 250);
-        AlgorithmUtils.shortestTime1(testPojo, 250);
-
+//        AlgorithmUtils.shortestTime1(testPojo, 250);
+//        AlgorithmUtils.shortestTime2(testPojo,250);
+        AlgorithmUtils.shortestTime(equipmentSupportVo);
         System.out.println("↑↑↑↑↑↑↑↑最优↑↑↑↑↑↑↑↑");
         System.out.println("经过变邻域搜索算法 得到解为：");
-        resources = testPojo.getResources();
+        resources = equipmentSupportVo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             System.out.println(" 资源 " + resources.get(i).getName() + " 的数量为" + resources.get(i).getNum());
             allCost += resources.get(i).getNum() * resources.get(i).getPrice();
@@ -118,12 +121,12 @@ public class ResourceOptimizationPlan {
     }
 
     //得到初始解
-    public static TestPojo getInitSolution(TestPojo testPojo, int Q) {
+    public static EquipmentSupportVo getInitSolution(EquipmentSupportVo equipmentSupportVo, int Q) {
 
         int lastQ = Q; //剩余费用
 
         //2.所有资源数量大于0，因此首先设定所有资源的数量为1
-        List<Resource> resources = testPojo.getResources();
+        List<Resource> resources = equipmentSupportVo.getResources();
         for (int i = 0; i < resources.size(); i++) {
             resources.get(i).setNum(1);
             //剩余费用
@@ -131,13 +134,14 @@ public class ResourceOptimizationPlan {
         }
 
         //3.根据各项保障资源的全局灵敏度，按照从小到大依次编号
-        MyFunSobol myFunSobol = new MyFunSobol();
+//        MyFunSobol myFunSobol = new MyFunSobol();
+        MyFunSobol_B myFunSobol = new MyFunSobol_B();
 
         System.out.println("start getTsc");
 
-        TestPojo testPojoTemp = (TestPojo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo equipmentSupportVoTemp = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
 
-        double[] tsc = myFunSobol.getTsc(testPojoTemp);
+        double[] tsc = myFunSobol.getTsc(equipmentSupportVoTemp);
         for (int i = 0; i < resources.size(); i++) {
             resources.get(i).setGlobalSensitivity(tsc[i]);
         }
@@ -193,37 +197,37 @@ public class ResourceOptimizationPlan {
             }
         }
 
-        return testPojo;
+        return equipmentSupportVo;
     }
 
     //变邻域下降过程
-    public static TestPojo variableFieldDrop(TestPojo testPojo, int Q, double beta) {
+    public static EquipmentSupportVo variableFieldDrop(EquipmentSupportVo equipmentSupportVo, int Q, double beta) {
         while (true) {
-            TestPojo tempNd1 = neighborND1(testPojo, Q, beta);
-            if (tempNd1 != null && compareSolutions(tempNd1,testPojo,Q,beta)>0) {
+            EquipmentSupportVo tempNd1 = neighborND1(equipmentSupportVo, Q, beta);
+            if (tempNd1 != null && compareSolutions(tempNd1, equipmentSupportVo,Q,beta)>0) {
                 //Nd1找到更优解
-                testPojo = tempNd1;
+                equipmentSupportVo = tempNd1;
             } else {
                 //若没有更优解，寻找Nd2是否有更优解
-                TestPojo tempNd2 = neighborND2(testPojo, Q, beta);
+                EquipmentSupportVo tempNd2 = neighborND2(equipmentSupportVo, Q, beta);
                 if (tempNd2 != null) {
-                    if (compareSolutions(tempNd2,testPojo,Q,beta) > 0) {
-                        testPojo = tempNd2;
+                    if (compareSolutions(tempNd2, equipmentSupportVo,Q,beta) > 0) {
+                        equipmentSupportVo = tempNd2;
                     }else{
                         //若没有找到，返回初始解
-                        return testPojo;
+                        return equipmentSupportVo;
                     }
                 } else {
                     //若没有找到，返回初始解
-                    return testPojo;
+                    return equipmentSupportVo;
                 }
             }
         }
     }
 
     //邻域结构ND1
-    public static TestPojo neighborND1(TestPojo testPojo, int Q, double beta) {
-        List<Resource> resources = testPojo.getResources();
+    public static EquipmentSupportVo neighborND1(EquipmentSupportVo equipmentSupportVo, int Q, double beta) {
+        List<Resource> resources = equipmentSupportVo.getResources();
         //记录每个解的质量
         double fn[] = new double[resources.size()];
         //当在保障时间内完成的装备数量相同时，进行fc的对比
@@ -235,7 +239,7 @@ public class ResourceOptimizationPlan {
         int bestsolution = -1;
 
         //记录原始testPojo
-        TestPojo clone = SerializationUtils.clone(testPojo);
+        EquipmentSupportVo clone = SerializationUtils.clone(equipmentSupportVo);
 
         //遍历每个资源数量+1选取其中的最优解作为当前领域解
         for (int i = 0; i < resources.size(); i++) {
@@ -243,9 +247,9 @@ public class ResourceOptimizationPlan {
             int num = resources.get(i).getNum();
 
             resources.get(i).setNum(num + 1);
-            testPojo.setResources(resources);
+            equipmentSupportVo.setResources(resources);
             //获得最大保障装备数量 最大时间设定为250
-            double gs = Utils.shortestTime(testPojo, 250);
+            double gs = Utils.shortestTime(equipmentSupportVo, 250);
             //记录花费
             double fcNow = 0;
             for (int j = 0; j < resources.size(); j++) {
@@ -255,7 +259,7 @@ public class ResourceOptimizationPlan {
                 //如果花费大于经济约束
                 //撤回变化
                 resources.get(i).setNum(num);
-                testPojo = SerializationUtils.clone(clone);
+                equipmentSupportVo = SerializationUtils.clone(clone);
                 continue;
             }
             double fnNow = gs;
@@ -271,7 +275,7 @@ public class ResourceOptimizationPlan {
                 if (fcNow > bestfc) {
                     //撤回变化
                     resources.get(i).setNum(num);
-                    testPojo = SerializationUtils.clone(clone);
+                    equipmentSupportVo = SerializationUtils.clone(clone);
                     continue;
                 } else {
                     //为更优解
@@ -282,7 +286,7 @@ public class ResourceOptimizationPlan {
             }
             //撤回变化
             resources.get(i).setNum(num);
-            testPojo = SerializationUtils.clone(clone);
+            equipmentSupportVo = SerializationUtils.clone(clone);
         }
 
         if (bestsolution == -1) {
@@ -291,13 +295,13 @@ public class ResourceOptimizationPlan {
         }
         //若找到,变更resources的num值
         resources.get(bestsolution).setNum(resources.get(bestsolution).getNum() + 1);
-        testPojo.setResources(resources);
-        return testPojo;
+        equipmentSupportVo.setResources(resources);
+        return equipmentSupportVo;
     }
 
     //邻域结构ND2
-    public static TestPojo neighborND2(TestPojo testPojo, int Q, double beta) {
-        List<Resource> resources = testPojo.getResources();
+    public static EquipmentSupportVo neighborND2(EquipmentSupportVo equipmentSupportVo, int Q, double beta) {
+        List<Resource> resources = equipmentSupportVo.getResources();
         //记录每个解的质量
         double fn[] = new double[resources.size()];
         //当在保障时间内完成的装备数量相同时，进行fc的对比
@@ -309,7 +313,7 @@ public class ResourceOptimizationPlan {
         int bestsolution = -1;
 
         //记录原始testPojo
-        TestPojo clone = SerializationUtils.clone(testPojo);
+        EquipmentSupportVo clone = SerializationUtils.clone(equipmentSupportVo);
 
         //遍历每个资源数量+1选取其中的最优解作为当前领域解
         for (int i = 0; i < resources.size(); i++) {
@@ -318,9 +322,9 @@ public class ResourceOptimizationPlan {
             //下降过程 防止资源为负数
             if (num == 0) continue;
             resources.get(i).setNum(num - 1);
-            testPojo.setResources(resources);
+            equipmentSupportVo.setResources(resources);
             //获得最大保障装备数量 最大时间设定为250
-            double gs = Utils.shortestTime(testPojo, 250);
+            double gs = Utils.shortestTime(equipmentSupportVo, 250);
             //记录花费
             double fcNow = 0;
             for (int j = 0; j < resources.size(); j++) {
@@ -330,7 +334,7 @@ public class ResourceOptimizationPlan {
                 //如果花费大于经济约束
                 //撤回变化
                 resources.get(i).setNum(num);
-                testPojo = SerializationUtils.clone(clone);
+                equipmentSupportVo = SerializationUtils.clone(clone);
 
                 continue;
             }
@@ -347,7 +351,7 @@ public class ResourceOptimizationPlan {
                 if (fcNow > bestfc) {
                     //撤回变化
                     resources.get(i).setNum(num);
-                    testPojo = SerializationUtils.clone(clone);
+                    equipmentSupportVo = SerializationUtils.clone(clone);
 
                     continue;
                 } else {
@@ -359,7 +363,7 @@ public class ResourceOptimizationPlan {
             }
             //撤回变化
             resources.get(i).setNum(num);
-            testPojo = SerializationUtils.clone(clone);
+            equipmentSupportVo = SerializationUtils.clone(clone);
 
         }
 
@@ -369,23 +373,23 @@ public class ResourceOptimizationPlan {
         }
         //若找到,变更resources的num值
         resources.get(bestsolution).setNum(resources.get(bestsolution).getNum() - 1);
-        testPojo.setResources(resources);
-        return testPojo;
+        equipmentSupportVo.setResources(resources);
+        return equipmentSupportVo;
     }
 
     //对比两个解的质量
-    public static int compareSolutions(TestPojo testPojo1, TestPojo testPojo2, int Q, double beta) {
+    public static int compareSolutions(EquipmentSupportVo equipmentSupportVo1, EquipmentSupportVo equipmentSupportVo2, int Q, double beta) {
         double fc1 = 0;
         double fc2 = 0;
-        List<Resource> resources1 = testPojo1.getResources();
-        List<Resource> resources2 = testPojo2.getResources();
+        List<Resource> resources1 = equipmentSupportVo1.getResources();
+        List<Resource> resources2 = equipmentSupportVo2.getResources();
         for (int i = 0; i < resources2.size(); i++) {
             fc1 += resources1.get(i).getPrice() * resources1.get(i).getNum();
             fc2 += resources2.get(i).getPrice() * resources2.get(i).getNum();
         }
 
-        double fn1 = Utils.shortestTime(testPojo1, 250) - ((fc1 - Q) > 0 ? beta * (fc1 - Q) : 0);
-        double fn2 = Utils.shortestTime(testPojo2, 250) - ((fc2 - Q) > 0 ? beta * (fc2 - Q) : 0);
+        double fn1 = Utils.shortestTime(equipmentSupportVo1, 250) - ((fc1 - Q) > 0 ? beta * (fc1 - Q) : 0);
+        double fn2 = Utils.shortestTime(equipmentSupportVo2, 250) - ((fc2 - Q) > 0 ? beta * (fc2 - Q) : 0);
 
         if (fn1 > fn2) {
             return 1;

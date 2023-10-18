@@ -1,21 +1,25 @@
-package com.szu.cn.Security.utils;
+package com.szu.cn.main.Security.utils;
 
-import com.szu.cn.Security.Equipment;
-import com.szu.cn.Security.HighResponseRatioPlan;
-import com.szu.cn.Security.Result;
-import com.szu.cn.Security.ShortTimePlan;
-import com.szu.cn.Security.Test.TestPojo;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
+import com.szu.cn.test.HighResponseRatioPlan_test;
+import com.szu.cn.test.ShortTimePlan_test;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 用途：修改输入参数
+ * @author hgx
+ */
 public class Utils {
 
     //由装备的种类序列以及装备的数量生成装备序列
-    public static TestPojo generateEquipmentSeq(TestPojo testPojo){
+    public static EquipmentSupportVo generateEquipmentSeq(EquipmentSupportVo equipmentSupportVo){
 
-        List<Equipment> equipmentTypeSeq = testPojo.getEquipmentTypeSeq();
+        List<Equipment> equipmentTypeSeq = equipmentSupportVo.getEquipmentTypeSeq();
         List<Equipment> equipments = new ArrayList<Equipment>();
 
         //根据各装备的数量生成序列
@@ -30,20 +34,20 @@ public class Utils {
                 equipments.add(clone);
             }
         }
-        testPojo.setEquiments(equipments);
+        equipmentSupportVo.setEquiments(equipments);
 
-        return testPojo;
+        return equipmentSupportVo;
     }
 
-    public static int shortestTime(TestPojo testPojo,int maxTime){
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+    public static int shortestTime(EquipmentSupportVo equipmentSupportVo, int maxTime){
+        EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
+        EquipmentSupportVo highResponse_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
 
-        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
         Result result1 = shortTime_scheduler.schedule(maxTime);
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_equipmentSupportVo.getEquiments(), highResponse_equipmentSupportVo.getResources());
         Result result2 = highResponse_scheduler.schedule(maxTime);
 //        System.out.println(result2.getList());
         System.out.println("==================================");

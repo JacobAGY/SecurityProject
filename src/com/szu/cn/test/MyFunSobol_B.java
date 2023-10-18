@@ -1,6 +1,12 @@
-package com.szu.cn.Security;
+package com.szu.cn.test;
 
-import com.szu.cn.Security.Test.TestPojo;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.utils.HighResponseRatioPlan;
+import com.szu.cn.main.Security.utils.SequentialPlan;
+import com.szu.cn.main.Security.utils.ShortTimePlan;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.pojo.Result;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
@@ -69,7 +75,7 @@ public class MyFunSobol_B {
 
 
     // Calculate Sobol analysis for a given resource configuration
-    private static int[] calculateSobol(ShortTimePlan_B shortTimePlan,HighResponseRatioPlan_B highResponseRatioPlan,SequentialPlan_B sequentialPlan,int maxTime,int[][] resource, int ep_num) {
+    private static int[] calculateSobol(ShortTimePlan shortTimePlan, HighResponseRatioPlan highResponseRatioPlan, SequentialPlan sequentialPlan, int maxTime, int[][] resource, int ep_num) {
 
         int N = resource.length;
         int[] ep = new int[N];
@@ -174,23 +180,23 @@ public class MyFunSobol_B {
         }
     }
 
-    public static double[] getTsc(TestPojo testPojo){
+    public static double[] getTsc(EquipmentSupportVo equipmentSupportVo){
         // ShortTime、HighResponse、Sequential三个算法对比
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo sequential_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
+        EquipmentSupportVo highResponse_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
+        EquipmentSupportVo sequential_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
         // 最短时间
-        ShortTimePlan_B schedulerShort = new ShortTimePlan_B(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan schedulerShort = new ShortTimePlan(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
         //最高响应比
-        HighResponseRatioPlan_B  schedulerHighRes = new HighResponseRatioPlan_B(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan schedulerHighRes = new HighResponseRatioPlan(highResponse_equipmentSupportVo.getEquiments(), highResponse_equipmentSupportVo.getResources());
         //原算法
-        SequentialPlan_B schedulerSeq = new SequentialPlan_B(sequential_testPojo.getEquiments(),sequential_testPojo.getResources());
+        SequentialPlan schedulerSeq = new SequentialPlan(sequential_equipmentSupportVo.getEquiments(), sequential_equipmentSupportVo.getResources());
 
         int N = 50; // Stress levels, obtained from reading
-        int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
-        int maxNum = testPojo.getEquiments().size(); // Maximum value for each resource type
-        int eq_num = testPojo.getEquipmentTypeSeq().size();
-        int maxTime=250;
+        int D = equipmentSupportVo.getResources().size(); // Number of resource types, obtained from reading
+        int maxNum = equipmentSupportVo.getEquiments().size(); // Maximum value for each resource type
+        int eq_num = equipmentSupportVo.getEquipmentTypeSeq().size();
+        int maxTime=100;
 
         // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
         //生成的数据为1~maxNum随机选择的矩阵，该数据表示对每一个应力水平下，对每种保障资源数量进行随机配置
@@ -354,13 +360,13 @@ public class MyFunSobol_B {
         equipmentTypeList.add(ep3);
         equipmentTypeList.add(ep4);
 
-        TestPojo testPojo = new TestPojo();
-        testPojo.setEquiments(equipmentTypeList);
-        testPojo.setEquipmentTypeSeq(equipmentTypeList);
+        EquipmentSupportVo equipmentSupportVo = new EquipmentSupportVo();
+        equipmentSupportVo.setEquiments(equipmentTypeList);
+        equipmentSupportVo.setEquipmentTypeSeq(equipmentTypeList);
 
-        testPojo.setResources(resourceList);
+        equipmentSupportVo.setResources(resourceList);
 
-        double[] tsc = getTsc(testPojo);
+        double[] tsc = getTsc(equipmentSupportVo);
 
     }
 }

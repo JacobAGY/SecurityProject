@@ -1,4 +1,4 @@
-package com.szu.cn.Security.utils;
+package com.szu.cn.main.Security.utils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -107,7 +107,7 @@ public class Drawgraph extends JFrame {
 	}
 
 	public void draw(String url) {
-		String url1 = "src/com/szu/cn/Security/Gantt";
+		String url1 = "src/com/szu/cn/main/Security/gantt_pic";
 		BufferedImage image = new BufferedImage(2200,1200,BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.createGraphics();//获得一个图形类
 

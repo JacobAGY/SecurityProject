@@ -1,10 +1,10 @@
-package com.szu.cn.Security.utils;
+package com.szu.cn.main.Security.utils;
 
-import com.szu.cn.Security.Equipment;
-import com.szu.cn.Security.Result;
-import com.szu.cn.Security.ShortTimePlan;
-import com.szu.cn.Security.Test.Test;
-import com.szu.cn.Security.Test.TestPojo;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.TestCase;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
+import com.szu.cn.test.ShortTimePlan_test;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
@@ -16,12 +16,12 @@ public class functionMain {
 
 	public static void main(String[] args) throws IOException {
 
-		Test test = new Test();
-		TestPojo testPojo = test.testCase1();
-		testPojo = test.parameter_TestPojo(testPojo);
-		TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+		TestCase testCase = new TestCase();
+		EquipmentSupportVo equipmentSupportVo = testCase.testCase1();
+		equipmentSupportVo = testCase.parameter_TestPojo(equipmentSupportVo);
+		EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
 
-		ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+		ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
 		Result result = shortTime_scheduler.schedule();
 
 		// 传入纵坐标最大装备数量

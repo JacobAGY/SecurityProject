@@ -1,4 +1,4 @@
-package com.szu.cn.Security;
+package com.szu.cn.main.Security.pojo;
 
 import java.util.List;
 
@@ -16,6 +16,8 @@ public class Result {
 
     private List<Equipment> records_equiments;
 
+    // 资源优化总花费
+    private int allcost;
     public Result(List<String> list, int time) {
         this.list = list;
         this.time = time;
@@ -103,5 +105,13 @@ public class Result {
 
     public void setRecords_equiments(List<Equipment> records_equiments) {
         this.records_equiments = records_equiments;
+    }
+
+    public int getAllcost() {
+        return allcost;
+    }
+
+    public void setAllcost(int allcost) {
+        this.allcost = allcost;
     }
 }

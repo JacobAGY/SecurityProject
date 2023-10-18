@@ -1,6 +1,12 @@
-package com.szu.cn.Security;
+package com.szu.cn.main.Security.algorithms;
 
-import com.szu.cn.Security.Test.TestPojo;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.utils.HighResponseRatioPlan;
+import com.szu.cn.main.Security.utils.SequentialPlan;
+import com.szu.cn.main.Security.utils.ShortTimePlan;
+import com.szu.cn.main.Security.vo.EquipmentSupportVo;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
@@ -69,20 +75,20 @@ public class MyFunSobol {
 
 
     // Calculate Sobol analysis for a given resource configuration
-    private static int[] calculateSobol(ShortTimePlan shortTimePlan,HighResponseRatioPlan highResponseRatioPlan,SequentialPlan sequentialPlan,int maxTime,int[][] resource, int ep_num) {
+    private static int[] calculateSobol(ShortTimePlan shortTimePlanTest, HighResponseRatioPlan highResponseRatioPlanTest, SequentialPlan sequentialPlanTest, int maxTime, int[][] resource, int ep_num) {
 
         int N = resource.length;
         int[] ep = new int[N];
 
         for (int i=0;i<resource.length;i++){
-                shortTimePlan.setResourceListNum(resource[i]);
-                highResponseRatioPlan.setResourceListNum(resource[i]);
-                sequentialPlan.setResourceListNum(resource[i]);
+                shortTimePlanTest.setResourceListNum(resource[i]);
+                highResponseRatioPlanTest.setResourceListNum(resource[i]);
+                sequentialPlanTest.setResourceListNum(resource[i]);
 
                 //得到三个算法的结果
-                Result resultShort=shortTimePlan.schedule(maxTime);
-                Result resultHighres=highResponseRatioPlan.schedule(maxTime);
-                Result resultSeq = sequentialPlan.schedule(maxTime);
+                Result resultShort= shortTimePlanTest.schedule(maxTime);
+                Result resultHighres= highResponseRatioPlanTest.schedule(maxTime);
+                Result resultSeq = sequentialPlanTest.schedule(maxTime);
 
                 System.out.println("最短时间算法完成时间为" + resultShort.getTime());
                 System.out.println("高响应比算法完成时间为" + resultHighres.getTime());
@@ -173,21 +179,21 @@ public class MyFunSobol {
         }
     }
 
-    public static double[] getTsc(TestPojo testPojo){
+    public static double[] getTsc(EquipmentSupportVo equipmentSupportVo){
         // ShortTime、HighResponse、Sequential三个算法对比
-        TestPojo shortTime_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo highResponse_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
-        TestPojo sequential_testPojo = (TestPojo) SerializationUtils.clone(testPojo);
+        EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
+        EquipmentSupportVo highResponse_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
+        EquipmentSupportVo sequential_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
         //最短时间
-        ShortTimePlan schedulerShort = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan schedulerShort = new ShortTimePlan(shortTime_equipmentSupportVo.getEquipmentTypeSeq(), shortTime_equipmentSupportVo.getResources());
         //最高响应比
-        HighResponseRatioPlan schedulerHighRes = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan schedulerHighRes = new HighResponseRatioPlan(highResponse_equipmentSupportVo.getEquipmentTypeSeq(), highResponse_equipmentSupportVo.getResources());
         //原算法
-        SequentialPlan schedulerSeq = new SequentialPlan(sequential_testPojo.getEquiments(),sequential_testPojo.getResources());
+        SequentialPlan schedulerSeq = new SequentialPlan(sequential_equipmentSupportVo.getEquipmentTypeSeq(), sequential_equipmentSupportVo.getResources());
         int N = 50; // Stress levels, obtained from reading
-        int D = testPojo.getResources().size(); // Number of resource types, obtained from reading
-        int maxNum = testPojo.getEquiments().size(); // Maximum value for each resource type
-        int eq_num = testPojo.getEquipmentTypeSeq().size();
+        int D = equipmentSupportVo.getResources().size(); // Number of resource types, obtained from reading
+        int maxNum = equipmentSupportVo.getEquiments().size(); // Maximum value for each resource type
+        int eq_num = equipmentSupportVo.getEquipmentTypeSeq().size();
         int maxTime=100;
 
         // 首先定义两个随机矩阵A与B，矩阵的规模为：行数为应力水平数，可以理解为仿真次数，列数数为保障资源种类数
@@ -345,13 +351,13 @@ public class MyFunSobol {
         equipmentList.add(ep3);
         equipmentList.add(ep4);
 
-        TestPojo testPojo = new TestPojo();
-        testPojo.setEquiments(equipmentList);
-        testPojo.setEquipmentTypeSeq(equipmentList);
+        EquipmentSupportVo equipmentSupportVo = new EquipmentSupportVo();
+        equipmentSupportVo.setEquiments(equipmentList);
+        equipmentSupportVo.setEquipmentTypeSeq(equipmentList);
 
-        testPojo.setResources(resourceList);
+        equipmentSupportVo.setResources(resourceList);
 
-        getTsc(testPojo);
+        getTsc(equipmentSupportVo);
 
     }
 

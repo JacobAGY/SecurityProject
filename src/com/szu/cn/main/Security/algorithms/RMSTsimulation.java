@@ -1,4 +1,9 @@
-package com.szu.cn.Security;
+package com.szu.cn.main.Security.algorithms;
+
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Resource;
+import com.szu.cn.main.Security.pojo.Result;
+import com.szu.cn.main.Security.utils.BeanUtils;
 
 import java.io.IOException;
 import java.util.*;

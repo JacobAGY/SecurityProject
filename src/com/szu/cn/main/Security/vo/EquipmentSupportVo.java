@@ -1,12 +1,12 @@
-package com.szu.cn.Security.Test;
+package com.szu.cn.main.Security.vo;
 
-import com.szu.cn.Security.Equipment;
-import com.szu.cn.Security.Resource;
+import com.szu.cn.main.Security.pojo.Equipment;
+import com.szu.cn.main.Security.pojo.Resource;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class TestPojo implements Serializable {
+public class EquipmentSupportVo implements Serializable {
     private List<Equipment> equipmentTypeSeq; //装备种类序列
     private List<Equipment> equiments; //装备序列 A1 A2 B1 B2
     private List<Resource> resources;

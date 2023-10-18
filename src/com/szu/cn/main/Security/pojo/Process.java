@@ -1,6 +1,5 @@
-package com.szu.cn.Security;
+package com.szu.cn.main.Security.pojo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Process {
