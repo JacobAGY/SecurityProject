@@ -6,7 +6,10 @@ import com.szu.cn.main.Security.pojo.Result;
 import com.szu.cn.main.Security.utils.BeanUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SequentialPlan_test {
     private List<Equipment> equipmentList;
