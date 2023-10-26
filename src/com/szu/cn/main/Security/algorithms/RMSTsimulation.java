@@ -18,17 +18,10 @@ public class RMSTsimulation {
     private HashMap<String,Integer> unitList;
     private List<Resource> resourceListDetail;
 
-    public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList,HashMap<String,Integer> unitList) {
+    public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList,List<Resource> resourceListDetail,HashMap<String,Integer> unitList) {
         this.equipmentList=equipmentList;
         this.resourceList=resourceList;
-        List<Resource> tempList=new ArrayList<>();
-        for (int i=0;i<resourceList.size();i++){
-            for (int j=1;j<=resourceList.get(i).getNum();j++){
-                Resource resource=new Resource(resourceList.get(i).getName()+"-"+j,1);
-                tempList.add(resource);
-            }
-        }
-        this.resourceListDetail=tempList;
+        this.resourceListDetail=resourceListDetail;
         this.unitList=unitList;
     }
 
@@ -840,8 +833,9 @@ public class RMSTsimulation {
         basePojo.initForRMST();
         List<Equipment> equipmentList=basePojo.getEquipmentList();
         List<Resource> resourceList=basePojo.getResourcesTypeSeq();
+        List<Resource> resourceDetailList=basePojo.getResourceList();
         HashMap<String,Integer> unitList=basePojo.getUnitList();
-        RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,unitList);
+        RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,resourceDetailList,unitList);
         int mc=200;
         int failedEqi=0;
         int finishedEqi=0;

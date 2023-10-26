@@ -113,13 +113,12 @@ public class BasePojo implements Serializable {
      */
     public void initForRMST(){
         //初始化资源
-        Resource resource1=new Resource(RESOURSE_PREFIX+"1",5);
-        Resource resource2=new Resource(RESOURSE_PREFIX+"2",5);
+        Resource resource1=new Resource(RESOURSE_PREFIX+"1",2);
+        Resource resource2=new Resource(RESOURSE_PREFIX+"2",2);
         Resource resource3=new Resource(RESOURSE_PREFIX+"3",5);
-        Resource resource4=new Resource(RESOURSE_PREFIX+"4",5);
-        Resource resource5=new Resource(RESOURSE_PREFIX+"5",5);
-        Resource resource6=new Resource(RESOURSE_PREFIX+"6",5);
-        Resource resource7=new Resource(RESOURSE_PREFIX+"7",5);
+        Resource resource4=new Resource(RESOURSE_PREFIX+"4",2);
+        Resource resource5=new Resource(RESOURSE_PREFIX+"5",4);
+        Resource resource6=new Resource(RESOURSE_PREFIX+"6",2);
         List<Resource> resourcesTypeList=new ArrayList<>();
         resourcesTypeList.add(resource1);
         resourcesTypeList.add(resource2);
@@ -127,29 +126,28 @@ public class BasePojo implements Serializable {
         resourcesTypeList.add(resource4);
         resourcesTypeList.add(resource5);
         resourcesTypeList.add(resource6);
-        resourcesTypeList.add(resource7);
         this.resourcesTypeSeq=resourcesTypeList;
 
         setResourceList(resourcesTypeList);
 
         //初始化装备
-        List<Equipment> equipmentList=new ArrayList<>();
+//        List<Equipment> equipmentList=new ArrayList<>();
         LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
         processSeq.put(PROCESS_PREFIX+"1",5);
-        processSeq.put(PROCESS_PREFIX+"2",4);
-        processSeq.put(PROCESS_PREFIX+"3",6);
+        processSeq.put(PROCESS_PREFIX+"2",5);
+        processSeq.put(PROCESS_PREFIX+"3",5);
         processSeq.put(PROCESS_PREFIX+"4",10);
-        processSeq.put(PROCESS_PREFIX+"5",15);
-        processSeq.put(PROCESS_PREFIX+"6",8);
+        processSeq.put(PROCESS_PREFIX+"5",20);
+        processSeq.put(PROCESS_PREFIX+"6",10);
         processSeq.put(PROCESS_PREFIX+"7",15);
-        processSeq.put(PROCESS_PREFIX+"8",6);
+        processSeq.put(PROCESS_PREFIX+"8",10);
         LinkedHashMap<String,HashMap<String,Integer>> processAndResource=new LinkedHashMap<>();
         processAndResource.put(PROCESS_PREFIX+"1",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"1",1);}});
         processAndResource.put(PROCESS_PREFIX+"2",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"2",1);}});
         processAndResource.put(PROCESS_PREFIX+"3",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);}});
         processAndResource.put(PROCESS_PREFIX+"4",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
         processAndResource.put(PROCESS_PREFIX+"5",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"5",1);}});
-        processAndResource.put(PROCESS_PREFIX+"6",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"6",1);}});
+        processAndResource.put(PROCESS_PREFIX+"6",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
         processAndResource.put(PROCESS_PREFIX+"7",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"7",1);}});
         processAndResource.put(PROCESS_PREFIX+"8",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);}});
 
@@ -165,77 +163,79 @@ public class BasePojo implements Serializable {
 
         HashMap<String,Double> failmap=new HashMap<>();
         failmap.put(UNIT_PREFIX+"1",0.95);
-        failmap.put(UNIT_PREFIX+"2",0.975);
-        failmap.put(UNIT_PREFIX+"3",0.96);
-        failmap.put(UNIT_PREFIX+"4",0.93);
+        failmap.put(UNIT_PREFIX+"2",0.99);
+        failmap.put(UNIT_PREFIX+"3",0.985);
 
         HashMap<String,Double> errormap=new HashMap<>();
-        errormap.put(UNIT_PREFIX+"1",0.82);
-        errormap.put(UNIT_PREFIX+"3",0.78);
+        errormap.put(UNIT_PREFIX+"1",0.85);
+        errormap.put(UNIT_PREFIX+"2",0.88);
+        errormap.put(UNIT_PREFIX+"3",0.75);
 
         List<String> Lru=new ArrayList<String>(){{
             add(UNIT_PREFIX+"1");
+            add(UNIT_PREFIX+"2");
             add(UNIT_PREFIX+"3");
         }};
 
         HashMap<String,Integer> repairTime=new HashMap<>();
-        repairTime.put(UNIT_PREFIX+"1",10);
+        repairTime.put(UNIT_PREFIX+"1",12);
+        repairTime.put(UNIT_PREFIX+"2",10);
         repairTime.put(UNIT_PREFIX+"3",15);
 
 
         String fixProcess=PROCESS_PREFIX+"6";
-        Equipment ep1=new Equipment(EQUIPMENT_PREFIX+"1",2, processSeq,processAndResource,processAndResourcePriority,failmap,errormap,Lru,repairTime,fixProcess);
+        Equipment ep1=new Equipment(EQUIPMENT_PREFIX+"1",10, processSeq,processAndResource,processAndResourcePriority,failmap,errormap,Lru,repairTime,fixProcess);
 
-        LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
-        processSeq2.put(PROCESS_PREFIX+"1",4);
-        processSeq2.put(PROCESS_PREFIX+"2",5);
-        processSeq2.put(PROCESS_PREFIX+"3",15);
-        processSeq2.put(PROCESS_PREFIX+"4",12);
-        processSeq2.put(PROCESS_PREFIX+"5",16);
-        processSeq2.put(PROCESS_PREFIX+"6",20);
-
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
-        processAndResource2.put(PROCESS_PREFIX+"1",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"2",1);}});
-        processAndResource2.put(PROCESS_PREFIX+"2",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"1",1);put(RESOURSE_PREFIX+"3",1);}});
-        processAndResource2.put(PROCESS_PREFIX+"3",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"4",1);}});
-        processAndResource2.put(PROCESS_PREFIX+"4",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
-        processAndResource2.put(PROCESS_PREFIX+"5",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"5",1);}});
-        processAndResource2.put(PROCESS_PREFIX+"6",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"7",1);}});
-
-        //设置装备工序资源优先级
-        LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority2=new LinkedHashMap<>();
-
-        HashMap<String,Double> failmap2=new HashMap<>();
-        failmap2.put(UNIT_PREFIX+"1",0.95);
-        failmap2.put(UNIT_PREFIX+"2",0.975);
-        failmap2.put(UNIT_PREFIX+"3",0.96);
-        failmap2.put(UNIT_PREFIX+"4",0.93);
-
-        HashMap<String,Double> errormap2=new HashMap<>();
-        errormap2.put(UNIT_PREFIX+"2",0.86);
-        errormap2.put(UNIT_PREFIX+"4",0.88);
-
-        List<String> Lru2=new ArrayList<String>(){{
-            add(UNIT_PREFIX+"2");
-            add(UNIT_PREFIX+"4");
-        }};
-
-        HashMap<String,Integer> repairTime2=new HashMap<>();
-        repairTime2.put(UNIT_PREFIX+"2",10);
-        repairTime2.put(UNIT_PREFIX+"4",18);
-
-        String fixProcess2=PROCESS_PREFIX+"5";
-
-        Equipment ep2=new Equipment(EQUIPMENT_PREFIX+"2",3, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
-                ,Lru2,repairTime2,fixProcess2);
+//        LinkedHashMap<String,Integer> processSeq2=new LinkedHashMap<>();
+//        processSeq2.put(PROCESS_PREFIX+"1",4);
+//        processSeq2.put(PROCESS_PREFIX+"2",5);
+//        processSeq2.put(PROCESS_PREFIX+"3",15);
+//        processSeq2.put(PROCESS_PREFIX+"4",12);
+//        processSeq2.put(PROCESS_PREFIX+"5",16);
+//        processSeq2.put(PROCESS_PREFIX+"6",20);
+//
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResource2=new LinkedHashMap<>();
+//        processAndResource2.put(PROCESS_PREFIX+"1",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"2",1);}});
+//        processAndResource2.put(PROCESS_PREFIX+"2",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"1",1);put(RESOURSE_PREFIX+"3",1);}});
+//        processAndResource2.put(PROCESS_PREFIX+"3",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"4",1);}});
+//        processAndResource2.put(PROCESS_PREFIX+"4",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
+//        processAndResource2.put(PROCESS_PREFIX+"5",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"5",1);}});
+//        processAndResource2.put(PROCESS_PREFIX+"6",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"7",1);}});
+//
+//        //设置装备工序资源优先级
+//        LinkedHashMap<String,HashMap<String,Integer>> processAndResourcePriority2=new LinkedHashMap<>();
+//
+//        HashMap<String,Double> failmap2=new HashMap<>();
+//        failmap2.put(UNIT_PREFIX+"1",0.95);
+//        failmap2.put(UNIT_PREFIX+"2",0.975);
+//        failmap2.put(UNIT_PREFIX+"3",0.96);
+//        failmap2.put(UNIT_PREFIX+"4",0.93);
+//
+//        HashMap<String,Double> errormap2=new HashMap<>();
+//        errormap2.put(UNIT_PREFIX+"2",0.86);
+//        errormap2.put(UNIT_PREFIX+"4",0.88);
+//
+//        List<String> Lru2=new ArrayList<String>(){{
+//            add(UNIT_PREFIX+"2");
+//            add(UNIT_PREFIX+"4");
+//        }};
+//
+//        HashMap<String,Integer> repairTime2=new HashMap<>();
+//        repairTime2.put(UNIT_PREFIX+"2",10);
+//        repairTime2.put(UNIT_PREFIX+"4",18);
+//
+//        String fixProcess2=PROCESS_PREFIX+"5";
+//
+//        Equipment ep2=new Equipment(EQUIPMENT_PREFIX+"2",3, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
+//                ,Lru2,repairTime2,fixProcess2);
 
         this.equipmentTypeSeq.add(ep1);
-        this.equipmentTypeSeq.add(ep2);
+//        this.equipmentTypeSeq.add(ep2);
 
         this.unitList= new HashMap<String, Integer>(){{
             put(UNIT_PREFIX+"1",10);
-            put(UNIT_PREFIX+"2",10);
-            put(UNIT_PREFIX+"3",10);
+            put(UNIT_PREFIX+"2",15);
+            put(UNIT_PREFIX+"3",20);
         }};
 
         setEquipmentList(equipmentTypeSeq);
