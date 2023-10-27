@@ -83,6 +83,7 @@ public class Equipment implements Serializable {
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
         this.occSeq=new ArrayList<>();
+        this.finished_Process = new ArrayList<>();
     }
 
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,HashMap<String,ArrayList<String>> change_Process) {

@@ -10,16 +10,16 @@ import java.util.List;
 
 public class Drawgraph extends JFrame {
 
-	int numofEquipments = 0;  //¹©¸ø³µÎ»ÊýÁ¿
-	double timePeriod = 0;//×ÜÊ±³¤
+	int numofEquipments = 0;  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
+	double timePeriod = 0;//ï¿½ï¿½Ê±ï¿½ï¿½
 	int numOfProcess = 0;
-	double[][] equipmentsTimeWindows; //×°±¸Ê±¼ä´°
-	List<double[][]> processesTimeWindows;  //ËùÓÐ×°±¸¹¤ÐòÊ±¼ä´°
+	double[][] equipmentsTimeWindows; //×°ï¿½ï¿½Ê±ï¿½ä´°
+	List<double[][]> processesTimeWindows;  //ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä´°
 
-	List<String> equipmentsList; //×°±¸Ãû³Æ¼¯ºÏ
-	HashMap<String,Integer> process_color; // ¹¤Ðò¶ÔÓ¦ÑÕÉ«
-	List<List<String>> processesList; //¹¤ÐòÃû³Æ¼¯ºÏ
-	// ÑÕÉ«Êý×é£¬ÒÔÇø·Ö²»Í¬µÄÔ­ÓÍÀàÐÍ
+	List<String> equipmentsList; //×°ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½
+	HashMap<String,Integer> process_color; // ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½É«
+	List<List<String>> processesList; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½
+	// ï¿½ï¿½É«ï¿½ï¿½ï¿½é£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½Í¬ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	private final static Color[] colors = {new Color(0, 0, 0), new Color(127, 127, 127),
 			new Color(195, 195, 195), new Color(136, 0, 21), new Color(185, 122, 87), new Color(237, 28, 36),
 			new Color(255, 174, 201), new Color(255, 127, 39), new Color(255, 242, 0), new Color(239, 228, 176),
@@ -54,7 +54,7 @@ public class Drawgraph extends JFrame {
 	public void draw() {
 		String url = "src/com/szu/cn/Security/Gantt";
 		BufferedImage image = new BufferedImage(2200,1200,BufferedImage.TYPE_INT_RGB);
-		Graphics g = image.createGraphics();//»ñµÃÒ»¸öÍ¼ÐÎÀà
+		Graphics g = image.createGraphics();//ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
 
 		try {
 
@@ -62,18 +62,18 @@ public class Drawgraph extends JFrame {
 			g.setColor(Color.white);
 		    g.fillRect(0,0,2200,1200);
 			g.setColor(Color.black);
-			// drawRect»­Ò»¸ö·½¿ò£¬ÏòÏÂ»­
+			// drawRectï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â»ï¿½
 			g.drawRect(100, 100, 2000, 1000);
 			
-			//»­ºá×ø±êÖá
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			for (int i = 0; i < (int)(timePeriod+1); i+=5) {
-				// drawLine»­Ïß
+				// drawLineï¿½ï¿½ï¿½ï¿½
 				g.drawLine((int)(200+1800/timePeriod*i), 90, (int)(200+1800/timePeriod*i), 100);
-				// drawStringÌî³äÐÅÏ¢£¬e.g.Êý×Ö
+				// drawStringï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½e.g.ï¿½ï¿½ï¿½ï¿½
 				g.drawString(""+i, (int)(200+1800/timePeriod*i-3), 80);
 			}
 //
-			//»­×Ý×ø±êÖá
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			for (int k = 0; k < numofEquipments; k++) {
 
 				g.drawRect((int) (200+1800/timePeriod*equipmentsTimeWindows[k][0]),
@@ -83,7 +83,7 @@ public class Drawgraph extends JFrame {
 				g.drawString(equipmentsList.get(k), 140, 1000-40*k+15);
 			}
 //
-			//»­¹¤ÐòµÄÊ±¼ä´°
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä´°
 			for (int k = 0; k < numofEquipments; k++) {
 				double[][] processTimeWindows = processesTimeWindows.get(k);
 				for (int i = 0; i < processesList.get(k).size(); i++) {
@@ -108,8 +108,12 @@ public class Drawgraph extends JFrame {
 
 	public void draw(String url) {
 		String url1 = "src/com/szu/cn/main/Security/gantt_pic";
+		File folder = new File (url1);
+		if(!folder.exists()){
+			folder.mkdirs();
+		}
 		BufferedImage image = new BufferedImage(2200,1200,BufferedImage.TYPE_INT_RGB);
-		Graphics g = image.createGraphics();//»ñµÃÒ»¸öÍ¼ÐÎÀà
+		Graphics g = image.createGraphics();//ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½
 
 		try {
 
@@ -117,18 +121,18 @@ public class Drawgraph extends JFrame {
 			g.setColor(Color.white);
 			g.fillRect(0,0,2200,1200);
 			g.setColor(Color.black);
-			// drawRect»­Ò»¸ö·½¿ò£¬ÏòÏÂ»­
+			// drawRectï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â»ï¿½
 			g.drawRect(100, 100, 2000, 1000);
 
-			//»­ºá×ø±êÖá
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			for (int i = 0; i < (int)(timePeriod+1); i+=5) {
-				// drawLine»­Ïß
+				// drawLineï¿½ï¿½ï¿½ï¿½
 				g.drawLine((int)(200+1800/timePeriod*i), 90, (int)(200+1800/timePeriod*i), 100);
-				// drawStringÌî³äÐÅÏ¢£¬e.g.Êý×Ö
+				// drawStringï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½e.g.ï¿½ï¿½ï¿½ï¿½
 				g.drawString(""+i, (int)(200+1800/timePeriod*i-3), 80);
 			}
 //
-			//»­×Ý×ø±êÖá
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			for (int k = 0; k < numofEquipments; k++) {
 
 				g.drawRect((int) (200+1800/timePeriod*equipmentsTimeWindows[k][0]),
@@ -138,7 +142,7 @@ public class Drawgraph extends JFrame {
 				g.drawString(equipmentsList.get(k), 140, 1000-40*k+15);
 			}
 //
-			//»­¹¤ÐòµÄÊ±¼ä´°
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä´°
 			for (int k = 0; k < numofEquipments; k++) {
 				double[][] processTimeWindows = processesTimeWindows.get(k);
 				for (int i = 0; i < processesList.get(k).size(); i++) {

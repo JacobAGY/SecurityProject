@@ -204,7 +204,7 @@ public class SequentialPlan {
         }
 //        totalTime--;
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
-        Result result=new Result(equipmentOrder,totalTime,finishedEqi);
+        Result result=new Result(equipmentOrder,totalTime,records_equipments,finishedEqi);
 //        this.equipmentList=tempequipmentList;
         return result;
     }

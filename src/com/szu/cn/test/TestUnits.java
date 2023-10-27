@@ -1,5 +1,6 @@
-package com.szu.cn.main.Security;
+package com.szu.cn.test;
 
+import com.szu.cn.main.Security.TestCase;
 import com.szu.cn.main.Security.algorithms.ResourceOptimizationPlan;
 import com.szu.cn.main.Security.pojo.Equipment;
 import com.szu.cn.main.Security.pojo.Result;
