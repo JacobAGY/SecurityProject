@@ -6,8 +6,7 @@ import com.szu.cn.main.Security.pojo.Resource;
 import com.szu.cn.main.Security.pojo.Result;
 import com.szu.cn.main.Security.utils.*;
 import com.szu.cn.main.Security.vo.EquipmentSupportVo;
-import com.szu.cn.test.HighResponseRatioPlan_test;
-import com.szu.cn.test.ShortTimePlan_test;
+
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.*;
@@ -615,11 +614,11 @@ public class TestCase {
         EquipmentSupportVo shortTime_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
         EquipmentSupportVo highResponse_testPojo = (EquipmentSupportVo) SerializationUtils.clone(testPojo);
 
-        ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
+        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
         Result result1 = shortTime_scheduler.schedule();
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
         Result result2 = highResponse_scheduler.schedule();
 //        System.out.println(result2.getList());
         System.out.println("==================================");
@@ -641,10 +640,10 @@ public class TestCase {
 //        Result result = sequentialPlan_scheduler.schedule();
         ShortTimePlan shortTimePlan_scheduler = new ShortTimePlan(shortTime_testPojo.getEquiments(),shortTime_testPojo.getResources());
 //        Result result = shortTimePlan_scheduler.schedule();
-        HighResponseRatioPlan_test highResponseRatioPlan_test_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan highResponseRatioPlan_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
 
         Result result1 = sequentialPlan_scheduler.schedule();
-        Result result2 = highResponseRatioPlan_test_scheduler.schedule();
+        Result result2 = highResponseRatioPlan_scheduler.schedule();
         Result result3 = shortTimePlan_scheduler.schedule();
 
 
@@ -670,7 +669,7 @@ public class TestCase {
         Result result1 = shortTime_scheduler.schedule(maxTime);
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
+        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_testPojo.getEquiments(),highResponse_testPojo.getResources());
         Result result2 = highResponse_scheduler.schedule(maxTime);
 //        System.out.println(result2.getList());
         System.out.println("==================================");

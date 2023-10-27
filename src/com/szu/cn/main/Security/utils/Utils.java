@@ -3,8 +3,7 @@ package com.szu.cn.main.Security.utils;
 import com.szu.cn.main.Security.pojo.Equipment;
 import com.szu.cn.main.Security.pojo.Result;
 import com.szu.cn.main.Security.vo.EquipmentSupportVo;
-import com.szu.cn.test.HighResponseRatioPlan_test;
-import com.szu.cn.test.ShortTimePlan_test;
+
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
@@ -43,11 +42,11 @@ public class Utils {
         EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
         EquipmentSupportVo highResponse_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
 
-        ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
+        ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
         Result result1 = shortTime_scheduler.schedule(maxTime);
 //        System.out.println(result1.getList());
 
-        HighResponseRatioPlan_test highResponse_scheduler = new HighResponseRatioPlan_test(highResponse_equipmentSupportVo.getEquiments(), highResponse_equipmentSupportVo.getResources());
+        HighResponseRatioPlan highResponse_scheduler = new HighResponseRatioPlan(highResponse_equipmentSupportVo.getEquiments(), highResponse_equipmentSupportVo.getResources());
         Result result2 = highResponse_scheduler.schedule(maxTime);
 //        System.out.println(result2.getList());
         System.out.println("==================================");

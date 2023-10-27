@@ -1,10 +1,9 @@
 package com.szu.cn.main.Security.utils;
 
+import com.szu.cn.main.Security.TestCase;
 import com.szu.cn.main.Security.pojo.Equipment;
 import com.szu.cn.main.Security.pojo.Result;
-import com.szu.cn.main.Security.TestCase;
 import com.szu.cn.main.Security.vo.EquipmentSupportVo;
-import com.szu.cn.test.ShortTimePlan_test;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class functionMain {
 		equipmentSupportVo = testCase.parameter_TestPojo(equipmentSupportVo);
 		EquipmentSupportVo shortTime_equipmentSupportVo = (EquipmentSupportVo) SerializationUtils.clone(equipmentSupportVo);
 
-		ShortTimePlan_test shortTime_scheduler = new ShortTimePlan_test(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
+		ShortTimePlan shortTime_scheduler = new ShortTimePlan(shortTime_equipmentSupportVo.getEquiments(), shortTime_equipmentSupportVo.getResources());
 		Result result = shortTime_scheduler.schedule();
 
 		// 传入纵坐标最大装备数量
