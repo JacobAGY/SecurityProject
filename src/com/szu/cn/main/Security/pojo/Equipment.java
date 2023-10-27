@@ -22,16 +22,16 @@ public class Equipment implements Serializable {
     private double failRate;
 
     //装备各组成单元及其可靠性指标
-    private HashMap<String,Double> failMap;
+    private LinkedHashMap<String,Double> failMap;
 
     //LRU及其故障检测率
-    private HashMap<String,Double> errorMap;
+    private LinkedHashMap<String,Double> errorMap;
 
     //装备的LRU
     private List<String> LRU;
 
     //装备LRU的平均维修时间
-    private HashMap<String,Integer> LRUrepairTime;
+    private LinkedHashMap<String,Integer> LRUrepairTime;
 
     //装备可靠性指标
     private double ReliabilityRate;
@@ -74,8 +74,6 @@ public class Equipment implements Serializable {
     private ArrayList<String> finished_Process;
     public Equipment() {
     }
-
-    //不可变工序初始化
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource) {
         this.name = e1;
         this.num = i;
@@ -85,10 +83,8 @@ public class Equipment implements Serializable {
         this.processCur = processSeq.entrySet().iterator().next().getKey();
         this.status = Equipmentenum.WAIT;
         this.occSeq=new ArrayList<>();
-        this.finished_Process = new ArrayList<>();
     }
 
-    // 可变工序初始化
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,HashMap<String,ArrayList<String>> change_Process) {
         this.name = e1;
         this.num = i;
@@ -127,8 +123,8 @@ public class Equipment implements Serializable {
         this.finished_Process = new ArrayList<>();
     }
     public Equipment(String e1, int i, LinkedHashMap<String, Integer> processSeq, LinkedHashMap<String, HashMap<String, Integer>> processAndResource,
-                     LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,HashMap<String,Double> failmap,
-                     HashMap<String,Double> errorMap,List<String> lru,HashMap<String,Integer> repairTime,String fixprocess) {
+                     LinkedHashMap<String, HashMap<String, Integer>> prcessAndResoursePriy,LinkedHashMap<String,Double> failmap,
+                     LinkedHashMap<String,Double> errorMap,List<String> lru,LinkedHashMap<String,Integer> repairTime,String fixprocess) {
         this.name = e1;
         this.num = i;
         this.processSeq_Origin.putAll(processSeq);
@@ -265,7 +261,7 @@ public class Equipment implements Serializable {
         return failMap;
     }
 
-    public void setFailMap(HashMap<String, Double> failMap) {
+    public void setFailMap(LinkedHashMap<String, Double> failMap) {
         this.failMap = failMap;
     }
 
@@ -321,7 +317,7 @@ public class Equipment implements Serializable {
         return errorMap;
     }
 
-    public void setErrorMap(HashMap<String, Double> errorMap) {
+    public void setErrorMap(LinkedHashMap<String, Double> errorMap) {
         this.errorMap = errorMap;
     }
 
@@ -337,7 +333,7 @@ public class Equipment implements Serializable {
         return LRUrepairTime;
     }
 
-    public void setLRUrepairTime(HashMap<String, Integer> LRUrepairTime) {
+    public void setLRUrepairTime(LinkedHashMap<String, Integer> LRUrepairTime) {
         this.LRUrepairTime = LRUrepairTime;
     }
 

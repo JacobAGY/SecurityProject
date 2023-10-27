@@ -1,5 +1,6 @@
 package com.szu.cn.main.Security.pojo;
 
+
 import com.szu.cn.main.Security.utils.BeanUtils;
 
 import java.io.Serializable;
@@ -110,6 +111,7 @@ public class BasePojo implements Serializable {
 
     /**
      * 初始化方法-1自定义初始化
+     * getOriginProcess和initialEqi处需要修改，否则可能报错
      */
     public void initForRMST(){
         //初始化资源
@@ -119,6 +121,7 @@ public class BasePojo implements Serializable {
         Resource resource4=new Resource(RESOURSE_PREFIX+"4",2);
         Resource resource5=new Resource(RESOURSE_PREFIX+"5",4);
         Resource resource6=new Resource(RESOURSE_PREFIX+"6",2);
+//        Resource resource7=new Resource(RESOURSE_PREFIX+"7",5);
         List<Resource> resourcesTypeList=new ArrayList<>();
         resourcesTypeList.add(resource1);
         resourcesTypeList.add(resource2);
@@ -126,12 +129,13 @@ public class BasePojo implements Serializable {
         resourcesTypeList.add(resource4);
         resourcesTypeList.add(resource5);
         resourcesTypeList.add(resource6);
+//        resourcesTypeList.add(resource7);
         this.resourcesTypeSeq=resourcesTypeList;
 
         setResourceList(resourcesTypeList);
 
         //初始化装备
-//        List<Equipment> equipmentList=new ArrayList<>();
+        List<Equipment> equipmentList=new ArrayList<>();
         LinkedHashMap<String,Integer> processSeq=new LinkedHashMap<>();
         processSeq.put(PROCESS_PREFIX+"1",5);
         processSeq.put(PROCESS_PREFIX+"2",5);
@@ -148,7 +152,7 @@ public class BasePojo implements Serializable {
         processAndResource.put(PROCESS_PREFIX+"4",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
         processAndResource.put(PROCESS_PREFIX+"5",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"5",1);}});
         processAndResource.put(PROCESS_PREFIX+"6",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"4",1);}});
-        processAndResource.put(PROCESS_PREFIX+"7",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"7",1);}});
+        processAndResource.put(PROCESS_PREFIX+"7",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);put(RESOURSE_PREFIX+"6",1);}});
         processAndResource.put(PROCESS_PREFIX+"8",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);}});
 
         //设置装备工序资源优先级
@@ -161,12 +165,13 @@ public class BasePojo implements Serializable {
         processAndResourcePriority.put(PROCESS_PREFIX+"7",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);}});
         processAndResourcePriority.put(PROCESS_PREFIX+"8",new HashMap<String,Integer>(){{put(RESOURSE_PREFIX+"3",1);}});
 
-        HashMap<String,Double> failmap=new HashMap<>();
+        LinkedHashMap<String,Double> failmap=new LinkedHashMap<>();
         failmap.put(UNIT_PREFIX+"1",0.95);
         failmap.put(UNIT_PREFIX+"2",0.99);
         failmap.put(UNIT_PREFIX+"3",0.985);
+//        failmap.put(UNIT_PREFIX+"4",0.93);
 
-        HashMap<String,Double> errormap=new HashMap<>();
+        LinkedHashMap<String,Double> errormap=new LinkedHashMap<>();
         errormap.put(UNIT_PREFIX+"1",0.85);
         errormap.put(UNIT_PREFIX+"2",0.88);
         errormap.put(UNIT_PREFIX+"3",0.75);
@@ -177,7 +182,7 @@ public class BasePojo implements Serializable {
             add(UNIT_PREFIX+"3");
         }};
 
-        HashMap<String,Integer> repairTime=new HashMap<>();
+        LinkedHashMap<String,Integer> repairTime=new LinkedHashMap<>();
         repairTime.put(UNIT_PREFIX+"1",12);
         repairTime.put(UNIT_PREFIX+"2",10);
         repairTime.put(UNIT_PREFIX+"3",15);
@@ -226,19 +231,19 @@ public class BasePojo implements Serializable {
 //
 //        String fixProcess2=PROCESS_PREFIX+"5";
 //
-//        Equipment ep2=new Equipment(EQUIPMENT_PREFIX+"2",3, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
+//        Equipment ep2=new Equipment(EQUIPMENT_PREFIX+"2",5, processSeq2,processAndResource2,processAndResourcePriority2,failmap2,errormap2
 //                ,Lru2,repairTime2,fixProcess2);
 
         this.equipmentTypeSeq.add(ep1);
 //        this.equipmentTypeSeq.add(ep2);
-
+        setEquipmentList(equipmentTypeSeq);
         this.unitList= new HashMap<String, Integer>(){{
             put(UNIT_PREFIX+"1",10);
             put(UNIT_PREFIX+"2",15);
             put(UNIT_PREFIX+"3",20);
         }};
 
-        setEquipmentList(equipmentTypeSeq);
+
 
     }
     /**

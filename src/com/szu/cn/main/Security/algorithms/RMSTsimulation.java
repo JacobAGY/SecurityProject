@@ -1,5 +1,7 @@
 package com.szu.cn.main.Security.algorithms;
 
+
+
 import com.szu.cn.main.Security.pojo.BasePojo;
 import com.szu.cn.main.Security.pojo.Equipment;
 import com.szu.cn.main.Security.pojo.Resource;
@@ -8,6 +10,9 @@ import com.szu.cn.main.Security.utils.BeanUtils;
 
 import java.io.IOException;
 import java.util.*;
+
+import static com.szu.cn.main.Security.pojo.BasePojo.PROCESS_PREFIX;
+
 
 public class RMSTsimulation {
 
@@ -18,10 +23,17 @@ public class RMSTsimulation {
     private HashMap<String,Integer> unitList;
     private List<Resource> resourceListDetail;
 
-    public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList,List<Resource> resourceListDetail,HashMap<String,Integer> unitList) {
+    public RMSTsimulation(List<Equipment> equipmentList, List<Resource> resourceList,HashMap<String,Integer> unitList) {
         this.equipmentList=equipmentList;
         this.resourceList=resourceList;
-        this.resourceListDetail=resourceListDetail;
+        List<Resource> tempList=new ArrayList<>();
+        for (int i=0;i<resourceList.size();i++){
+            for (int j=1;j<=resourceList.get(i).getNum();j++){
+                Resource resource=new Resource(resourceList.get(i).getName()+"-"+j,1);
+                tempList.add(resource);
+            }
+        }
+        this.resourceListDetail=tempList;
         this.unitList=unitList;
     }
 
@@ -147,12 +159,12 @@ public class RMSTsimulation {
             throw new RuntimeException(e);
         }
         //保存整体装备数量
-        int eqiNum=equipmentList.size();
         initialEqi(equipmentList);
         int totalTime = 0;
-        //记录完成的装备数量
+        //记录
         int finishedEqi = 0;
         int failedEqi=0;
+
         // Group the equipments by their current process,为所有工序进行排序
         LinkedHashMap<String, List<Equipment>> equipmentGroups = groupEquipmentsByCurrentProcess();
 
@@ -192,7 +204,11 @@ public class RMSTsimulation {
                                     ep.getSubstatus().equals(Equipment.Equipmentenum.UnAvailableAndUnknown))
                             {//发现故障但是无法修复
                                 int errortime=RandomInteger(ep.getProcessSeq().get(ep.getProcessCur()));
+                                //设置装备状态
+                                ep.setErrorBut(1);
+                                failedEqi++;
                                 ep.getProcessSeq().put(ep.getProcessCur(),totalTime+errortime);
+                                ep.setErrorTime(totalTime+errortime);
                                 System.out.println("调度"+ep.getName()+"检修工序开始"+getOriginProcess(ep,ep.getProcessCur())+"开始时间"+totalTime+"占用资源"+ ep.getOccSeq().toString());
                             }else {
                                 //无故障
@@ -220,22 +236,15 @@ public class RMSTsimulation {
                         //当前工序完成,释放资源并更新装备工序进度,并从工序待处理列表中移除
                         releaseResources(ep);
                         toRemove.add(ep);
-                        //发生故障装备直接移除
-                        if (ep.getSubstatus()!=null&&(ep.getSubstatus().equals(Equipment.Equipmentenum.UnavailableAndKnown) ||
-                                ep.getSubstatus().equals(Equipment.Equipmentenum.UnAvailableAndUnknown))){
-                            ep.setStatus(Equipment.Equipmentenum.FINISH);
-                            equipmentList.remove(ep);
-                            System.out.println("故障装备"+ep.getName()+"移出工序流程");
-                            failedEqi++;
-                        }
                         //若装备完成所有工序，则从待处理列表中移除
                         if (ep.getProcessCur() == null){
                             //更新状态为Finish
                             ep.setStatus(Equipment.Equipmentenum.FINISH);
                             equipmentList.remove(ep);
-                            finishedEqi++;
+                            if (ep.getErrorBut() != 1){
+                                finishedEqi++;
+                            }
                         }
-                        //TODO 维修好的装备需重新加入eqigroup中，并且重置substatus的状态
                         if (ep.getSubstatus()!=null&&ep.getSubstatus().equals(Equipment.Equipmentenum.FixtoAvailableAndKnown)){
                             //维修好的装备需重新加入eqigroup中
                             insertFixEpi(ep,equipmentGroups);
@@ -251,7 +260,7 @@ public class RMSTsimulation {
             totalTime++;
         }
         totalTime--;
-        double usability= finishedEqi*1.0/eqiNum;
+        double usability= (finishedEqi-failedEqi)*1.0/finishedEqi;
         System.out.println(maxTime + "min之内失败的装备个数为：" + failedEqi);
         System.out.println(maxTime + "min之内完成的装备个数为：" + finishedEqi);
         System.out.println(maxTime+"min之内的可用度为："+ usability);
@@ -267,7 +276,7 @@ public class RMSTsimulation {
             //工序映射P2->P1 P3->P2
             LinkedHashMap<String,Integer> tempProcessSeq=new LinkedHashMap<>();
             for (Map.Entry<String,Integer> entry:epi.getProcessSeq().entrySet()){
-                tempProcessSeq.put("P"+i,entry.getValue());
+                tempProcessSeq.put(PROCESS_PREFIX+i,entry.getValue());
                 i++;
             }
             //保留最初顺序
@@ -281,7 +290,8 @@ public class RMSTsimulation {
 
     //获取原始工序信息
     public String getOriginProcess(Equipment epi,String processcur){
-        int index= Integer.parseInt(processcur.split("")[1]);
+        String[] indexs=processcur.split("");
+        int index= Integer.parseInt(indexs[indexs.length-1]);
         int i=1;
         for (Map.Entry<String,Integer> entry:epi.getProcessSeq_Origin().entrySet()){
             if (index==i){return entry.getKey();}
@@ -602,35 +612,6 @@ public class RMSTsimulation {
                     return null;
                 }
             }
-//                for (Map.Entry<String,Double> entry:equipment.getErrorMap().entrySet()){
-//                    double failunitRate=RandomDouble();
-//                    if (failunitRate>entry.getValue()){
-//                        //发现故障单元
-//                        //保障性检测->是否可替换
-//                        for (String lru:equipment.getLRU()){
-//                            //故障单元可替换
-//                            if (lru.equals(entry.getKey())){
-//                                //寻找备件
-//                                if (unitList.get(lru)>0){
-//                                    //更换备件->进入维修状态
-//                                    //找到备件并准备维修
-//                                    unitList.put(lru,unitList.get(lru)-1);
-//                                    equipment.setSubstatus(Equipment.Equipmentenum.FixtoAvailableAndKnown);
-//                                    System.out.println("故障装备:"+equipment.getName()+" 故障单元:"+lru+"进入维修状态");
-//                                    return lru;
-//                                }else {
-//                                    //无法更换备件
-//                                    equipment.setSubstatus(Equipment.Equipmentenum.UnavailableAndKnown);
-//                                    System.out.println("故障装备:"+equipment.getName()+" 故障单元:"+lru+" 无法替换部件");
-//                                    return null;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                //未发现故障单元
-//                equipment.setSubstatus(Equipment.Equipmentenum.AvailableAndUnknown);
-//                System.out.println("故障装备:"+equipment.getName()+"未发现故障单元");
         }
         //未发生故障->可用且已知模式
         equipment.setSubstatus(Equipment.Equipmentenum.AvailableAndKnown);
@@ -833,13 +814,29 @@ public class RMSTsimulation {
         basePojo.initForRMST();
         List<Equipment> equipmentList=basePojo.getEquipmentList();
         List<Resource> resourceList=basePojo.getResourcesTypeSeq();
-        List<Resource> resourceDetailList=basePojo.getResourceList();
         HashMap<String,Integer> unitList=basePojo.getUnitList();
-        RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,resourceDetailList,unitList);
-        int mc=200;
+        HashMap<String,Integer> originUnitList=new HashMap<>(unitList);
+        RMSTsimulation rmsTsimulation = new RMSTsimulation(equipmentList,resourceList,unitList);
+        int mc=100;
         int failedEqi=0;
         int finishedEqi=0;
         double usabilityTotal=0.0;
+        System.out.println("-------------RMST模拟开始---------------");
+        for (Equipment ep: basePojo.getEquipmentTypeSeq()) {
+            System.out.println(ep.getName()+"单元可靠性指标:");
+            for (Map.Entry<String,Double> entry:ep.getFailMap().entrySet()){
+                System.out.println(entry.getKey()+":"+entry.getValue());
+            }
+            System.out.println(ep.getName()+"LRU及故障检测率:");
+            for (Map.Entry<String,Double> entry:ep.getErrorMap().entrySet()){
+                System.out.println(entry.getKey()+":"+entry.getValue());
+            }
+            System.out.println(ep.getName()+"LRU及平均修复时间:");
+            for (Map.Entry<String,Integer> entry:ep.getLRUrepairTime().entrySet()){
+                System.out.println(entry.getKey()+":"+entry.getValue());
+            }
+            System.out.println("-----------分割线-----------");
+        }
         for (int i=0;i<mc;i++){
             //深拷贝资源文件，使得过程原子化
             try {
@@ -851,16 +848,22 @@ public class RMSTsimulation {
             for (Resource r:rmsTsimulation.resourceListDetail) {
                 r.setState(Resource.status.wait);
             }
-            Result result=rmsTsimulation.schedule(100);
+            Result result=rmsTsimulation.schedule(200);
             failedEqi+=result.getFaiedEqi();
             finishedEqi+=result.getFinishedEqi();
             usabilityTotal+=result.getUsability();
         }
         usabilityTotal=usabilityTotal/mc;
+        System.out.println("-------------模拟结束---------------");
         System.out.println("模拟次数mc:"+mc+" 故障装备个数:"+failedEqi+" 成功保障装备个数:"+finishedEqi+" 全局可用度为："+usabilityTotal);
         for (Map.Entry<String,Integer> unit:unitList.entrySet()) {
-            double unitUtilization=(10-unit.getValue())*1.0/(mc*10);
-            System.out.println(unit.getKey()+"的利用率为："+unitUtilization);
+            for (Map.Entry<String,Integer> originUnit:originUnitList.entrySet()) {
+                if (unit.getKey().equals(originUnit.getKey())){
+                    double unitUtilization=(originUnit.getValue()-unit.getValue())*1.0/(originUnit.getValue()*mc);
+                    System.out.println(unit.getKey()+"的利用率为："+unitUtilization);
+                }
+            }
+
         }
 
 
